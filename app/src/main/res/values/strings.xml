@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">OnyxDemo</string>
+    <string name="title_activity_environment_demo">EnvironmentDemoActivity</string>
+    <string name="set_up_success">set up success</string>
+    <string name="set_up_fail">set up fail</string>
+    <string name="set_up_screensaver">Set Up Screensaver</string>
+    <string name="enter_pic_path">Please Enter Your Picture Path</string>
+    <string name="invalid_path">Invalid Path</string>
+    <string name="enter_book_path">Please Enter Your Book Path</string>
+    <string name="open_reader">Open Reader</string>
+    <string name="query_reading_progress">Query Reading Progress</string>
+    <string name="query_fail">Query Progress Fail</string>
+    <string name="reading_progress">Reading Progress: %s</string>
+    <string name="open_date_time">Open Date Time Setting</string>
+    <string name="open_network">Open Network Setting</string>
+    <string name="open_setting_fail">Open Setting Fail</string>
+    <string name="delete_reader_data">Delete Reader Data</string>
+    <string name="delete_reader_data_success">Delete Success</string>
+    <string name="delete_reader_data_fail">Delete Fail</string>
+    <string name="open_library">Open Library</string>
+    <string name="open_shop">Open Shop</string>
+    <string name="open_note">Open Note</string>
+    <string name="open_storage">Open Storage</string>
+    <string name="open_apps">Open Apps</string>
+    <string name="open_setting">Open Setting</string>
+    <string name="open_application_management">Open Application management</string>
+    <string name="open_account_management">Open Account Management</string>
+    <string name="open_kcb_fail">Open KCB Fail, Please Make Sure You Install The Latest Version KCB</string>
+    <string name="note_search" translatable="false">SEARCH</string>
+    <string name="note_backup" translatable="false">BACKUP</string>
+    <string name="note_common_setting" translatable="false">COMMON_SETTING</string>
+    <string name="note_ai_setting" translatable="false">AI_SETTING</string>
+</resources>

@@ -1,0 +1,37 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  </head>
+  <script language="javascript">
+      /* This function is invoked by the activity */
+      function wave() {
+          alert("Android calling Js");
+      }
+      function getBtns() {
+         var btns = document.getElementsByTagName('button');
+         var data = [];
+         for (var i = btns.length - 1; i >= 0; i--) {
+         var rect = btns[i].getBoundingClientRect();
+         var btn = {};
+         btn.bottom = rect.bottom;
+         btn.top = rect.top;
+         btn.left = rect.left;
+         btn.right = rect.right;
+         btn.height = rect.height;
+         btn.width = rect.width;
+         data.push(btn);}
+         return JSON.stringify(data);
+      }
+  </script>
+  <body>
+      <!-- Js调用Android代码 -->
+      <button onClick="javascript:android.testJsCallback();"><div style="width:80px;
+          margin:0px auto;
+          padding:10px;
+          text-align:center;
+          border:2px solid #202020;" >
+              <img id="droid"/><br>
+              Quit scribble!
+      </div></button>
+  </body>
+</html>

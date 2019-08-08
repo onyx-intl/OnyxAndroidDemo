@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.onyx.android.sample.com.onyx.android.demo.MainActivity">
+
+    <LinearLayout
+        android:id="@+id/layout_function"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignParentTop="true">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="You should take care of ths following demo:"/>
+
+        <Button
+            android:id="@+id/button_reader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reader Demo"/>
+
+        <Button
+            android:id="@+id/button_epd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Epd Demo"/>
+
+        <Button
+            android:id="@+id/button_front_light"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Front Light"/>
+
+        <Button
+            android:id="@+id/button_full_screen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Full Screen Demo" />
+
+        <Button
+            android:id="@+id/button_environment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Environment Demo"/>
+
+        <Button
+            android:id="@+id/button_scribble_demo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Scribble Demo" />
+
+        <Button
+            android:id="@+id/btn_dict_query"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            android:text="Dict Query" />
+
+        <Button
+            android:id="@+id/btn_onyx_test"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            android:text="Onyx Test" />
+
+        <Button
+            android:id="@+id/btn_screen_saver"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            android:text="Screensaver Demo" />
+
+        <Button
+            android:id="@+id/btn_open_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            android:text="Open Setting Demo" />
+
+        <Button
+            android:id="@+id/btn_webview_optimize"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            android:text="WebView Optimize Demo" />
+
+        <Button
+            android:id="@+id/btn_open_kcb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            android:text="Open KCB Demo" />
+
+        <Button
+            android:id="@+id/btn_open_ota"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            android:text="Open OTA Demo" />
+
+    </LinearLayout>
+
+</RelativeLayout>
