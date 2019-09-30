@@ -40,43 +40,56 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Enter Fast Mode"/>
-
-        <Button
-            android:id="@+id/button_enter_normal_mode"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Enter normal Mode"/>
-
-        <Button
-            android:id="@+id/button_enter_du_mode"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Enter DU Mode"/>
-
-        <Button
-            android:id="@+id/button_enter_A2_mode"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Enter A2 Mode"/>
-
-        <Button
-            android:id="@+id/button_enter_x_mode"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Enter X Mode"/>
-
     </LinearLayout>
+
     <Button
         android:id="@+id/button_quit_fast_mode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/layout_function"
         android:text="Quit Fast Mode"/>
+
+    <LinearLayout
+        android:id="@+id/fast_mode_layout"
+        android:layout_below="@+id/button_quit_fast_mode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/button_enter_normal_mode"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Enter normal Mode"/>
+
+        <Button
+            android:id="@+id/button_enter_du_mode"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Enter DU Mode"/>
+
+        <Button
+            android:id="@+id/button_enter_A2_mode"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Enter A2 Mode"/>
+
+        <Button
+            android:id="@+id/button_enter_x_mode"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Enter X Mode"/>
+
+    </LinearLayout>
+
     <TextView
         android:id="@+id/textview"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:layout_below="@id/button_quit_fast_mode"
+        android:layout_below="@id/fast_mode_layout"
         android:background="@android:color/darker_gray"
         android:textColor="@android:color/black"
         android:textSize="20sp"
