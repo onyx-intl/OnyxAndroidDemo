@@ -25,6 +25,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
@@ -36,9 +40,9 @@ dependencies {
 
     implementation('com.onyx.android.sdk:onyxsdk-base:1.5.2')
     implementation('com.onyx.android.sdk:onyxsdk-data:1.1.4')
-    implementation('com.onyx.android.sdk:onyxsdk-device:1.0.2')
     implementation('com.onyx.android.sdk:onyxsdk-notedata:1.0.5')
     implementation('com.onyx.android.sdk:onyxsdk-pen:1.0.8')
+    implementation('com.onyx.android.sdk:onyxsdk-device:1.0.3')
 
     implementation "com.android.support:multidex:1.0.3"
     compile "com.android.support.constraint:constraint-layout:1.0.2"
