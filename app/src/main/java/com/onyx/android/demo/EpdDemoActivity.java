@@ -5,11 +5,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.onyx.android.sdk.api.device.EpdDeviceManager;
 import com.onyx.android.sdk.api.device.epd.EpdController;
 import com.onyx.android.sdk.api.device.epd.UpdateMode;
+import com.onyx.android.sdk.api.device.epd.UpdateScheme;
+import com.onyx.android.sdk.device.Device;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -30,7 +33,16 @@ public class EpdDemoActivity extends AppCompatActivity implements View.OnClickLi
     TextView textView;
     @Bind(R.id.surfaceview)
     SurfaceView surfaceView;
-    private boolean isFastMode=false;
+    @Bind(R.id.button_enter_x_mode)
+    Button button_enter_x_mode;
+    @Bind(R.id.activity_main)
+    RelativeLayout activityMain;
+    @Bind(R.id.button_enter_normal_mode)
+    Button button_enter_normal_mode;
+    @Bind(R.id.button_enter_A2_mode)
+    Button button_enter_A2_mode;
+    private boolean isFastMode = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,6 +54,9 @@ public class EpdDemoActivity extends AppCompatActivity implements View.OnClickLi
         button_enter_fast_mode.setOnClickListener(this);
         button_quit_fast_mode.setOnClickListener(this);
         button_screen_refresh.setOnClickListener(this);
+        button_enter_x_mode.setOnClickListener(this);
+        button_enter_normal_mode.setOnClickListener(this);
+        button_enter_A2_mode.setOnClickListener(this);
 
         // set full update after how many partial update
         EpdDeviceManager.setGcInterval(5);
@@ -65,11 +80,17 @@ public class EpdDemoActivity extends AppCompatActivity implements View.OnClickLi
                 EpdController.invalidate(textView, UpdateMode.GC);
             }
         } else if (v.equals(button_enter_fast_mode)) {
-            isFastMode=true;
+            isFastMode = true;
             EpdDeviceManager.enterAnimationUpdate(true);
         } else if (v.equals(button_quit_fast_mode)) {
             EpdDeviceManager.exitAnimationUpdate(true);
-            isFastMode=false;
+            isFastMode = false;
+        } else if (v.equals(button_enter_x_mode)) {
+            Device.currentDevice().setSystemUpdateModeAndScheme(UpdateMode.ANIMATION_X, UpdateScheme.None, Integer.MAX_VALUE);
+        } else if (v.equals(button_enter_A2_mode)) {
+            Device.currentDevice().setSystemUpdateModeAndScheme(UpdateMode.ANIMATION_QUALITY, UpdateScheme.None, Integer.MAX_VALUE);
+        } else if (v.equals(button_enter_normal_mode)) {
+            Device.currentDevice().setSystemUpdateModeAndScheme(UpdateMode.None, UpdateScheme.None, Integer.MAX_VALUE);
         }
     }
 

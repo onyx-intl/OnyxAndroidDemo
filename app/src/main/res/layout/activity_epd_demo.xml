@@ -41,7 +41,23 @@
             android:layout_height="wrap_content"
             android:text="Enter Fast Mode"/>
 
+        <Button
+            android:id="@+id/button_enter_normal_mode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Enter normal Mode"/>
 
+        <Button
+            android:id="@+id/button_enter_A2_mode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Enter A2 Mode"/>
+
+        <Button
+            android:id="@+id/button_enter_x_mode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Enter X Mode"/>
 
     </LinearLayout>
     <Button
