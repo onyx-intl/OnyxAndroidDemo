@@ -35,7 +35,7 @@
         <activity android:name="com.onyx.android.demo.WebViewOptimizeActivity"/>
         <activity android:name="com.onyx.android.demo.OpenKcbActivity"/>
         <activity android:name="com.onyx.android.demo.OTADemoActivity"/>
-
+        <activity android:name=".note.NoteDemoActivity" />
     </application>
 
 </manifest>

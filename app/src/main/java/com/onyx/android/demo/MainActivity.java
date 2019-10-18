@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
+import com.onyx.android.demo.note.NoteDemoActivity;
 import com.onyx.android.demo.scribble.ScribbleDemoActivity;
 import com.onyx.android.sdk.api.device.epd.EpdController;
 
@@ -82,6 +83,11 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.btn_open_ota)
     public void btn_open_ota() {
         go(OTADemoActivity.class);
+    }
+
+    @OnClick(R.id.button_note_demo)
+    public void noteDemo() {
+        go(NoteDemoActivity.class);
     }
 
     private void go(Class<?> activityClass){
