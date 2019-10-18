@@ -1,7 +1,7 @@
 package com.onyx.android.demo.data;
 
 import com.onyx.android.sdk.pen.data.TouchPointList;
-import com.onyx.android.sdk.scribble.data.ConverterTouchPointList;
+import com.onyx.android.sdk.scribble.data.converter.ConverterTouchPointList;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;

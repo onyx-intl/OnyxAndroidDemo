@@ -29,6 +29,10 @@ android {
     lintOptions {
         abortOnError false
     }
+
+    packagingOptions {
+        exclude 'lib/armeabi-v7a/libc++_shared.so'
+    }
 }
 
 dependencies {
@@ -40,7 +44,7 @@ dependencies {
 
     implementation('com.onyx.android.sdk:onyxsdk-base:1.5.2')
     implementation('com.onyx.android.sdk:onyxsdk-data:1.1.4')
-    implementation('com.onyx.android.sdk:onyxsdk-notedata:1.0.5')
+    implementation('com.onyx.android.sdk:onyxsdk-notedata:1.0.6@aar')
     implementation('com.onyx.android.sdk:onyxsdk-pen:1.0.8')
     implementation('com.onyx.android.sdk:onyxsdk-device:1.0.3')
 
