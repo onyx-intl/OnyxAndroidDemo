@@ -23,7 +23,11 @@ import com.onyx.android.sdk.scribble.data.NoteModel;
 import com.onyx.android.sdk.scribble.data.NoteModelList;
 import com.onyx.android.sdk.scribble.data.NoteProgress;
 import com.onyx.android.sdk.scribble.data.bean.OpenNoteBean;
+import com.onyx.android.sdk.scribble.provider.RemoteNoteProvider;
 import com.onyx.android.sdk.utils.StringUtils;
+import com.raizlabs.android.dbflow.config.FlowConfig;
+import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.config.ShapeGeneratedDatabaseHolder;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -45,18 +49,25 @@ public class NoteDemoActivity extends AppCompatActivity {
 
     @Bind(R.id.textView_note_return_result)
     public TextView textViewReturnResult;
+    @Bind(R.id.textView_load_note_model_result)
+    public TextView textViewLoadNoteModelResult;
     @Bind(R.id.textView_note_thumbnail_path)
     public TextView textViewNoteThumbnailPath;
     @Bind(R.id.textView_export_result)
     public TextView textViewExportResult;
+    @Bind(R.id.editText_note_id)
+    public EditText editTextNoteId;
     @Bind(R.id.editText_export_path)
     public EditText editTextExportPath;
+    private RemoteNoteProvider remoteNoteProvider;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_note_demo);
         ButterKnife.bind(this);
+        FlowManager.init(FlowConfig.builder(this).addDatabaseHolder(ShapeGeneratedDatabaseHolder.class).build());
+        remoteNoteProvider = new RemoteNoteProvider();
         editTextExportPath.setText(Environment.getExternalStorageDirectory().getPath() + File.separator + "Note.pdf");
         receiver = new BroadcastReceiver() {
             @Override
@@ -109,6 +120,17 @@ public class NoteDemoActivity extends AppCompatActivity {
         ComponentName comp = new ComponentName(NoteConstants.NOTE_PACKAGE_NAME, NoteConstants.SCRIBBLE_ACTIVITY_CLASS_PATH);
         intent.setComponent(comp);
         startActivityForResult(intent, REQUEST_CODE_OPEN_NOTE);
+    }
+
+    @OnClick(R.id.button_load_note_model)
+    public void loadNoteModel() {
+        String noteId = editTextNoteId.getText().toString();
+        if (StringUtils.isNullOrEmpty(noteId)) {
+            Toast.makeText(this, "Please input note id", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        NoteModel noteModel = remoteNoteProvider.loadNote(noteId);
+        textViewLoadNoteModelResult.setText(noteModel == null ? "note not exist" : noteModel.toString());
     }
 
     @OnClick(R.id.button_get_note_thumbnail_path)
@@ -175,6 +197,7 @@ public class NoteDemoActivity extends AppCompatActivity {
             try {
                 openNoteBean = JSON.parseObject(json, OpenNoteBean.class);
                 textViewReturnResult.setText(openNoteBeanToString(openNoteBean));
+                editTextNoteId.setText(openNoteBean.documentId);
             } catch (Exception e) {
                 textViewReturnResult.setText("error occurs, please check log for details");
                 e.printStackTrace();

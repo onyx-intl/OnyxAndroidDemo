@@ -24,6 +24,31 @@
         android:layout_weight="1"
         android:padding="10dp" />
 
+    <EditText
+        android:id="@+id/editText_note_id"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="note id" />
+
+    <Button
+        android:id="@+id/button_load_note_model"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Load NoteModel" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Load note model result:"
+        android:textColor="#000" />
+
+    <TextView
+        android:id="@+id/textView_load_note_model_result"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="10dp" />
+
     <Button
         android:id="@+id/button_get_note_thumbnail_path"
         android:layout_width="wrap_content"
@@ -46,7 +71,8 @@
     <EditText
         android:id="@+id/editText_export_path"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:hint="export pdf path" />
 
     <Button
         android:id="@+id/button_export_pdf"
