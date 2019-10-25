@@ -17,13 +17,13 @@ import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.onyx.android.demo.R;
-import com.onyx.android.sdk.scribble.data.MultipleExportResult;
+import com.onyx.android.demo.note.bean.MultipleExportResult;
+import com.onyx.android.demo.note.bean.NoteProgress;
 import com.onyx.android.sdk.scribble.data.NoteDataProvider;
 import com.onyx.android.sdk.scribble.data.NoteModel;
-import com.onyx.android.sdk.scribble.data.NoteModelList;
-import com.onyx.android.sdk.scribble.data.NoteProgress;
 import com.onyx.android.sdk.scribble.data.bean.OpenNoteBean;
 import com.onyx.android.sdk.scribble.provider.RemoteNoteProvider;
+import com.onyx.android.sdk.utils.JSONUtils;
 import com.onyx.android.sdk.utils.StringUtils;
 import com.raizlabs.android.dbflow.config.FlowConfig;
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -79,7 +79,8 @@ public class NoteDemoActivity extends AppCompatActivity {
                         !StringUtils.safelyEquals(NoteConstants.ACTION_EXPORT_NOTE, serviceAction)) {
                     return;
                 }
-                MultipleExportResult result = (MultipleExportResult) intent.getSerializableExtra(NoteConstants.SERVICE_INTENT_RESULT);
+                String json = intent.getStringExtra(NoteConstants.KEY_SERVICE_INTENT_RESULT_JSON);
+                MultipleExportResult result = JSONUtils.toBean(json, MultipleExportResult.class);
                 Log.i(TAG, "onReceive: " + result.toString());
                 if (result.inProgress()) {
                     NoteProgress progress = result.progress;
@@ -159,7 +160,7 @@ public class NoteDemoActivity extends AppCompatActivity {
         intent.setAction(NoteConstants.NOTE_SERVICE_ACTION);
         intent.setPackage(NoteConstants.NOTE_PACKAGE_NAME);
         intent.putExtra(NoteConstants.SERVICE_ACTION, NoteConstants.ACTION_EXPORT_NOTE);
-        intent.putExtra(NoteConstants.NOTE_MODEL_LIST, new NoteModelList(getNoteModelList()));
+        intent.putExtra(NoteConstants.OPEN_NOTE_BEAN_LIST_EXTRA, JSONUtils.toJson(getOpenNoteBeanList()));
         intent.putExtra(NoteConstants.EXPORT_PATH, exportPath);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(intent);
@@ -172,10 +173,10 @@ public class NoteDemoActivity extends AppCompatActivity {
         textView.setText(String.valueOf(textView.getText()) + "\n" + cs);
     }
 
-    private List<NoteModel> getNoteModelList() {
-        ArrayList<NoteModel> noteModels = new ArrayList<>();
-        noteModels.add(NoteModel.createNote(openNoteBean.documentId, openNoteBean.parentUniqueId, openNoteBean.title));
-        return noteModels;
+    private List<OpenNoteBean> getOpenNoteBeanList() {
+        ArrayList<OpenNoteBean> openNoteBeans = new ArrayList<>();
+        openNoteBeans.add(openNoteBean);
+        return openNoteBeans;
     }
 
     private String openNoteBeanToString(OpenNoteBean bean) {
