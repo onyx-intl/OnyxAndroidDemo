@@ -5,7 +5,9 @@ package com.onyx.android.demo.note;
  */
 public class NoteConstants {
     public static final String KEY_OPEN_NOTE_BEAN_JSON = "OPEN_NOTE_BEAN_JSON";
+    public static final String KEY_SERVICE_INTENT_RESULT_JSON = "SERVICE_INTENT_RESULT_JSON";
     public static final String OPEN_NOTE_BEAN = "OPEN_NOTE_BEAN";
+    public static final String OPEN_NOTE_BEAN_LIST_EXTRA = "OPEN_NOTE_BEAN_LIST_EXTRA";
     public static final String NOTE_SERVICE_ACTION = "android.intent.action.NoteService";
     public static final String NOTE_PACKAGE_NAME = "com.onyx.android.note";
     public static final String NOTE_MODEL_LIST = "noteModelList";
