@@ -18,6 +18,10 @@ android {
                 arguments=['targetModuleName':'Scribble']
             }
         }
+
+        ndk {
+            abiFilters "armeabi-v7a"
+        }
     }
     buildTypes {
         release {
