@@ -233,13 +233,12 @@ public class ScribbleTouchHelperDemoActivity extends AppCompatActivity {
 
         @Override
         public void onEndRawDrawing(boolean b, TouchPoint touchPoint) {
-            Log.d(TAG, "onEndRawDrawing");
+            Log.d(TAG, "onEndRawDrawing###");
             if (!cbRender.isChecked()){
                 drawRect(touchPoint);
             }
             Log.d(TAG,touchPoint.getX() +", " +touchPoint.getY());
             TouchUtils.enableFingerTouch(getApplicationContext());
-            drawBitmapToSurface();
         }
 
         @Override
@@ -248,9 +247,6 @@ public class ScribbleTouchHelperDemoActivity extends AppCompatActivity {
             Log.d(TAG,touchPoint.getX() +", " +touchPoint.getY());
             countRec++;
             countRec = countRec % INTERVAL;
-            if (!cbRender.isChecked() && countRec == INTERVAL - 1 ){
-                drawRect(touchPoint);
-            }
             Log.d(TAG,"countRec = " + countRec);
         }
 
