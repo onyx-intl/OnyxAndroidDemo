@@ -46,6 +46,11 @@ public class ScribbleDemoActivity extends AppCompatActivity {
         go(ScribbleMultipleScribbleViewActivity.class);
     }
 
+    @OnClick(R.id.button_hwr)
+    public void button_hwr_scribble() {
+        go(ScribbleHWRActivity.class);
+    }
+
     @OnClick(R.id.button_save_points)
     public void button_save_points() {
         go(ScribbleSavePointsDemoActivity.class);
