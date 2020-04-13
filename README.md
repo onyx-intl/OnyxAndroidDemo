@@ -54,6 +54,9 @@ We alse support move eraser, multiple view scribble and save scribble points
 * [ScribbleSavePointsDemoActivity](app/src/main/java/com/onyx/android/demo/scribble/ScribbleSavePointsDemoActivity.java)
 : example of save scribble points
 
+* [ScribbleHWRActivity](app/src/main/java/com/onyx/android/demo/scribble/ScribbleHWRActivity.java)
+: example of recognition scribble points
+
 ## 4.Screensaver
 
 * [ScreensaverActivity](app/src/main/java/com/onyx/android/demo/ScreensaverActivity.java)
