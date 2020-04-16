@@ -3,7 +3,9 @@ package com.onyx.android.demo.scribble;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -24,17 +26,20 @@ import com.onyx.android.demo.R;
 import com.onyx.android.demo.utils.TouchUtils;
 import com.onyx.android.sdk.api.device.epd.EpdController;
 import com.onyx.android.sdk.hwr.HWRConverter;
+import com.onyx.android.sdk.hwr.bean.HWRChar;
 import com.onyx.android.sdk.hwr.bean.HWRInputData;
 import com.onyx.android.sdk.hwr.bean.HWROutputData;
 import com.onyx.android.sdk.hwr.bean.HWRPointerEvent;
 import com.onyx.android.sdk.hwr.bean.HWRPointerEventType;
 import com.onyx.android.sdk.hwr.bean.HWRPointerType;
+import com.onyx.android.sdk.hwr.bean.HWRTransform;
 import com.onyx.android.sdk.hwr.service.HWRRemoteServiceConnection;
 import com.onyx.android.sdk.pen.RawInputCallback;
 import com.onyx.android.sdk.pen.TouchHelper;
 import com.onyx.android.sdk.pen.data.TouchPoint;
 import com.onyx.android.sdk.pen.data.TouchPointList;
 import com.onyx.android.sdk.rx.RxUtils;
+import com.onyx.android.sdk.utils.CollectionUtils;
 import com.onyx.android.sdk.utils.LocaleUtils;
 import com.onyx.android.sdk.utils.ResManager;
 import com.onyx.android.sdk.utils.TestUtils;
@@ -61,8 +66,6 @@ public class ScribbleHWRActivity extends AppCompatActivity {
 
     @Bind(R.id.button_hwr)
     Button buttonHWR;
-    @Bind(R.id.hwr_result)
-    TextView hwrResult;
     @Bind(R.id.surfaceview)
     SurfaceView surfaceView;
     private TouchHelper touchHelper;
@@ -113,11 +116,45 @@ public class ScribbleHWRActivity extends AppCompatActivity {
         }, new Consumer<Object>() {
             @Override
             public void accept(Object o) throws Exception {
-                if (outputBean != null) {
-                    hwrResult.setText(outputBean.getResult().label);
-                }
+                drawHwrResult();
             }
         });
+    }
+
+    private void drawHwrResult() {
+        if (outputBean == null
+                || outputBean.getResult() == null
+                || CollectionUtils.isNullOrEmpty(outputBean.getResult().chars)) {
+            return;
+        }
+        drawHwrCharList(outputBean.getResult().chars, outputBean.transform);
+    }
+
+    private void drawHwrCharList(List<HWRChar> chars, HWRTransform transform) {
+        Canvas canvas = surfaceView.getHolder().lockCanvas();
+        if (canvas == null) {
+            return;
+        }
+        canvas.drawColor(Color.WHITE);
+        for (HWRChar aChar : chars) {
+            drawHwrChar(canvas, aChar, transform);
+        }
+        surfaceView.getHolder().unlockCanvasAndPost(canvas);
+    }
+
+    private void drawHwrChar(Canvas canvas ,HWRChar hwrChar, HWRTransform transform) {
+        Paint textPaint = new Paint();
+        textPaint.setTextSize(100);
+        Rect textRect = new Rect();
+        RectF charRectF = hwrChar.boundBox.getRectF();
+        if (transform != null) {
+            transform.apply(charRectF);
+        }
+        textPaint.getTextBounds(hwrChar.label, 0, hwrChar.label.length(), textRect);
+        canvas.drawText(hwrChar.label, charRectF.left, charRectF.top + textRect.height(), textPaint);
+        Paint rectPaint = new Paint();
+        rectPaint.setStyle(Paint.Style.STROKE);
+        canvas.drawRect(charRectF, rectPaint);
     }
 
     private void recogImpl() {
@@ -161,7 +198,6 @@ public class ScribbleHWRActivity extends AppCompatActivity {
     }
 
     private void clearScribbleView() {
-        hwrResult.setText("");
         touchHelper.setRawDrawingEnabled(false);
         cleanSurfaceView(surfaceView);
         touchHelper.setRawDrawingEnabled(true);

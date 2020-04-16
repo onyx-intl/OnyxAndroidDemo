@@ -52,7 +52,7 @@ dependencies {
     implementation('com.onyx.android.sdk:onyxsdk-notedata:1.0.7@aar')
     implementation('com.onyx.android.sdk:onyxsdk-pen:1.1.2')
     implementation('com.onyx.android.sdk:onyxsdk-device:1.0.3')
-    implementation('com.onyx.android.sdk:onyxsdk-hwr:1.0.0')
+    implementation('com.onyx.android.sdk:onyxsdk-hwr:1.0.1')
 
     implementation "com.android.support:multidex:1.0.3"
     compile "com.android.support.constraint:constraint-layout:1.0.2"

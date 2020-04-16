@@ -27,20 +27,6 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"/>
 
-    <TextView
-        android:hint="Recognition result:"
-        android:layout_margin="10dp"
-        android:textSize="24sp"
-        android:textColor="@android:color/black"
-        android:id="@+id/hwr_result"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"/>
-
-    <View
-        android:background="@android:color/black"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"/>
-
     <SurfaceView
         android:id="@+id/surfaceview"
         android:layout_width="match_parent"
