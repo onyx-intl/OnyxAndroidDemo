@@ -74,3 +74,11 @@ We alse support move eraser, multiple view scribble and save scribble points
 
 * [AppOpenGuide](doc/AppOpenGuide.md)
 : open app through adb command
+
+## Welcome PR
+
+> If you can improve the unit test for this project would be great.
+
+- Comments as much as possible.
+- Commit message format follow: [AngularJS's commit message convention](https://github.com/angular/angular.js/blob/master/CONTRIBUTING.md#-git-commit-guidelines) .
+- The change of each commit as small as possible.
