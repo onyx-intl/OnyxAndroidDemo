@@ -24,7 +24,7 @@ public class WebViewOptimizeActivity extends AppCompatActivity {
 
         webView = findViewById(R.id.web_view);
         webView.setWebViewClient(new WebViewClient());
-        webView.loadUrl("http://www.baidu.com");
+        webView.loadUrl("https://www.google.com");
     }
 
     @OnClick(R.id.button_toggle_optimize)

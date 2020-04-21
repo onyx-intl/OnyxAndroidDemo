@@ -20,7 +20,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minHeight="40dp"
-            android:text="查询"/>
+            android:text="Find"/>
     </LinearLayout>
     <TextView
         android:id="@+id/textview_query_result"
