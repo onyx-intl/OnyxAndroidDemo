@@ -1,84 +1,69 @@
 # Overview
 Sample project of SDKs from Onyx-Intl, including [onyxsdk-base](doc/Onyx-Base-SDK.md), [onyxsdk-scribble](doc/Onyx-Scribble-SDK.md), [onyxsdk-pen](doc/Onyx-Pen-SDK.md)
 
-To use the SDK, please add the following statement to your build.gradle:
+To use the SDK, please include the following dependencies in your build.gradle:
 ```gradle
-    compile ('com.onyx.android.sdk:onyxsdk-base:1.4.3.7')
-    compile('com.onyx.android.sdk:onyxsdk-pen:1.0.8')
-    compile('com.onyx.android.sdk:onyxsdk-data:1.1.0')
-    compile('com.onyx.android.sdk:onyxsdk-notedata:1.0.5')
+    implementation('com.onyx.android.sdk:onyxsdk-base:1.5.4')
+    implementation('com.onyx.android.sdk:onyxsdk-pen:1.1.2')
+    implementation('com.onyx.android.sdk:onyxsdk-data:1.1.4')
+    implementation('com.onyx.android.sdk:onyxsdk-notedata:1.0.7@aar')
 ```
 
     
-For onyxsdk-scribble SDK, dbflow library is inside the jitpack, so you have to add the following statement to your project build.gradle:
+The `onyxsdk-scribble` SDK has a dependency on the `dbflow` library which is hosted in the jitpack repository. This can be added in your project's build.gradle with the following entry:
 ```gradle
     maven { url "https://jitpack.io" }
 ```
 
 # Demo
-The project contains following examples that you should take care of:
+This repository contains the following examples:
 
-## 1.Screen
-* [EpdDemoActivity](app/src/main/java/com/onyx/android/demo/EpdDemoActivity.java): basic demo of [EPD Screen Update](doc/EPD-Screen-Update.md)  with [EpdController](doc/EpdController.md)
-* [FrontLightDemoActivity](app/src/main/java/com/onyx/android/demo/FrontLightDemoActivity.java): demo of [FrontLightController](doc/FrontLightController.md). If device support frontLight, you can switch the screen brightness.
-* [FullScreenDemoActivity](app/src/main/java/com/onyx/android/demo/FullScreenDemoActivity.java): example of full screen switch. If you want to switch full screen , please call the api ` DeviceUtils.setFullScreenOnResume(this, fullscreen);`.That  supports all devices.
+## 1. Screen
+* [EPDDemoActivity](app/src/main/java/com/onyx/android/demo/EpdDemoActivity.java): basic demo of [refreshing the EPD Screen](doc/EPD-Screen-Update.md) with the [EpdController](doc/EpdController.md)
+* [FrontLightDemoActivity](app/src/main/java/com/onyx/android/demo/FrontLightDemoActivity.java): demo of [FrontLightController](doc/FrontLightController.md). If a device includes a frontLight, the screen brightness can be adjusted.
+* [FullScreenDemoActivity](app/src/main/java/com/onyx/android/demo/FullScreenDemoActivity.java): demontrates full screen switching. The `DeviceUtils.setFullScreenOnResume(this, fullscreen)` API call is supported on all devices.
 
-## 2.SDCard
-* [EnvironmentDemoActivity](app/src/main/java/com/onyx/android/demo/EnvironmentDemoActivity.java): shows how to use [DeviceEnvironment](doc/DeviceEnvironment.md) to access removeable sdcard. You can call `DeviceEnvironment.getRemovableSDCardDirectory().getAbsolutePath();`
+## 2. Storage (SD Card)
+* [EnvironmentDemoActivity](app/src/main/java/com/onyx/android/demo/EnvironmentDemoActivity.java): shows how to use [DeviceEnvironment](doc/DeviceEnvironment.md) to access internal storage or the removable SD card
 
-## 3.Scribble
-Following demos are example of [onyxsdk-pen](doc/Onyx-Pen-SDK.md).
+## 3. Inking
+The following examples demonstrate the use of the [onyxsdk-pen](doc/Onyx-Pen-SDK.md) APIs.
 
-We use TouchHepler api to draw
+Any type of view can be a drawing target, e.g. a SurfaceView or a WebView. Relative coordinates appropriate to the the view being used are provided.
 
-* [ScribbleTouchHelperDemoActivity](app/src/main/java/com/onyx/android/demo/scribble/ScribbleTouchHelperDemoActivity.java) is an example of TouchHepler.
+* [ScribbleTouchHelperDemoActivity](app/src/main/java/com/onyx/android/demo/scribble/ScribbleTouchHelperDemoActivity.java) is an example demonstrating the use of TouchHelper, a simplified drawing API, with a SurfaceView. On touch-enabled devices, fingers can be used for drawing.
 
-We have no restrictions on the view,  you can set anything view.For example, SurfaceView , webview.
-We will return relative coordinates, According to the view you set.
+* [ScribbleWebViewDemoActivity](app/src/main/java/com/onyx/android/demo/scribble/ScribbleWebViewDemoActivity.java): shows how a WebView can be used to load a Web page and then apply ink to it
 
-* [ScribbleSurfaceViewDemoActivity](app/src/main/java/com/onyx/android/demo/scribble/ScribbleTouchHelperDemoActivity.java): example of SurfaceView
+The SDK also provides additional functionality such as a move eraser, inking on multiple views, and saving ink strokes.
 
-* [ScribbleWebViewDemoActivity](app/src/main/java/com/onyx/android/demo/scribble/ScribbleWebViewDemoActivity.java): example of Webview
+* [ScribbleMoveEraserDemoActivity](app/src/main/java/com/onyx/android/demo/scribble/ScribbleMoveEraserDemoActivity.java): using the move eraser
 
-If the device supports touch, you scribble with your fingers.
-* [ScribbleTouchScreenDemoActivity](app/src/main/java/com/onyx/android/demo/scribble/ScribbleTouchScreenDemoActivity.java): example of [Scribble API](doc/Scribble-API.md) from [EpdController](doc/EpdController.md) for IMX6 devices
+* [ScribbleMultipleScribbleViewActivity](app/src/main/java/com/onyx/android/demo/scribble/ScribbleMultipleScribbleViewActivity.java): inking with multiple views
 
-We alse support move eraser, multiple view scribble and save scribble points
+* [ScribbleSavePointsDemoActivity](app/src/main/java/com/onyx/android/demo/scribble/ScribbleSavePointsDemoActivity.java): saving pen strokes
 
-* [ScribbleMoveEraserDemoActivity](app/src/main/java/com/onyx/android/demo/scribble/ScribbleMoveEraserDemoActivity.java)
-: example of move eraser
+* [ScribbleHWRActivity](app/src/main/java/com/onyx/android/demo/scribble/ScribbleHWRActivity.java): recognizing handwriting in pen strokes
 
-* [ScribbleMultipleScribbleViewActivity](app/src/main/java/com/onyx/android/demo/scribble/ScribbleMultipleScribbleViewActivity.java)
-: example of multiple view scribble
+## 4. Screensaver
 
-* [ScribbleSavePointsDemoActivity](app/src/main/java/com/onyx/android/demo/scribble/ScribbleSavePointsDemoActivity.java)
-: example of save scribble points
+* [ScreensaverActivity](app/src/main/java/com/onyx/android/demo/ScreensaverActivity.java): setting a screensaver
 
-* [ScribbleHWRActivity](app/src/main/java/com/onyx/android/demo/scribble/ScribbleHWRActivity.java)
-: example of recognition scribble points
+## 5. Settings
 
-## 4.Screensaver
+* [OpenSettingActivity](app/src/main/java/com/onyx/android/demo/OpenSettingActivity.java): opening a settings page
 
-* [ScreensaverActivity](app/src/main/java/com/onyx/android/demo/ScreensaverActivity.java)
-: example of setting screensaver
+## 6. Misc API
+* **DictionaryUtil** can be used to query the dictionary. For details see [DictionaryActivity](./app/src/main/java/com/onyx/android/demo/DictionaryActivity.java)
 
-## 5.Open Setting
+## 7. App Open Guide
 
-* [OpenSettingActivity](app/src/main/java/com/onyx/android/demo/OpenSettingActivity.java)
-: example of open setting
+* [AppOpenGuide](doc/AppOpenGuide.md): opening an app using the Android Debug Bridge (adb)
 
-## 6.Other API
-* **DictionaryUtils** to query word in dictionary, for more details to see [DictionaryActivity](./app/src/main/java/com/onyx/android/demo/DictionaryActivity.java)
+## PRs Welcome
 
-## 7.App Open Guide
+All contributions towards documentation, adding/improving unit tests, and examples are appreciated.
 
-* [AppOpenGuide](doc/AppOpenGuide.md)
-: open app through adb command
-
-## Welcome PR
-
-> If you can improve the unit test for this project would be great.
-
-- Comments as much as possible.
-- Commit message format follow: [AngularJS's commit message convention](https://github.com/angular/angular.js/blob/master/CONTRIBUTING.md#-git-commit-guidelines) .
-- The change of each commit as small as possible.
+- Please comment as much as possible.
+- Commit message format should follow [AngularJS's commit message convention.](https://github.com/angular/angular.js/blob/master/CONTRIBUTING.md#-git-commit-guidelines).
+- Please keep changes for each commit as small as possible.
