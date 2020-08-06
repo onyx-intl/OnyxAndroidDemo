@@ -1,8 +1,10 @@
 package com.onyx.android.demo;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -14,7 +16,6 @@ import android.widget.Toast;
 
 import com.onyx.android.sdk.data.utils.ReaderDBUtils;
 import com.onyx.android.sdk.utils.FileUtils;
-import com.onyx.android.sdk.utils.ShellUtils;
 import com.onyx.android.sdk.utils.StringUtils;
 
 import java.io.File;
@@ -75,7 +76,8 @@ public class ReaderDemoActivity extends Activity {
         try {
             ReaderDBUtils.deleteBookData(this, etFile.getText().toString());
             //Handwritten notes have a cache, you need to restart Reader
-            ShellUtils.execCommand("am force-stop com.onyx.kreader", false);
+            ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+            activityManager.killBackgroundProcesses("com.onyx.kreader");
             Toast.makeText(this, R.string.delete_reader_data_success, Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             e.printStackTrace();
