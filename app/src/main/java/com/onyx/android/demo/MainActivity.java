@@ -90,6 +90,11 @@ public class MainActivity extends AppCompatActivity {
         go(NoteDemoActivity.class);
     }
 
+    @OnClick(R.id.button_datetime)
+    public void onClickButtonDeviceSetting() {
+        go(DateTimeDemoActivity.class);
+    }
+
     private void go(Class<?> activityClass){
         startActivity(new Intent(this, activityClass));
     }
