@@ -1,2 +1,3 @@
 include ':app'
 include ':moreApps:daydreamdemo'
+include ':moreApps:WeReadDemo'
