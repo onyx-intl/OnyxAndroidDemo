@@ -1,4 +1,4 @@
-package com.onyx.android.demo;
+package com.onyx.wereaddemo;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -7,9 +7,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.onyx.android.sdk.api.data.model.FirmwareBean;
-import com.onyx.android.sdk.api.device.OTAManager;
 import com.onyx.android.sdk.rx.RxUtils;
 import com.onyx.android.sdk.utils.JSONUtils;
+import com.onyx.weread.api.OnyxSdk;
 
 import java.util.concurrent.Callable;
 
@@ -62,11 +62,11 @@ public class OTADemoActivity extends AppCompatActivity {
     public void onOTAUpdate() {
         EditText editText = findViewById(R.id.edittext_ota_package_path);
         String path = editText.getText().toString();
-        OTAManager.startFirmwareUpdate(this, path);
+        OnyxSdk.startFirmwareUpdate(this, path);
     }
 
     private FirmwareBean getCurrentFirmwareInfo() {
-        return OTAManager.getCurrentFirmware(this);
+        return OnyxSdk.getCurrentFirmware(this);
     }
 
 }

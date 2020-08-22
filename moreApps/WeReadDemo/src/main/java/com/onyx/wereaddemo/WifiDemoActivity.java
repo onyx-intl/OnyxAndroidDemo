@@ -16,7 +16,7 @@ public class WifiDemoActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_wifi_demo);
         if (!checkPermission(PERMISSION)) {
             requestPermissions(PERMISSION, REQUEST_CODE);
             return;
