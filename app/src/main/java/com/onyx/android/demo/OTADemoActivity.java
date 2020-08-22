@@ -6,8 +6,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.onyx.android.sdk.api.OnyxSdk;
 import com.onyx.android.sdk.api.data.model.FirmwareBean;
+import com.onyx.android.sdk.api.device.OTAManager;
 import com.onyx.android.sdk.rx.RxUtils;
 import com.onyx.android.sdk.utils.JSONUtils;
 
@@ -62,11 +62,11 @@ public class OTADemoActivity extends AppCompatActivity {
     public void onOTAUpdate() {
         EditText editText = findViewById(R.id.edittext_ota_package_path);
         String path = editText.getText().toString();
-        OnyxSdk.startFirmwareUpdate(this, path);
+        OTAManager.startFirmwareUpdate(this, path);
     }
 
     private FirmwareBean getCurrentFirmwareInfo() {
-        return OnyxSdk.getCurrentFirmware(this);
+        return OTAManager.getCurrentFirmware(this);
     }
 
 }

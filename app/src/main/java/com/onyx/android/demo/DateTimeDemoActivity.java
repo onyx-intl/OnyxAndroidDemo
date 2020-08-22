@@ -3,12 +3,10 @@ package com.onyx.android.demo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.onyx.android.sdk.api.OnyxSdk;
 import com.onyx.android.sdk.utils.DateTimeUtil;
 import com.onyx.android.sdk.utils.RxTimerUtil;
 
@@ -48,7 +46,7 @@ public class DateTimeDemoActivity extends AppCompatActivity {
     public void onClickDateTimeSetting() {
         try {
             Date newDate = DATE_FORMAT_YYYYMMDD_HHMMSS.parse(etDateTime.getText().toString());
-            OnyxSdk.changeSystemTime(this, newDate.getTime());
+            com.onyx.android.sdk.api.utils.DateTimeUtil.changeSystemTime(this, newDate.getTime());
             Toast.makeText(this, "日期时间修改成功", Toast.LENGTH_LONG).show();
         } catch (ParseException e) {
             e.printStackTrace();
