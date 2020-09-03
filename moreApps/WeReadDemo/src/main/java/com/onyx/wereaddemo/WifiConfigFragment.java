@@ -1,5 +1,6 @@
 package com.onyx.wereaddemo;
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiConfiguration;
@@ -13,8 +14,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
+import com.onyx.android.sdk.utils.CollectionUtils;
 import com.onyx.weread.api.OnyxWifiController;
-import com.onyx.weread.utils.CollectionUtils;
 import com.onyx.weread.wifi.WifiAdmin;
 import com.onyx.weread.wifi.WifiUtil;
 import com.onyx.weread.wifi.model.AccessPoint;
@@ -65,7 +66,8 @@ public class WifiConfigFragment extends Fragment {
         binding.addWifiContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                OnyxWifiController.addNetwork();
+                Intent intent = OnyxWifiController.buildAddNetworkDialogIntent();
+                startActivity(intent);
             }
         });
         binding.switchWifi.setOnClickListener(new View.OnClickListener() {
@@ -102,7 +104,8 @@ public class WifiConfigFragment extends Fragment {
                 itemBinding.getRoot().setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        OnyxWifiController.showWifiDialog(accessPoint);
+                        Intent intent = OnyxWifiController.buildShowWifiDialogIntent(accessPoint);
+                        startActivity(intent);
                     }
                 });
                 return itemBinding.getRoot();
