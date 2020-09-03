@@ -4,11 +4,11 @@ import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.databinding.DataBindingUtil;
+import android.databinding.ObservableBoolean;
+import android.databinding.ObservableField;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.AdapterView;
 
 import com.onyx.android.sdk.api.utils.StringUtils;
 import com.onyx.weread.api.OnyxBluetoothController;
@@ -34,10 +34,16 @@ public class BluetoothDemoActivity extends PermissionCheckActivity {
     private Set<BluetoothDevice> bluetoothDeviceSet = new HashSet();
     private int scanTime = 0;
 
+    public ObservableBoolean isBluetoothSwitchButtonEnabled = new ObservableBoolean(true);
+    public ObservableBoolean isBluetoothEnabled = new ObservableBoolean(false);
+    public ObservableField<String> switchTip = new ObservableField<>();
+    public ObservableField<String> deviceName = new ObservableField<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.bind(LayoutInflater.from(this).inflate(R.layout.activity_bluetooth, null, false));
+        binding.setModel(this);
         setContentView(binding.getRoot());
         initBluetoothAdmin();
         initView();
@@ -59,19 +65,25 @@ public class BluetoothDemoActivity extends PermissionCheckActivity {
                             adapter.clearData();
                             bluetoothDeviceSet.clear();
                         }
-                        binding.switchBluetooth.setEnabled(true);
+                        isBluetoothSwitchButtonEnabled.set(true);
+                        switchTip.set("打开蓝牙");
                         break;
                     case BluetoothAdapter.STATE_ON:
                         startDiscovery();
                         updateBondedDevices();
-                        binding.switchBluetooth.setEnabled(true);
+                        isBluetoothSwitchButtonEnabled.set(true);
+                        switchTip.set("关闭蓝牙");
                         break;
                     case BluetoothAdapter.STATE_TURNING_ON:
+                        isBluetoothSwitchButtonEnabled.set(false);
+                        switchTip.set("正在打开蓝牙...");
+                        break;
                     case BluetoothAdapter.STATE_TURNING_OFF:
-                        binding.switchBluetooth.setEnabled(false);
+                        isBluetoothSwitchButtonEnabled.set(false);
+                        switchTip.set("正在关闭蓝牙...");
                         break;
                 }
-                updateUI();
+                isBluetoothEnabled.set(OnyxBluetoothController.isBluetoothEnabled());
             }
 
             @Override
@@ -124,7 +136,7 @@ public class BluetoothDemoActivity extends PermissionCheckActivity {
             @Override
             public void onLocalNameChanged(String name) {
                 if (StringUtils.isNotBlank(name)) {
-                    binding.deviceName.setText(name);
+                    deviceName.set(name);
                 }
             }
         });
@@ -141,47 +153,19 @@ public class BluetoothDemoActivity extends PermissionCheckActivity {
     }
 
     private void initView() {
-        updateUI();
-        binding.switchBluetooth.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                OnyxBluetoothController.toggleBluetooth();
-            }
-        });
-        binding.deviceName.setText(OnyxBluetoothController.getDeviceName());
-        binding.deviceName.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                OnyxBluetoothController.showDeviceRenameDialog();
-            }
-        });
-        binding.ivScan.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startDiscovery();
-            }
-        });
-        binding.list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                BluetoothScanResult item = adapter.getItem(position);
-                if (item.getDevice().getBondState() == BluetoothDevice.BOND_NONE) {
-                    OnyxBluetoothController.createBond(item.getDevice());
-                } else if (item.getDevice().getBondState() == BluetoothDevice.BOND_BONDED) {
-                    connect(item.getDevice());
-                }
-                // TODO: 2020/9/3 show bonded device detail dialog
-            }
-        });
+        isBluetoothEnabled.set(OnyxBluetoothController.isBluetoothEnabled());
+        switchTip.set(isBluetoothEnabled.get() ? "关闭蓝牙" : "打开蓝牙");
+        deviceName.set(OnyxBluetoothController.getDeviceName());
         binding.list.setAdapter(adapter);
         updateBondedDevices();
     }
 
-    private void updateUI() {
-        boolean enabled = OnyxBluetoothController.isBluetoothEnabled();
-        binding.switchBluetooth.setChecked(enabled);
-        binding.tvSwitchBluetooth.setText(enabled ? "关闭蓝牙" : "打开蓝牙");
-        binding.listContainer.setVisibility(enabled ? View.VISIBLE : View.INVISIBLE);
+    public void showBluetoothDialog() {
+        OnyxBluetoothController.showDeviceRenameDialog();
+    }
+
+    public void toggleBluetooth() {
+        OnyxBluetoothController.toggleBluetooth();
     }
 
     private void ensureBluetoothEnable() {

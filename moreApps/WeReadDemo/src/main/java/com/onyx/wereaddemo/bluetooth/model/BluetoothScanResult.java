@@ -106,4 +106,17 @@ public class BluetoothScanResult extends Observable {
     public BluetoothDevice getDevice() {
         return device;
     }
+
+    public void onclick() {
+        if (getDevice().getBondState() == BluetoothDevice.BOND_NONE) {
+            OnyxBluetoothController.createBond(getDevice());
+        } else if (getDevice().getBondState() == BluetoothDevice.BOND_BONDED) {
+            connect(getDevice());
+        }
+        // TODO: 2020/9/3 show bonded device detail dialog
+    }
+
+    private void connect(BluetoothDevice device) {
+
+    }
 }
