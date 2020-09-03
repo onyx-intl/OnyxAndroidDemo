@@ -1,0 +1,231 @@
+package com.onyx.wereaddemo.bluetooth;
+
+import android.Manifest;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.databinding.DataBindingUtil;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.AdapterView;
+
+import com.onyx.android.sdk.api.utils.StringUtils;
+import com.onyx.weread.api.OnyxBluetoothController;
+import com.onyx.weread.bluetooth.BluetoothCallback;
+import com.onyx.wereaddemo.PermissionCheckActivity;
+import com.onyx.wereaddemo.R;
+import com.onyx.wereaddemo.bluetooth.adapter.BluetoothDeviceAdapter;
+import com.onyx.wereaddemo.bluetooth.model.BluetoothScanResult;
+import com.onyx.wereaddemo.databinding.ActivityBluetoothBinding;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+
+public class BluetoothDemoActivity extends PermissionCheckActivity {
+    public static final String[] PERMISSION = new String[]{
+            Manifest.permission.ACCESS_FINE_LOCATION,
+    };
+    private static final String TAG = BluetoothDemoActivity.class.getSimpleName();
+    public static final int ONCE_SCAN_TIME = 3;
+    private ActivityBluetoothBinding binding;
+    private BluetoothDeviceAdapter adapter = new BluetoothDeviceAdapter();
+    private Set<BluetoothDevice> bluetoothDeviceSet = new HashSet();
+    private int scanTime = 0;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        binding = DataBindingUtil.bind(LayoutInflater.from(this).inflate(R.layout.activity_bluetooth, null, false));
+        setContentView(binding.getRoot());
+        initBluetoothAdmin();
+        initView();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkPermission(PERMISSION);
+    }
+
+    private void initBluetoothAdmin() {
+        OnyxBluetoothController.init(this, new BluetoothCallback() {
+            @Override
+            public void onBluetoothStateChanged(int bluetoothState) {
+                switch (bluetoothState) {
+                    case BluetoothAdapter.STATE_OFF:
+                        if (adapter != null) {
+                            adapter.clearData();
+                            bluetoothDeviceSet.clear();
+                        }
+                        binding.switchBluetooth.setEnabled(true);
+                        break;
+                    case BluetoothAdapter.STATE_ON:
+                        startDiscovery();
+                        updateBondedDevices();
+                        binding.switchBluetooth.setEnabled(true);
+                        break;
+                    case BluetoothAdapter.STATE_TURNING_ON:
+                    case BluetoothAdapter.STATE_TURNING_OFF:
+                        binding.switchBluetooth.setEnabled(false);
+                        break;
+                }
+                updateUI();
+            }
+
+            @Override
+            public void onScanningStateChanged(boolean started) {
+                if (++scanTime <= ONCE_SCAN_TIME) {
+                    startDiscovery();
+                } else {
+                    scanTime = 0;
+                }
+            }
+
+            @Override
+            public void onDeviceFound(BluetoothDevice device, short rssi) {
+                if (StringUtils.isNotBlank(device.getName()) &&
+                        device.getBondState() != BluetoothDevice.BOND_BONDED &&
+                        !bluetoothDeviceSet.contains(device)) {
+                    BluetoothScanResult scanResult = new BluetoothScanResult(device);
+                    scanResult.setRssi(rssi);
+                    adapter.getScannedDevices().add(scanResult);
+                    bluetoothDeviceSet.add(device);
+                    adapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onDeviceBondStateChanged(BluetoothDevice device, int bondState) {
+                for (BluetoothScanResult scannedDevice : adapter.getScannedDevices()) {
+                    if (scannedDevice.getDevice().equals(device)) {
+                        scannedDevice.update(device);
+                    }
+                }
+            }
+
+            @Override
+            public void onConnectionStateChanged(BluetoothDevice device, boolean connected) {
+                for (BluetoothScanResult scannedDevice : adapter.getScannedDevices()) {
+                    if (scannedDevice.getDevice().equals(device)) {
+                        scannedDevice.update(device, connected ? BluetoothScanResult.CONNECTING_STATE : device.getBondState());
+                    }
+                }
+            }
+
+            @Override
+            public void onScanModeChanged(int prevMode, int mode) {
+//                BluetoothAdapter.SCAN_MODE_NONE
+//                BluetoothAdapter.SCAN_MODE_CONNECTABLE
+//                BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE
+            }
+
+            @Override
+            public void onLocalNameChanged(String name) {
+                if (StringUtils.isNotBlank(name)) {
+                    binding.deviceName.setText(name);
+                }
+            }
+        });
+        OnyxBluetoothController.registerBluetoothReceiver();
+        ensureBluetoothEnable();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopDiscovery();
+        OnyxBluetoothController.unregisterBluetoothReceiver();
+        OnyxBluetoothController.release();
+    }
+
+    private void initView() {
+        updateUI();
+        binding.switchBluetooth.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                OnyxBluetoothController.toggleBluetooth();
+            }
+        });
+        binding.deviceName.setText(OnyxBluetoothController.getDeviceName());
+        binding.deviceName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                OnyxBluetoothController.showDeviceRenameDialog();
+            }
+        });
+        binding.ivScan.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startDiscovery();
+            }
+        });
+        binding.list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                BluetoothScanResult item = adapter.getItem(position);
+                if (item.getDevice().getBondState() == BluetoothDevice.BOND_NONE) {
+                    OnyxBluetoothController.createBond(item.getDevice());
+                } else if (item.getDevice().getBondState() == BluetoothDevice.BOND_BONDED) {
+                    connect(item.getDevice());
+                }
+                // TODO: 2020/9/3 show bonded device detail dialog
+            }
+        });
+        binding.list.setAdapter(adapter);
+        updateBondedDevices();
+    }
+
+    private void updateUI() {
+        boolean enabled = OnyxBluetoothController.isBluetoothEnabled();
+        binding.switchBluetooth.setChecked(enabled);
+        binding.tvSwitchBluetooth.setText(enabled ? "关闭蓝牙" : "打开蓝牙");
+        binding.listContainer.setVisibility(enabled ? View.VISIBLE : View.INVISIBLE);
+    }
+
+    private void ensureBluetoothEnable() {
+        if (!OnyxBluetoothController.isBluetoothEnabled()) {
+            OnyxBluetoothController.enableBluetooth();
+        }
+        startDiscovery();
+    }
+
+    private void updateBondedDevices() {
+        Set<BluetoothDevice> bondedDevices = OnyxBluetoothController.getBondedDevices();
+        bluetoothDeviceSet.addAll(bondedDevices);
+        if (adapter != null) {
+            ArrayList<BluetoothDevice> list = new ArrayList<>();
+            list.addAll(bondedDevices);
+            adapter.setScannedDevices(adapter.createViewModel(list));
+        }
+    }
+
+    public void stopDiscovery() {
+        OnyxBluetoothController.startDiscovery();
+    }
+
+    public void startDiscovery() {
+        OnyxBluetoothController.startDiscovery();
+
+    }
+
+    public void connect(final BluetoothDevice device) {
+        // TODO: 2020/9/2
+    }
+
+    @NonNull
+    @Override
+    protected String[] getPermission() {
+        return PERMISSION;
+    }
+
+    @Override
+    protected void onRequestPermissionSuccess() {
+    }
+
+    @Override
+    protected void onRequestPermissionFailed() {
+        finish();
+    }
+}

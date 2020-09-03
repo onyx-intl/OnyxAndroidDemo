@@ -14,6 +14,12 @@
         android:text="Open wifi" />
 
     <Button
+        android:id="@+id/open_bluetooth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Open bluetooth" />
+
+    <Button
         android:id="@+id/button_datetime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
