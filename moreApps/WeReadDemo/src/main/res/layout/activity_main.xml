@@ -11,32 +11,32 @@
         android:id="@+id/open_wifi"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Open wifi" />
+        android:text="wifi" />
 
     <Button
         android:id="@+id/open_bluetooth"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Open bluetooth" />
+        android:text="蓝牙" />
 
     <Button
         android:id="@+id/button_datetime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Date time Demo"/>
+        android:text="日期时间设置"/>
 
     <Button
         android:id="@+id/btn_open_ota"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="visible"
-        android:text="Open OTA Demo" />
+        android:text="系统更新" />
 
     <Button
         android:id="@+id/btn_open_settingsdemo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="settings demo"
+        android:text="背光/对比度设置"
         />
 
 
