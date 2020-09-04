@@ -1,36 +1,22 @@
 package com.onyx.wereaddemo;
 
 import android.Manifest;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 
-public class WifiDemoActivity extends AppCompatActivity {
+public class WifiDemoActivity extends PermissionCheckActivity {
     public static final String[] PERMISSION = new String[]{
             Manifest.permission.ACCESS_FINE_LOCATION,
     };
-    public static final int REQUEST_CODE = 10001;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wifi_demo);
-        if (!checkPermission(PERMISSION)) {
-            requestPermissions(PERMISSION, REQUEST_CODE);
-            return;
+        if (checkPermission(PERMISSION)) {
+            gotoWifiFragment();
         }
-        gotoWifiFragment();
-    }
-
-    public boolean checkPermission(String[] permissions) {
-        for (String permission : permissions) {
-            if (PackageManager.PERMISSION_GRANTED != checkSelfPermission(permission)) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private void gotoWifiFragment() {
@@ -39,15 +25,23 @@ public class WifiDemoActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_CODE && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            gotoWifiFragment();
-        }
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    @NonNull
+    @Override
+    protected String[] getPermission() {
+        return PERMISSION;
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onRequestPermissionSuccess() {
+        gotoWifiFragment();
+    }
+
+    @Override
+    protected void onRequestPermissionFailed() {
+
     }
 }
