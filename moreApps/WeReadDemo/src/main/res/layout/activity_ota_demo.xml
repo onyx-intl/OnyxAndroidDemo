@@ -10,6 +10,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="升级包路径："
+            android:textSize="@dimen/weread_demo_text_size_middle"
+            />
         <EditText
             android:id="@+id/edittext_ota_package_path"
             android:layout_width="0dp"
@@ -23,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minHeight="40dp"
-            android:text="OTA update"/>
+            android:text="升级"/>
     </LinearLayout>
 
 
@@ -38,14 +44,14 @@
             android:layout_height="wrap_content"
             android:text="当前固件信息："
             android:textColor="@android:color/black"
-            android:textSize="20sp"
+            android:textSize="@dimen/weread_demo_text_size_middle"
             />
         <TextView
             android:id="@+id/tv_firmware_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@android:color/black"
-            android:textSize="20sp"
+            android:textSize="@dimen/weread_demo_text_size_middle"
             />
     </LinearLayout>
 

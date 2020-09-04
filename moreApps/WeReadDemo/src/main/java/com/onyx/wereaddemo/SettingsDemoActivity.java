@@ -67,7 +67,7 @@ public class SettingsDemoActivity extends AppCompatActivity implements CompoundB
         tvWarmValues.setText(getWarmValues());
         et_cold.setText(String.valueOf(getCurrentColdLightValue()));
         et_warm.setText(String.valueOf(getCurrentWarmLightValue()));
-        et_contrast.setText(String.valueOf(OnyxSdk.getCurrentGlobalContrast()));
+        et_contrast.setText(String.valueOf(OnyxSdk.getInstance().getCurrentGlobalContrast()));
 
         refreshValues();
     }
@@ -76,8 +76,8 @@ public class SettingsDemoActivity extends AppCompatActivity implements CompoundB
         togglebuttonCold.setOnCheckedChangeListener(null);
         togglebuttonWarm.setOnCheckedChangeListener(null);
 
-        togglebuttonCold.setChecked(OnyxSdk.isColdLightOn(this));
-        togglebuttonWarm.setChecked(OnyxSdk.isWarmLightOn(this));
+        togglebuttonCold.setChecked(OnyxSdk.getInstance().isColdLightOn());
+        togglebuttonWarm.setChecked(OnyxSdk.getInstance().isWarmLightOn());
         tvInfos.setText(getInfos());
 
         togglebuttonCold.setOnCheckedChangeListener(this);
@@ -86,27 +86,27 @@ public class SettingsDemoActivity extends AppCompatActivity implements CompoundB
 
     private String getInfos() {
         StringBuffer sb = new StringBuffer();
-        sb.append("冷光: ").append(OnyxSdk.isColdLightOn(this) ? "开启" : "关闭").append("    当前冷光值: ").append(OnyxSdk.getCurrentColdLightValue(this)).append(NEW_LINE);
-        sb.append("暖光: ").append(OnyxSdk.isWarmLightOn(this) ? "开启" : "关闭").append("    当前暖光值: ").append(OnyxSdk.getCurrentWarmLightValue(this)).append(NEW_LINE);
-        sb.append("对比度: ").append(OnyxSdk.getCurrentGlobalContrast()).append(NEW_LINE);
+        sb.append("冷光: ").append(OnyxSdk.getInstance().isColdLightOn() ? "开启" : "关闭").append("    当前冷光值: ").append(OnyxSdk.getInstance().getCurrentColdLightValue()).append(NEW_LINE);
+        sb.append("暖光: ").append(OnyxSdk.getInstance().isWarmLightOn() ? "开启" : "关闭").append("    当前暖光值: ").append(OnyxSdk.getInstance().getCurrentWarmLightValue()).append(NEW_LINE);
+        sb.append("对比度: ").append(OnyxSdk.getInstance().getCurrentGlobalContrast()).append(NEW_LINE);
         return sb.toString();
     }
 
     @OnClick(R.id.btn_cold)
     public void onButtonColdClick() {
-        OnyxSdk.setColdLightValue(this, Integer.valueOf(et_cold.getText().toString()));
+        OnyxSdk.getInstance().setColdLightValue(Integer.valueOf(et_cold.getText().toString()));
         refreshValues();
     }
 
     @OnClick(R.id.btn_warm)
     public void onButtonWarmClick() {
-        OnyxSdk.setWarmLightValue(this, Integer.valueOf(et_warm.getText().toString()));
+        OnyxSdk.getInstance().setWarmLightValue(Integer.valueOf(et_warm.getText().toString()));
         refreshValues();
     }
 
     @OnClick(R.id.btn_contrast)
     public void onButtonContrastClick() {
-        OnyxSdk.setGlobalContrast(Integer.valueOf(et_contrast.getText().toString()));
+        OnyxSdk.getInstance().setGlobalContrast(Integer.valueOf(et_contrast.getText().toString()));
         refreshValues();
     }
 
@@ -115,16 +115,16 @@ public class SettingsDemoActivity extends AppCompatActivity implements CompoundB
         switch (buttonView.getId()) {
             case R.id.togglebutton_cold:
                 if (isChecked) {
-                    OnyxSdk.openColdLight();
+                    OnyxSdk.getInstance().openColdLight();
                 } else {
-                    OnyxSdk.closeColdLight();
+                    OnyxSdk.getInstance().closeColdLight();
                 }
                 break;
             case R.id.togglebutton_warm:
                 if (isChecked) {
-                    OnyxSdk.openWarmLight();
+                    OnyxSdk.getInstance().openWarmLight();
                 } else {
-                    OnyxSdk.closeWarmLight();
+                    OnyxSdk.getInstance().closeWarmLight();
                 }
                 break;
         }
@@ -134,20 +134,20 @@ public class SettingsDemoActivity extends AppCompatActivity implements CompoundB
 
 
     private int getCurrentColdLightValue() {
-        return OnyxSdk.getCurrentColdLightValue(this);
+        return OnyxSdk.getInstance().getCurrentColdLightValue();
     }
 
     private int getCurrentWarmLightValue() {
-        return OnyxSdk.getCurrentWarmLightValue(this);
+        return OnyxSdk.getInstance().getCurrentWarmLightValue();
     }
 
 
     private String getColdValues() {
-        return conversionToString(OnyxSdk.getColdLightValues(this));
+        return conversionToString(OnyxSdk.getInstance().getColdLightValues());
     }
 
     private String getWarmValues() {
-        return conversionToString(OnyxSdk.getWarmLightValues(this));
+        return conversionToString(OnyxSdk.getInstance().getWarmLightValues());
     }
 
     private String conversionToString(Integer[] list) {

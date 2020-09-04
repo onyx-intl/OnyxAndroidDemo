@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="50dp"
+    android:padding="20dp"
     >
 
     <LinearLayout
@@ -15,6 +15,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="冷光取值："
+            android:textSize="@dimen/weread_demo_text_size_small"
             />
         <TextView
             android:id="@+id/tv_cold_values"
@@ -35,6 +36,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="暖光取值："
+            android:textSize="@dimen/weread_demo_text_size_small"
             />
         <TextView
             android:id="@+id/tv_warm_values"
@@ -55,6 +57,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="冷光"
+            android:textSize="@dimen/weread_demo_text_size_small"
             />
 
         <ToggleButton
@@ -92,6 +95,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="暖光"
+            android:textSize="@dimen/weread_demo_text_size_small"
             />
 
         <ToggleButton
@@ -129,6 +133,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="对比度"
+            android:textSize="@dimen/weread_demo_text_size_small"
             />
 
 
@@ -155,11 +160,13 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
         android:text="状态："
+        android:textSize="@dimen/weread_demo_text_size_small"
         />
     <TextView
         android:id="@+id/tv_infos"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textSize="@dimen/weread_demo_text_size_small"
         />
 
 

@@ -1,5 +1,6 @@
 package com.onyx.wereaddemo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -62,11 +63,13 @@ public class OTADemoActivity extends AppCompatActivity {
     public void onOTAUpdate() {
         EditText editText = findViewById(R.id.edittext_ota_package_path);
         String path = editText.getText().toString();
-        OnyxSdk.startFirmwareUpdate(this, path);
+        Intent intent = OnyxSdk.getInstance().buildFirmwareUpdateIntent(path);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 
     private FirmwareBean getCurrentFirmwareInfo() {
-        return OnyxSdk.getCurrentFirmware(this);
+        return OnyxSdk.getInstance().getCurrentFirmware();
     }
 
 }

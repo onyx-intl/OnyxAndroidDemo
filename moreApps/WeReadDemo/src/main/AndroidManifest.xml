@@ -13,6 +13,7 @@
     <uses-permission android:name="android.permission.SET_TIME" />
 
     <application
+        android:name=".WeReadApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -26,11 +27,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".WifiDemoActivity"/>
+        <activity android:name=".WifiDemoActivity"
+            android:theme="@style/WeRead_AppTheme_FullScreen"
+            />
         <activity android:name=".DateTimeDemoActivity" />
         <activity android:name=".OTADemoActivity" />
         <activity android:name=".SettingsDemoActivity" />
-        <activity android:name=".bluetooth.BluetoothDemoActivity"></activity>
+        <activity android:name=".bluetooth.BluetoothDemoActivity"
+            android:theme="@style/WeRead_AppTheme_FullScreen"/>
     </application>
 
 </manifest>

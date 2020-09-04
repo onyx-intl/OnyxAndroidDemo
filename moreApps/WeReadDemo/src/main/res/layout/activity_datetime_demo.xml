@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:text="当前时间："
             android:textColor="@android:color/black"
-            android:textSize="20sp"
+            android:textSize="@dimen/weread_demo_text_size_middle"
             />
         <TextView
             android:id="@+id/tv_current_datetime"
@@ -25,7 +25,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:textColor="@android:color/black"
-            android:textSize="20sp"
+            android:textSize="@dimen/weread_demo_text_size_middle"
             />
     </LinearLayout>
 
@@ -53,7 +53,6 @@
             android:layout_toRightOf="@id/et_date_time"
             android:text="修改时间"
             android:textColor="@android:color/black"
-            android:textSize="18sp"
             android:layout_marginLeft="10dp"
             />
 
@@ -62,8 +61,116 @@
             android:layout_height="wrap_content"
             android:text="(格式：yyyy-MM-dd HH:mm:ss)"
             android:layout_below="@id/et_date_time"
-            android:textSize="16sp"
+            android:textSize="@dimen/weread_demo_text_size_small"
             />
     </RelativeLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="是否自动从网络获取时间："
+            android:textSize="@dimen/weread_demo_text_size_middle"
+            />
+
+        <TextView
+            android:id="@+id/auto_time_state"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/weread_demo_text_size_middle"
+            />
+
+        <Button
+            android:id="@+id/btn_auto_time_toggle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="自动获取时间开关"
+            />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="是否24小时制："
+            android:textSize="@dimen/weread_demo_text_size_middle"
+            />
+
+        <TextView
+            android:id="@+id/state_12_24"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/weread_demo_text_size_middle"
+            />
+
+        <Button
+            android:id="@+id/btn_12_24_toggle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="12/24小时制开关"
+            />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="当前时区："
+            android:textSize="@dimen/weread_demo_text_size_middle"
+            />
+
+        <TextView
+            android:id="@+id/timezone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/weread_demo_text_size_middle"
+            />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="时区设置："
+            android:textSize="@dimen/weread_demo_text_size_middle"
+            />
+
+        <Spinner
+            android:id="@+id/spinner_timezone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
+
+    </LinearLayout>
+
+
 
 </LinearLayout>
