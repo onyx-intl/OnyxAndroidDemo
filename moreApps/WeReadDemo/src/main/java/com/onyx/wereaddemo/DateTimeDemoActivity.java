@@ -1,5 +1,9 @@
 package com.onyx.wereaddemo;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -57,6 +61,8 @@ public class DateTimeDemoActivity extends AppCompatActivity {
     private ArrayAdapter<KeyValueBean> timezoneAdapter = null;
     private KeyValueBean[] timezoneArr;
 
+    private BroadcastReceiver broadcastReceiver;
+
     private AdapterView.OnItemSelectedListener timezoneListener = new AdapterView.OnItemSelectedListener() {
         @Override
         public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -67,7 +73,6 @@ public class DateTimeDemoActivity extends AppCompatActivity {
                 return;
             }
             OnyxSdk.getInstance().changeSystemTimeZone(key);
-            updateTimezone();
         }
 
         @Override
@@ -81,25 +86,27 @@ public class DateTimeDemoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_datetime_demo);
         ButterKnife.bind(this);
-        updateTime();
-        updateIsAutoTime();
-        updateIs24Hour();
-        updateTimezone();
 
+        initData();
         initTimezoneData();
         String timezoneId = TimeZone.getDefault().getID();
         int index = getTimeZoneIndex(timezoneId);
-
         timezoneAdapter = new ArrayAdapter<KeyValueBean>(
                 this,
                 android.R.layout.simple_spinner_item,
                 timezoneArr
         );
-
         timezoneSpinner.setAdapter(timezoneAdapter);
         timezoneSpinner.setSelection(index);
         timezoneSpinner.setOnItemSelectedListener(timezoneListener);
+        doRegisterReceiver();
+    }
 
+    private void initData() {
+        updateTime();
+        updateIsAutoTime();
+        updateIs24Hour();
+        updateTimezone();
     }
 
     @OnClick(R.id.btn_date_time_setting)
@@ -169,6 +176,29 @@ public class DateTimeDemoActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         RxTimerUtil.cancel(timerObserver);
+        doUnregisterReceiver();
+    }
+
+    private void doRegisterReceiver() {
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                switch (intent.getAction()) {
+                    case Intent.ACTION_TIMEZONE_CHANGED:
+                        updateTimezone();
+                        break;
+                }
+            }
+        };
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
+        registerReceiver(broadcastReceiver, intentFilter);
+    }
+
+    private void doUnregisterReceiver() {
+        if (broadcastReceiver != null) {
+            unregisterReceiver(broadcastReceiver);
+        }
     }
     
     private int getTimeZoneIndex(String timezoneId) {
