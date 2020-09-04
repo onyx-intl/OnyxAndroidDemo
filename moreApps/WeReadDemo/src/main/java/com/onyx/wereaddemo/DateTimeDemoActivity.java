@@ -47,7 +47,7 @@ public class DateTimeDemoActivity extends AppCompatActivity {
     public void onClickDateTimeSetting() {
         try {
             Date newDate = DATE_FORMAT_YYYYMMDD_HHMMSS.parse(etDateTime.getText().toString());
-            OnyxSdk.changeSystemTime(this, newDate.getTime());
+            OnyxSdk.getInstance().changeSystemTime(newDate.getTime());
             Toast.makeText(this, "日期时间修改成功", Toast.LENGTH_LONG).show();
         } catch (ParseException e) {
             e.printStackTrace();

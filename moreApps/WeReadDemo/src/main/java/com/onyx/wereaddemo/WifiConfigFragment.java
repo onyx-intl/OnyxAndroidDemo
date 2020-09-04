@@ -116,7 +116,7 @@ public class WifiConfigFragment extends Fragment {
     }
 
     private void initWifiAdmin() {
-        OnyxWifiController.initWifiAdmin(getContext(), new WifiAdmin.Callback() {
+        OnyxWifiController.init(new WifiAdmin.Callback() {
             @Override
             public void onWifiStateChange(boolean isWifiEnable, int wifiExtraState) {
                 updateUi(isWifiEnable);

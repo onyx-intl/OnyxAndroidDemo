@@ -56,7 +56,7 @@ public class BluetoothDemoActivity extends PermissionCheckActivity {
     }
 
     private void initBluetoothAdmin() {
-        OnyxBluetoothController.init(this, new BluetoothCallback() {
+        OnyxBluetoothController.init(new BluetoothCallback() {
             @Override
             public void onBluetoothStateChanged(int bluetoothState) {
                 switch (bluetoothState) {
