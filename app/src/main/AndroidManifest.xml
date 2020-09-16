@@ -33,6 +33,7 @@
             android:label="PenStylusTouchHelperDemoActivity"/>
         <activity android:name="com.onyx.android.demo.scribble.ScribbleWebViewDemoActivity"/>
         <activity android:name="com.onyx.android.demo.scribble.ScribbleDemoActivity"/>
+        <activity android:name="com.onyx.android.demo.scribble.ScribblePenUpRefreshDemoActivity"/>
         <activity android:name="com.onyx.android.demo.AppOptimizeActivity"/>
         <activity android:name="com.onyx.android.demo.ReaderDemoActivity"/>
         <activity android:name="com.onyx.android.demo.ScreensaverActivity"/>

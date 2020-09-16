@@ -56,6 +56,11 @@ public class ScribbleDemoActivity extends AppCompatActivity {
         go(ScribbleSavePointsDemoActivity.class);
     }
 
+    @OnClick(R.id.button_pen_up_refresh)
+    public void button_pen_up_refresh() {
+        go(ScribblePenUpRefreshDemoActivity.class);
+    }
+
     private void go(Class<?> activityClass) {
         startActivity(new Intent(this, activityClass));
     }
