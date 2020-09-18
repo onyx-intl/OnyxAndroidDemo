@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="刷新模式："
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/weread_demo_text_size_middle"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        >
+
+        <RadioGroup
+            android:id="@+id/rg_refresh_mode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            >
+            <RadioButton
+                android:id="@+id/rb_normal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="普通刷新"
+                android:textSize="@dimen/weread_demo_text_size_small"
+                android:layout_marginTop="8dp"
+                />
+
+            <RadioButton
+                android:id="@+id/rb_fast_quality"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="快速刷新"
+                android:textSize="@dimen/weread_demo_text_size_small"
+                android:layout_marginTop="8dp"
+                />
+
+            <RadioButton
+                android:id="@+id/rb_fast"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="极速刷新"
+                android:textSize="@dimen/weread_demo_text_size_small"
+                android:layout_marginTop="8dp"
+                />
+
+            <RadioButton
+                android:id="@+id/rb_fast_x"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="X 刷新"
+                android:textSize="@dimen/weread_demo_text_size_small"
+                android:layout_marginTop="8dp"
+                />
+
+        </RadioGroup>
+
+    </LinearLayout>
+
+
+
+
+
+</LinearLayout>

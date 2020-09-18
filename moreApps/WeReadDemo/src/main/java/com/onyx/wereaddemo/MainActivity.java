@@ -45,6 +45,11 @@ public class MainActivity extends AppCompatActivity {
         go(SettingsDemoActivity.class);
     }
 
+    @OnClick(R.id.btn_open_refreshmode)
+    public void onClickButtonRefreshModeDemo() {
+        go(RefreshModeDemoActivity.class);
+    }
+
     private void go(Class<?> activityClass){
         startActivity(new Intent(this, activityClass));
     }
