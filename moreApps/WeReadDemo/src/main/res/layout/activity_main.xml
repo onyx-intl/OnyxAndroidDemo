@@ -39,5 +39,12 @@
         android:text="背光/对比度设置"
         />
 
+    <Button
+        android:id="@+id/btn_open_refreshmode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="刷新模式设置"
+        />
+
 
 </LinearLayout>

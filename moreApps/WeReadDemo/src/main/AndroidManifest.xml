@@ -33,6 +33,7 @@
         <activity android:name=".DateTimeDemoActivity" />
         <activity android:name=".OTADemoActivity" />
         <activity android:name=".SettingsDemoActivity" />
+        <activity android:name=".RefreshModeDemoActivity" />
         <activity android:name=".bluetooth.BluetoothDemoActivity"
             android:theme="@style/WeRead_AppTheme_FullScreen"/>
     </application>
