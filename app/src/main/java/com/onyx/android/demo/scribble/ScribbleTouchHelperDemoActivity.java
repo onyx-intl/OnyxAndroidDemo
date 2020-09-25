@@ -10,14 +10,15 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.RadioButton;
 
-import com.onyx.android.demo.utils.TouchUtils;
 import com.onyx.android.demo.R;
+import com.onyx.android.demo.utils.TouchUtils;
 import com.onyx.android.sdk.api.device.epd.EpdController;
 import com.onyx.android.sdk.pen.BrushRender;
 import com.onyx.android.sdk.pen.RawInputCallback;
@@ -127,6 +128,15 @@ public class ScribbleTouchHelperDemoActivity extends AppCompatActivity {
                 touchHelper.setStrokeStyle(TouchHelper.STROKE_STYLE_BRUSH);
             }
         });
+
+        surfaceView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                Log.d(TAG, "surfaceView.setOnTouchListener - onTouch::action - " + event.getAction());
+                return true;
+            }
+        });
+
     }
 
     @OnClick(R.id.button_pen)
