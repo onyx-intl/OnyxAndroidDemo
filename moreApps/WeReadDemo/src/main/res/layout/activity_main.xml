@@ -26,13 +26,6 @@
         android:text="日期时间设置"/>
 
     <Button
-        android:id="@+id/btn_open_ota"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="visible"
-        android:text="系统更新" />
-
-    <Button
         android:id="@+id/btn_open_settingsdemo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -45,6 +38,20 @@
         android:layout_height="wrap_content"
         android:text="刷新模式设置"
         />
+
+    <Button
+        android:id="@+id/btn_open_ota"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        android:text="系统更新" />
+
+    <Button
+        android:id="@+id/btn_open_factory_reset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        android:text="恢复出厂设置" />
 
 
 </LinearLayout>
