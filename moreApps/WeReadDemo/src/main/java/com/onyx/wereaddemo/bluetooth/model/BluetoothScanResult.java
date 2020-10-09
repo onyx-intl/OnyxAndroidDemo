@@ -1,9 +1,14 @@
 package com.onyx.wereaddemo.bluetooth.model;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
+import android.content.Intent;
+import android.databinding.ObservableBoolean;
 import android.databinding.ObservableField;
 import android.databinding.ObservableShort;
 
+import com.onyx.android.sdk.utils.ActivityUtil;
 import com.onyx.weread.api.OnyxBluetoothController;
 import com.onyx.wereaddemo.R;
 
@@ -21,13 +26,16 @@ public class BluetoothScanResult extends Observable {
     public static final int DISCONNECTED_STATE = 15;
 
     private BluetoothDevice device;
-    private int state;
+    private int state = -1;
+    private Context context;
     public ObservableShort rssi = new ObservableShort();
     public ObservableField<String> stateString = new ObservableField<>();
     public ObservableField<String> name = new ObservableField<>();
+    public ObservableBoolean isBonded = new ObservableBoolean(false);
     public int typeRes;
 
-    public BluetoothScanResult(BluetoothDevice device) {
+    public BluetoothScanResult(BluetoothDevice device, Context context) {
+        this.context = context;
         update(device);
     }
 
@@ -40,14 +48,22 @@ public class BluetoothScanResult extends Observable {
             case BluetoothDevice.BOND_BONDING:
                 stateString = "正在配对...";
                 break;
-            case CONNECTED_STATE:
+            case BluetoothAdapter.STATE_CONNECTED:
                 stateString = "已连接";
                 break;
-            case CONNECTING_STATE:
+            case BluetoothAdapter.STATE_CONNECTING:
                 stateString = "正在连接...";
+                break;
+            case BluetoothAdapter.STATE_DISCONNECTED:
+                if (getDevice().getBondState() == BluetoothDevice.BOND_BONDED) {
+                    stateString = "已配对";
+                } else {
+                    stateString = "";
+                }
                 break;
             case BluetoothDevice.BOND_NONE:
             default:
+                stateString = "";
                 break;
         }
         return stateString;
@@ -60,10 +76,15 @@ public class BluetoothScanResult extends Observable {
     public void setState(int state) {
         this.state = state;
         stateString.set(getStateString());
+        isBonded.set(getDevice().getBondState() == BluetoothDevice.BOND_BONDED);
     }
 
     public void update(BluetoothDevice device) {
-        update(device, device.getBondState());
+        int state = device.getBondState();
+        if (OnyxBluetoothController.isConnected(device)) {
+            state = BluetoothAdapter.STATE_CONNECTED;
+        }
+        update(device, state);
     }
 
     public void update(BluetoothDevice device, int state) {
@@ -108,15 +129,25 @@ public class BluetoothScanResult extends Observable {
     }
 
     public void onclick() {
-        if (getDevice().getBondState() == BluetoothDevice.BOND_NONE) {
+        if (state == BluetoothAdapter.STATE_CONNECTED) {
+            toDeviceDetail(getDevice());
+        } else if (getDevice().getBondState() == BluetoothDevice.BOND_NONE) {
             OnyxBluetoothController.createBond(getDevice());
         } else if (getDevice().getBondState() == BluetoothDevice.BOND_BONDED) {
             connect(getDevice());
         }
-        // TODO: 2020/9/3 show bonded device detail dialog
+    }
+
+    public void toDeviceDetailClick() {
+        toDeviceDetail(getDevice());
+    }
+
+    private void toDeviceDetail(BluetoothDevice device) {
+        Intent intent = OnyxBluetoothController.buildDeviceDetailDialogIntent(device);
+        ActivityUtil.startActivitySafely(context, intent);
     }
 
     private void connect(BluetoothDevice device) {
-
+        OnyxBluetoothController.connect(device);
     }
 }

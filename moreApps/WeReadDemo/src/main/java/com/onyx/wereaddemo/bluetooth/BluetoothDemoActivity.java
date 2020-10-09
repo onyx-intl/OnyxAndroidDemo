@@ -100,7 +100,7 @@ public class BluetoothDemoActivity extends PermissionCheckActivity {
                 if (StringUtils.isNotBlank(device.getName()) &&
                         device.getBondState() != BluetoothDevice.BOND_BONDED &&
                         !bluetoothDeviceSet.contains(device)) {
-                    BluetoothScanResult scanResult = new BluetoothScanResult(device);
+                    BluetoothScanResult scanResult = new BluetoothScanResult(device, BluetoothDemoActivity.this);
                     scanResult.setRssi(rssi);
                     adapter.getScannedDevices().add(scanResult);
                     bluetoothDeviceSet.add(device);
@@ -118,10 +118,11 @@ public class BluetoothDemoActivity extends PermissionCheckActivity {
             }
 
             @Override
-            public void onConnectionStateChanged(BluetoothDevice device, boolean connected) {
+            public void onConnectionStateChanged(BluetoothDevice device, int state) {
                 for (BluetoothScanResult scannedDevice : adapter.getScannedDevices()) {
                     if (scannedDevice.getDevice().equals(device)) {
-                        scannedDevice.update(device, connected ? BluetoothScanResult.CONNECTING_STATE : device.getBondState());
+                        scannedDevice.update(device, state);
+                        return;
                     }
                 }
             }
@@ -157,6 +158,7 @@ public class BluetoothDemoActivity extends PermissionCheckActivity {
         switchTip.set(isBluetoothEnabled.get() ? "关闭蓝牙" : "打开蓝牙");
         deviceName.set(OnyxBluetoothController.getDeviceName());
         binding.list.setAdapter(adapter);
+        adapter.setContext(this);
         updateBondedDevices();
     }
 

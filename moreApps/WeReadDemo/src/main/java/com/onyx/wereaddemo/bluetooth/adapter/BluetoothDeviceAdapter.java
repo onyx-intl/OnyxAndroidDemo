@@ -1,6 +1,7 @@
 package com.onyx.wereaddemo.bluetooth.adapter;
 
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ import java.util.List;
  */
 public class BluetoothDeviceAdapter extends BaseAdapter {
     private List<BluetoothScanResult> scannedDevices = new ArrayList<>();
+    private Context context;
 
     @Override
     public int getCount() {
@@ -48,7 +50,7 @@ public class BluetoothDeviceAdapter extends BaseAdapter {
     public List<BluetoothScanResult> createViewModel(List<BluetoothDevice> devices) {
         List<BluetoothScanResult> resultList = new ArrayList<>();
         for (BluetoothDevice device : devices) {
-            resultList.add(new BluetoothScanResult(device));
+            resultList.add(new BluetoothScanResult(device, context));
         }
         return resultList;
     }
@@ -63,5 +65,9 @@ public class BluetoothDeviceAdapter extends BaseAdapter {
 
     public void setScannedDevices(List<BluetoothScanResult> scannedDevices) {
         this.scannedDevices = scannedDevices;
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
     }
 }
