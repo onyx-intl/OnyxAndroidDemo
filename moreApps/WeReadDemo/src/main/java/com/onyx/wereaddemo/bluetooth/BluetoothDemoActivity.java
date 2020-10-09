@@ -163,7 +163,7 @@ public class BluetoothDemoActivity extends PermissionCheckActivity {
     }
 
     public void showBluetoothDialog() {
-        OnyxBluetoothController.showDeviceRenameDialog();
+        OnyxBluetoothController.showDeviceRenameDialog(this);
     }
 
     public void toggleBluetooth() {
