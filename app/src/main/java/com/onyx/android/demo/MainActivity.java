@@ -90,6 +90,11 @@ public class MainActivity extends AppCompatActivity {
         go(NoteDemoActivity.class);
     }
 
+    @OnClick(R.id.button_refresh_mode)
+    public void onClickButtonRefreshMode() {
+        go(RefreshModeDemoActivity.class);
+    }
+
     private void go(Class<?> activityClass){
         startActivity(new Intent(this, activityClass));
     }

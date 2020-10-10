@@ -42,6 +42,7 @@
         <activity android:name="com.onyx.android.demo.OTADemoActivity"/>
         <activity android:name="com.onyx.android.demo.DictionaryActivity"/>
         <activity android:name=".note.NoteDemoActivity" />
+        <activity android:name="com.onyx.android.demo.RefreshModeDemoActivity" />
     </application>
 
 </manifest>
