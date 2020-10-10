@@ -40,7 +40,7 @@ public class BluetoothScanResult extends Observable {
     }
 
     private String getStateString() {
-        String stateString = "";
+        String stateString = this.stateString.get();
         switch (state) {
             case BluetoothDevice.BOND_BONDED:
                 stateString = "已配对";
@@ -49,7 +49,10 @@ public class BluetoothScanResult extends Observable {
                 stateString = "正在配对...";
                 break;
             case BluetoothAdapter.STATE_CONNECTED:
-                stateString = "已连接";
+                if (getDevice().getBondState() == BluetoothDevice.BOND_BONDED &&
+                        OnyxBluetoothController.isConnected(device)) {
+                    stateString = "已连接";
+                }
                 break;
             case BluetoothAdapter.STATE_CONNECTING:
                 stateString = "正在连接...";
@@ -129,12 +132,14 @@ public class BluetoothScanResult extends Observable {
     }
 
     public void onclick() {
-        if (state == BluetoothAdapter.STATE_CONNECTED) {
-            toDeviceDetail(getDevice());
-        } else if (getDevice().getBondState() == BluetoothDevice.BOND_NONE) {
+        if (getDevice().getBondState() == BluetoothDevice.BOND_NONE) {
             OnyxBluetoothController.createBond(getDevice());
         } else if (getDevice().getBondState() == BluetoothDevice.BOND_BONDED) {
-            connect(getDevice());
+            if (state == BluetoothAdapter.STATE_CONNECTED) {
+                toDeviceDetail(getDevice());
+            } else {
+                connect(getDevice());
+            }
         }
     }
 
