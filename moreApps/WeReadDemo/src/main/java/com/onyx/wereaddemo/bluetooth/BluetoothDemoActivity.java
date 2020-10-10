@@ -112,7 +112,7 @@ public class BluetoothDemoActivity extends PermissionCheckActivity {
             public void onDeviceBondStateChanged(BluetoothDevice device, int bondState) {
                 for (BluetoothScanResult scannedDevice : adapter.getScannedDevices()) {
                     if (scannedDevice.getDevice().equals(device)) {
-                        scannedDevice.update(device);
+                        scannedDevice.update(device, bondState);
                     }
                 }
             }
