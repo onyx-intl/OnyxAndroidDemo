@@ -2,7 +2,6 @@
     package="com.onyx.android.demo">
 
     <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
-    <uses-permission android:name="android.permission.SET_TIME" />
 
     <application
         android:name=".SampleApplication"
@@ -43,7 +42,6 @@
         <activity android:name="com.onyx.android.demo.OTADemoActivity"/>
         <activity android:name="com.onyx.android.demo.DictionaryActivity"/>
         <activity android:name=".note.NoteDemoActivity" />
-        <activity android:name="com.onyx.android.demo.DateTimeDemoActivity" />
     </application>
 
 </manifest>
