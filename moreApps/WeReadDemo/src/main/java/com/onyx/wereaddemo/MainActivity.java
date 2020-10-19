@@ -50,6 +50,11 @@ public class MainActivity extends AppCompatActivity {
         go(RefreshModeDemoActivity.class);
     }
 
+    @OnClick(R.id.open_system_settings)
+    public void onClickButtonSystemSettingsDemo() {
+        go(SystemSettingsDemoActivity.class);
+    }
+
     @OnClick(R.id.btn_open_factory_reset)
     public void onClickButtonFactoryResetDemo() {
         go(FactoryResetDemoActivity.class);

@@ -40,6 +40,12 @@
         />
 
     <Button
+        android:id="@+id/open_system_settings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="系统参数设置" />
+
+    <Button
         android:id="@+id/btn_open_ota"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
