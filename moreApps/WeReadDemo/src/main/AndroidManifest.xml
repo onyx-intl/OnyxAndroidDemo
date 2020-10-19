@@ -37,6 +37,7 @@
         <activity android:name=".bluetooth.BluetoothDemoActivity"
             android:theme="@style/WeRead_AppTheme_FullScreen"/>
         <activity android:name=".FactoryResetDemoActivity" />
+        <activity android:name=".SystemSettingsDemoActivity" />
     </application>
 
 </manifest>
