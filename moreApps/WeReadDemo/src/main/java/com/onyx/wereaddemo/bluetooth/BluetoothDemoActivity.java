@@ -3,6 +3,7 @@ package com.onyx.wereaddemo.bluetooth;
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.databinding.ObservableBoolean;
 import android.databinding.ObservableField;
@@ -163,7 +164,8 @@ public class BluetoothDemoActivity extends PermissionCheckActivity {
     }
 
     public void showBluetoothDialog() {
-        OnyxBluetoothController.showDeviceRenameDialog(this);
+        Intent intent = OnyxBluetoothController.buildRenameDialogIntent();
+        startActivity(intent);
     }
 
     public void toggleBluetooth() {
