@@ -6,6 +6,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -17,7 +19,7 @@ import com.onyx.wereaddemo.utils.KeyValueBeanUtils;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class SystemSettingsDemoActivity extends AppCompatActivity {
+public class SystemSettingsDemoActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener {
 
     @Bind(R.id.tv_screen_off)
     public TextView tvScreenOff;
@@ -36,6 +38,9 @@ public class SystemSettingsDemoActivity extends AppCompatActivity {
 
     private ArrayAdapter<KeyValueBean> powerOffAdapter = null;
     private KeyValueBean[] powerOffArr;
+
+    @Bind(R.id.checkbox_adb)
+    public CheckBox adbCheckbox;
 
     private AdapterView.OnItemSelectedListener screenOffListener = new AdapterView.OnItemSelectedListener() {
         @Override
@@ -101,6 +106,8 @@ public class SystemSettingsDemoActivity extends AppCompatActivity {
         powerOffSpinner.setSelection(KeyValueBeanUtils.getIndex(String.valueOf(OnyxSdk.getInstance().getPowerOffTimeout()), powerOffArr));
         powerOffSpinner.setOnItemSelectedListener(powerOffListener);
 
+        adbCheckbox.setChecked(OnyxSdk.getInstance().isEnableADB());
+        adbCheckbox.setOnCheckedChangeListener(this);
     }
 
     private void initData() {
@@ -115,6 +122,14 @@ public class SystemSettingsDemoActivity extends AppCompatActivity {
         tvPowerOff.setText(KeyValueBeanUtils.getValue(String.valueOf(powerOffTimeout), powerOffArr));
     }
 
+    @Override
+    public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+        switch (compoundButton.getId()) {
+            case R.id.checkbox_adb:
+                OnyxSdk.getInstance().setADBEnabled(isChecked);
+                break;
+        }
+    }
 
     @Override
     protected void onDestroy() {
