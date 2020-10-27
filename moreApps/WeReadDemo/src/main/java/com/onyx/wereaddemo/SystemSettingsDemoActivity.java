@@ -11,7 +11,6 @@ import android.widget.CompoundButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.onyx.android.sdk.api.utils.StringUtils;
 import com.onyx.weread.api.OnyxSdk;
 import com.onyx.wereaddemo.data.KeyValueBean;
 import com.onyx.wereaddemo.utils.KeyValueBeanUtils;
@@ -19,7 +18,10 @@ import com.onyx.wereaddemo.utils.KeyValueBeanUtils;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class SystemSettingsDemoActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener {
+public class SystemSettingsDemoActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener,
+        AdapterView.OnItemSelectedListener {
+
+    private static final String TAG = SystemSettingsDemoActivity.class.getSimpleName();
 
     @Bind(R.id.tv_screen_off)
     public TextView tvScreenOff;
@@ -42,44 +44,6 @@ public class SystemSettingsDemoActivity extends AppCompatActivity implements Com
     @Bind(R.id.checkbox_adb)
     public CheckBox adbCheckbox;
 
-    private AdapterView.OnItemSelectedListener screenOffListener = new AdapterView.OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-            KeyValueBean bean = (KeyValueBean) screenOffSpinner.getSelectedItem();
-            String key = bean.getKey();
-            String value = bean.getValue();
-            if (StringUtils.isNullOrEmpty(key)) {
-                return;
-            }
-            OnyxSdk.getInstance().setScreenOffTimeout(Integer.valueOf(key));
-            updateUiData();
-        }
-
-        @Override
-        public void onNothingSelected(AdapterView<?> adapterView) {
-
-        }
-    };
-
-    private AdapterView.OnItemSelectedListener powerOffListener = new AdapterView.OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-            KeyValueBean bean = (KeyValueBean) powerOffSpinner.getSelectedItem();
-            String key = bean.getKey();
-            String value = bean.getValue();
-            if (StringUtils.isNullOrEmpty(key)) {
-                return;
-            }
-            OnyxSdk.getInstance().setPowerOffTimeout(Integer.valueOf(key));
-            updateUiData();
-        }
-
-        @Override
-        public void onNothingSelected(AdapterView<?> adapterView) {
-
-        }
-    };
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,7 +59,7 @@ public class SystemSettingsDemoActivity extends AppCompatActivity implements Com
         );
         screenOffSpinner.setAdapter(screenOffAdapter);
         screenOffSpinner.setSelection(KeyValueBeanUtils.getIndex(String.valueOf(OnyxSdk.getInstance().getScreenOffTimeout()), screenOffArr));
-        screenOffSpinner.setOnItemSelectedListener(screenOffListener);
+        screenOffSpinner.setOnItemSelectedListener(this);
 
         powerOffAdapter = new ArrayAdapter<KeyValueBean>(
                 this,
@@ -104,7 +68,7 @@ public class SystemSettingsDemoActivity extends AppCompatActivity implements Com
         );
         powerOffSpinner.setAdapter(powerOffAdapter);
         powerOffSpinner.setSelection(KeyValueBeanUtils.getIndex(String.valueOf(OnyxSdk.getInstance().getPowerOffTimeout()), powerOffArr));
-        powerOffSpinner.setOnItemSelectedListener(powerOffListener);
+        powerOffSpinner.setOnItemSelectedListener(this);
 
         adbCheckbox.setChecked(OnyxSdk.getInstance().isEnableADB());
         adbCheckbox.setOnCheckedChangeListener(this);
@@ -123,6 +87,29 @@ public class SystemSettingsDemoActivity extends AppCompatActivity implements Com
     }
 
     @Override
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+        KeyValueBean keyValueBean = (KeyValueBean) adapterView.getSelectedItem();
+        String key = keyValueBean.getKey();;
+        String value = keyValueBean.getValue();
+        switch (adapterView.getId()) {
+            case R.id.spinner_screen_off:
+                android.util.Log.e(TAG, "spinner_screen_off");
+                OnyxSdk.getInstance().setScreenOffTimeout(Integer.valueOf(key));
+                break;
+            case R.id.spinner_power_off:
+                android.util.Log.e(TAG, "spinner_power_off");
+                OnyxSdk.getInstance().setPowerOffTimeout(Integer.valueOf(key));
+                break;
+        }
+        updateUiData();
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
+
+    }
+
+    @Override
     public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
         switch (compoundButton.getId()) {
             case R.id.checkbox_adb:
@@ -138,7 +125,6 @@ public class SystemSettingsDemoActivity extends AppCompatActivity implements Com
 
     private void initResourceData() {
         screenOffArr = new KeyValueBean[]{
-                KeyValueBean.create("", ""),
                 KeyValueBean.create("180000", "3 分钟"),
                 KeyValueBean.create("300000", "5 分钟"),
                 KeyValueBean.create("600000", "10 分钟"),
@@ -147,7 +133,6 @@ public class SystemSettingsDemoActivity extends AppCompatActivity implements Com
         };
 
         powerOffArr = new KeyValueBean[]{
-                KeyValueBean.create("", ""),
                 KeyValueBean.create("900000", "15 分钟"),
                 KeyValueBean.create("1800000", "30 分钟"),
                 KeyValueBean.create("3600000", "1 小时"),
