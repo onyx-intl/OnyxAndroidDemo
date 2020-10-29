@@ -35,11 +35,20 @@ public class SystemSettingsDemoActivity extends AppCompatActivity implements Com
     @Bind(R.id.spinner_power_off)
     public Spinner powerOffSpinner;
 
+    @Bind(R.id.tv_work_lowpower_wakelock_timeout)
+    public TextView tvWorkLowpowerWakelockTimeout;
+
+    @Bind(R.id.spinner_work_lowpower_wakelock_timeout)
+    public Spinner workLowpowerWakelockTimeoutSpinner;
+
     private ArrayAdapter<KeyValueBean> screenOffAdapter = null;
     private KeyValueBean[] screenOffArr;
 
     private ArrayAdapter<KeyValueBean> powerOffAdapter = null;
     private KeyValueBean[] powerOffArr;
+
+    private ArrayAdapter<KeyValueBean> workLowpowerWakelockTimeoutAdapter = null;
+    private KeyValueBean[] workLowpowerWakelockTimeoutArr;
 
     @Bind(R.id.checkbox_adb)
     public CheckBox adbCheckbox;
@@ -51,7 +60,11 @@ public class SystemSettingsDemoActivity extends AppCompatActivity implements Com
         ButterKnife.bind(this);
 
         initResourceData();
+        initView();
         initData();
+    }
+
+    private void initView() {
         screenOffAdapter = new ArrayAdapter<KeyValueBean>(
                 this,
                 android.R.layout.simple_spinner_item,
@@ -70,6 +83,15 @@ public class SystemSettingsDemoActivity extends AppCompatActivity implements Com
         powerOffSpinner.setSelection(KeyValueBeanUtils.getIndex(String.valueOf(OnyxSdk.getInstance().getPowerOffTimeout()), powerOffArr));
         powerOffSpinner.setOnItemSelectedListener(this);
 
+        workLowpowerWakelockTimeoutAdapter = new ArrayAdapter<KeyValueBean>(
+                this,
+                android.R.layout.simple_spinner_item,
+                workLowpowerWakelockTimeoutArr
+        );
+        workLowpowerWakelockTimeoutSpinner.setAdapter(workLowpowerWakelockTimeoutAdapter);
+        workLowpowerWakelockTimeoutSpinner.setSelection(KeyValueBeanUtils.getIndex(String.valueOf(OnyxSdk.getInstance().getWorkLowPowerWakelockTimeout()), workLowpowerWakelockTimeoutArr));
+        workLowpowerWakelockTimeoutSpinner.setOnItemSelectedListener(this);
+
         adbCheckbox.setChecked(OnyxSdk.getInstance().isEnableADB());
         adbCheckbox.setOnCheckedChangeListener(this);
     }
@@ -84,6 +106,9 @@ public class SystemSettingsDemoActivity extends AppCompatActivity implements Com
 
         int powerOffTimeout = OnyxSdk.getInstance().getPowerOffTimeout();
         tvPowerOff.setText(KeyValueBeanUtils.getValue(String.valueOf(powerOffTimeout), powerOffArr));
+
+        int workLowpowerWakelockTimeout = OnyxSdk.getInstance().getWorkLowPowerWakelockTimeout();
+        tvWorkLowpowerWakelockTimeout.setText(KeyValueBeanUtils.getValue(String.valueOf(workLowpowerWakelockTimeout), workLowpowerWakelockTimeoutArr));
     }
 
     @Override
@@ -99,6 +124,10 @@ public class SystemSettingsDemoActivity extends AppCompatActivity implements Com
             case R.id.spinner_power_off:
                 android.util.Log.e(TAG, "spinner_power_off");
                 OnyxSdk.getInstance().setPowerOffTimeout(Integer.valueOf(key));
+                break;
+            case R.id.spinner_work_lowpower_wakelock_timeout:
+                android.util.Log.e(TAG, "spinner_work_lowpower_wakelock_timeout");
+                OnyxSdk.getInstance().setWorkLowPowerWakelockTimeout(Integer.valueOf(key));
                 break;
         }
         updateUiData();
@@ -139,6 +168,16 @@ public class SystemSettingsDemoActivity extends AppCompatActivity implements Com
                 KeyValueBean.create("43200000", "12 小时"),
                 KeyValueBean.create("86400000", "1 天"),
                 KeyValueBean.create("172800000", "2 天"),
+                KeyValueBean.create(String.valueOf(Integer.MAX_VALUE), "永不")
+        };
+
+        workLowpowerWakelockTimeoutArr = new KeyValueBean[]{
+                KeyValueBean.create("-1", "立刻"),
+                KeyValueBean.create("300000", "5 分钟"),
+                KeyValueBean.create("600000", "10 分钟"),
+                KeyValueBean.create("1800000", "30 分钟"),
+                KeyValueBean.create("3600000", "1 小时"),
+                KeyValueBean.create("43200000", "12 小时"),
                 KeyValueBean.create(String.valueOf(Integer.MAX_VALUE), "永不")
         };
     }
