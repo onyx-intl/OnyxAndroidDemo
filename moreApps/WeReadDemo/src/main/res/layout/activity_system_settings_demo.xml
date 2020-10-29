@@ -16,6 +16,34 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="USB 调试模式："
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/weread_demo_text_size_middle"
+            />
+
+        <CheckBox
+            android:id="@+id/checkbox_adb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/black"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="自动休眠："
             android:textColor="@android:color/black"
             android:textSize="@dimen/weread_demo_text_size_middle"
@@ -126,17 +154,42 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="USB 调试模式："
+            android:text="休眠后连接断开延迟(网络/蓝牙/音频播放)："
             android:textColor="@android:color/black"
             android:textSize="@dimen/weread_demo_text_size_middle"
             />
 
-        <CheckBox
-            android:id="@+id/checkbox_adb"
+        <TextView
+            android:id="@+id/tv_work_lowpower_wakelock_timeout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/weread_demo_text_size_middle"
             />
 
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="休眠后连接断开延迟(网络/蓝牙/音频播放)设置："
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/weread_demo_text_size_middle"
+            />
+
+        <Spinner
+            android:id="@+id/spinner_work_lowpower_wakelock_timeout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/black"
+            />
 
     </LinearLayout>
 
