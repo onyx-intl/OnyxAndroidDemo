@@ -4,15 +4,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.onyx.android.sdk.api.utils.StringUtils;
@@ -20,6 +18,7 @@ import com.onyx.android.sdk.utils.DateTimeUtil;
 import com.onyx.android.sdk.utils.RxTimerUtil;
 import com.onyx.weread.api.OnyxSdk;
 import com.onyx.wereaddemo.data.KeyValueBean;
+import com.onyx.wereaddemo.databinding.ActivityDatetimeDemoBinding;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -28,32 +27,12 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-
 public class DateTimeDemoActivity extends AppCompatActivity {
 
     private static final String DATE_PATTERN_YYYYMMDD_HHMMSS = "yyyy-MM-dd HH:mm:ss";
     public static final SimpleDateFormat DATE_FORMAT_YYYYMMDD_HHMMSS = new SimpleDateFormat(DATE_PATTERN_YYYYMMDD_HHMMSS, Locale.getDefault());
 
-    @Bind(R.id.tv_current_datetime)
-    public TextView dateTimeTextView;
-
-    @Bind(R.id.et_date_time)
-    public EditText etDateTime;
-
-    @Bind(R.id.auto_time_state)
-    public TextView auto_time_state;
-
-    @Bind(R.id.state_12_24)
-    public TextView state_12_24;
-
-    @Bind(R.id.timezone)
-    public TextView timezone;
-
-    @Bind(R.id.spinner_timezone)
-    public Spinner timezoneSpinner;
+    private ActivityDatetimeDemoBinding binding;
 
     private RxTimerUtil.TimerObserver timerObserver;
     private boolean initEditDateTime = false;
@@ -66,7 +45,7 @@ public class DateTimeDemoActivity extends AppCompatActivity {
     private AdapterView.OnItemSelectedListener timezoneListener = new AdapterView.OnItemSelectedListener() {
         @Override
         public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-            KeyValueBean bean = (KeyValueBean)timezoneSpinner.getSelectedItem();
+            KeyValueBean bean = (KeyValueBean)binding.spinnerTimezone.getSelectedItem();
             String key = bean.getKey();
             String value = bean.getValue();
             if (StringUtils.isNullOrEmpty(key)) {
@@ -84,9 +63,9 @@ public class DateTimeDemoActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_datetime_demo);
-        ButterKnife.bind(this);
 
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_datetime_demo);
+        initView();
         initData();
         initTimezoneData();
         String timezoneId = TimeZone.getDefault().getID();
@@ -96,10 +75,31 @@ public class DateTimeDemoActivity extends AppCompatActivity {
                 android.R.layout.simple_spinner_item,
                 timezoneArr
         );
-        timezoneSpinner.setAdapter(timezoneAdapter);
-        timezoneSpinner.setSelection(index);
-        timezoneSpinner.setOnItemSelectedListener(timezoneListener);
+        binding.spinnerTimezone.setAdapter(timezoneAdapter);
+        binding.spinnerTimezone.setSelection(index);
+        binding.spinnerTimezone.setOnItemSelectedListener(timezoneListener);
         doRegisterReceiver();
+    }
+
+    private void initView() {
+        binding.btnDateTimeSetting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickDateTimeSetting();
+            }
+        });
+        binding.btnAutoTimeToggle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                autoTimeToggle();
+            }
+        });
+        binding.btn1224Toggle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                timeFormatToggle();
+            }
+        });
     }
 
     private void initData() {
@@ -109,10 +109,9 @@ public class DateTimeDemoActivity extends AppCompatActivity {
         updateTimezone();
     }
 
-    @OnClick(R.id.btn_date_time_setting)
     public void onClickDateTimeSetting() {
         try {
-            Date newDate = DATE_FORMAT_YYYYMMDD_HHMMSS.parse(etDateTime.getText().toString());
+            Date newDate = DATE_FORMAT_YYYYMMDD_HHMMSS.parse(binding.etDateTime.getText().toString());
             boolean succcess = OnyxSdk.getInstance().changeSystemTime(newDate.getTime());
             Toast.makeText(this, succcess ? "日期时间修改成功" : "日期时间格式错误", Toast.LENGTH_LONG).show();
         } catch (ParseException e) {
@@ -122,8 +121,7 @@ public class DateTimeDemoActivity extends AppCompatActivity {
     }
 
 
-    @OnClick(R.id.btn_auto_time_toggle)
-    public void aa() {
+    public void autoTimeToggle() {
         boolean isAutoTimeEnabled = OnyxSdk.getInstance().isAutoTimeEnabled();
         if (isAutoTimeEnabled) {
             OnyxSdk.getInstance().setAutoTimeEnabled(false);
@@ -134,11 +132,10 @@ public class DateTimeDemoActivity extends AppCompatActivity {
     }
 
     private void updateIsAutoTime() {
-        auto_time_state.setText(OnyxSdk.getInstance().isAutoTimeEnabled() ? "是" : "否");
+        binding.autoTimeState.setText(OnyxSdk.getInstance().isAutoTimeEnabled() ? "是" : "否");
     }
 
-    @OnClick(R.id.btn_12_24_toggle)
-    public void bb() {
+    public void timeFormatToggle() {
         boolean is24HourEnabled = OnyxSdk.getInstance().is24HourEnabled();
         if (is24HourEnabled) {
             OnyxSdk.getInstance().set24HourEnabled(false);
@@ -149,23 +146,23 @@ public class DateTimeDemoActivity extends AppCompatActivity {
     }
 
     private void updateIs24Hour() {
-        state_12_24.setText(OnyxSdk.getInstance().is24HourEnabled() ? "是" : "否");
+        binding.state1224.setText(OnyxSdk.getInstance().is24HourEnabled() ? "是" : "否");
     }
 
     private void updateTimezone() {
         String timezoneId = TimeZone.getDefault().getID();
         String displayName = TimeZone.getDefault().getDisplayName();
-        timezone.setText(timezoneId + "-" + displayName);
+        binding.timezone.setText(timezoneId + "-" + displayName);
     }
 
     private void updateTime() {
         timerObserver = new RxTimerUtil.TimerObserver() {
             @Override
             public void onNext(Long aLong) {
-                dateTimeTextView.setText(DateTimeUtil.formatDate(GregorianCalendar.getInstance().getTime(), DATE_FORMAT_YYYYMMDD_HHMMSS));
+                binding.tvCurrentDatetime.setText(DateTimeUtil.formatDate(GregorianCalendar.getInstance().getTime(), DATE_FORMAT_YYYYMMDD_HHMMSS));
                 if (!initEditDateTime) {
                     initEditDateTime = true;
-                    etDateTime.setText(dateTimeTextView.getText());
+                    binding.etDateTime.setText(binding.tvCurrentDatetime.getText());
                 }
             }
         };
@@ -212,7 +209,6 @@ public class DateTimeDemoActivity extends AppCompatActivity {
         }
         return 0;
     }
-
 
     private void initTimezoneData() {
         timezoneArr = new KeyValueBean[]{

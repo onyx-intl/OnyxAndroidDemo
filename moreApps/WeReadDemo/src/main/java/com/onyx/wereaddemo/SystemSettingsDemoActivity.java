@@ -1,45 +1,23 @@
 package com.onyx.wereaddemo;
 
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.Spinner;
-import android.widget.TextView;
 
 import com.onyx.weread.api.OnyxSdk;
 import com.onyx.wereaddemo.data.KeyValueBean;
+import com.onyx.wereaddemo.databinding.ActivitySystemSettingsDemoBinding;
 import com.onyx.wereaddemo.utils.KeyValueBeanUtils;
-
-import butterknife.Bind;
-import butterknife.ButterKnife;
 
 public class SystemSettingsDemoActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener,
         AdapterView.OnItemSelectedListener {
 
     private static final String TAG = SystemSettingsDemoActivity.class.getSimpleName();
-
-    @Bind(R.id.tv_screen_off)
-    public TextView tvScreenOff;
-
-    @Bind(R.id.spinner_screen_off)
-    public Spinner screenOffSpinner;
-
-    @Bind(R.id.tv_power_off)
-    public TextView tvPowerOff;
-
-    @Bind(R.id.spinner_power_off)
-    public Spinner powerOffSpinner;
-
-    @Bind(R.id.tv_work_lowpower_wakelock_timeout)
-    public TextView tvWorkLowpowerWakelockTimeout;
-
-    @Bind(R.id.spinner_work_lowpower_wakelock_timeout)
-    public Spinner workLowpowerWakelockTimeoutSpinner;
 
     private ArrayAdapter<KeyValueBean> screenOffAdapter = null;
     private KeyValueBean[] screenOffArr;
@@ -50,14 +28,13 @@ public class SystemSettingsDemoActivity extends AppCompatActivity implements Com
     private ArrayAdapter<KeyValueBean> workLowpowerWakelockTimeoutAdapter = null;
     private KeyValueBean[] workLowpowerWakelockTimeoutArr;
 
-    @Bind(R.id.checkbox_adb)
-    public CheckBox adbCheckbox;
+
+    private ActivitySystemSettingsDemoBinding binding;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_system_settings_demo);
-        ButterKnife.bind(this);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_system_settings_demo);
 
         initResourceData();
         initView();
@@ -70,30 +47,33 @@ public class SystemSettingsDemoActivity extends AppCompatActivity implements Com
                 android.R.layout.simple_spinner_item,
                 screenOffArr
         );
-        screenOffSpinner.setAdapter(screenOffAdapter);
-        screenOffSpinner.setSelection(KeyValueBeanUtils.getIndex(String.valueOf(OnyxSdk.getInstance().getScreenOffTimeout()), screenOffArr));
-        screenOffSpinner.setOnItemSelectedListener(this);
+
+        binding.spinnerScreenOff.setAdapter(screenOffAdapter);
+        binding.spinnerScreenOff.setSelection(KeyValueBeanUtils.getIndex(String.valueOf(OnyxSdk.getInstance().getScreenOffTimeout()), screenOffArr));
+        binding.spinnerScreenOff.setOnItemSelectedListener(this);
 
         powerOffAdapter = new ArrayAdapter<KeyValueBean>(
                 this,
                 android.R.layout.simple_spinner_item,
                 powerOffArr
         );
-        powerOffSpinner.setAdapter(powerOffAdapter);
-        powerOffSpinner.setSelection(KeyValueBeanUtils.getIndex(String.valueOf(OnyxSdk.getInstance().getPowerOffTimeout()), powerOffArr));
-        powerOffSpinner.setOnItemSelectedListener(this);
+
+        binding.spinnerPowerOff.setAdapter(powerOffAdapter);
+        binding.spinnerPowerOff.setSelection(KeyValueBeanUtils.getIndex(String.valueOf(OnyxSdk.getInstance().getPowerOffTimeout()), powerOffArr));
+        binding.spinnerPowerOff.setOnItemSelectedListener(this);
 
         workLowpowerWakelockTimeoutAdapter = new ArrayAdapter<KeyValueBean>(
                 this,
                 android.R.layout.simple_spinner_item,
                 workLowpowerWakelockTimeoutArr
         );
-        workLowpowerWakelockTimeoutSpinner.setAdapter(workLowpowerWakelockTimeoutAdapter);
-        workLowpowerWakelockTimeoutSpinner.setSelection(KeyValueBeanUtils.getIndex(String.valueOf(OnyxSdk.getInstance().getWorkLowPowerWakelockTimeout()), workLowpowerWakelockTimeoutArr));
-        workLowpowerWakelockTimeoutSpinner.setOnItemSelectedListener(this);
 
-        adbCheckbox.setChecked(OnyxSdk.getInstance().isEnableADB());
-        adbCheckbox.setOnCheckedChangeListener(this);
+        binding.spinnerWorkLowpowerWakelockTimeout.setAdapter(workLowpowerWakelockTimeoutAdapter);
+        binding.spinnerWorkLowpowerWakelockTimeout.setSelection(KeyValueBeanUtils.getIndex(String.valueOf(OnyxSdk.getInstance().getWorkLowPowerWakelockTimeout()), workLowpowerWakelockTimeoutArr));
+        binding.spinnerWorkLowpowerWakelockTimeout.setOnItemSelectedListener(this);
+
+        binding.checkboxAdb.setChecked(OnyxSdk.getInstance().isEnableADB());
+        binding.checkboxAdb.setOnCheckedChangeListener(this);
     }
 
     private void initData() {
@@ -102,13 +82,13 @@ public class SystemSettingsDemoActivity extends AppCompatActivity implements Com
 
     private void updateUiData() {
         int screenOffTimeout = OnyxSdk.getInstance().getScreenOffTimeout();
-        tvScreenOff.setText(KeyValueBeanUtils.getValue(String.valueOf(screenOffTimeout), screenOffArr));
+        binding.tvScreenOff.setText(KeyValueBeanUtils.getValue(String.valueOf(screenOffTimeout), screenOffArr));
 
         int powerOffTimeout = OnyxSdk.getInstance().getPowerOffTimeout();
-        tvPowerOff.setText(KeyValueBeanUtils.getValue(String.valueOf(powerOffTimeout), powerOffArr));
+        binding.tvPowerOff.setText(KeyValueBeanUtils.getValue(String.valueOf(powerOffTimeout), powerOffArr));
 
         int workLowpowerWakelockTimeout = OnyxSdk.getInstance().getWorkLowPowerWakelockTimeout();
-        tvWorkLowpowerWakelockTimeout.setText(KeyValueBeanUtils.getValue(String.valueOf(workLowpowerWakelockTimeout), workLowpowerWakelockTimeoutArr));
+        binding.tvWorkLowpowerWakelockTimeout.setText(KeyValueBeanUtils.getValue(String.valueOf(workLowpowerWakelockTimeout), workLowpowerWakelockTimeoutArr));
     }
 
     @Override

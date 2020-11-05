@@ -1,37 +1,32 @@
 package com.onyx.wereaddemo;
 
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.widget.RadioGroup;
 
 import com.onyx.android.sdk.api.device.epd.UpdateOption;
 import com.onyx.weread.api.OnyxSdk;
-
-import butterknife.Bind;
-import butterknife.ButterKnife;
+import com.onyx.wereaddemo.databinding.ActivityRefreshModeDemoBinding;
 
 public class RefreshModeDemoActivity extends AppCompatActivity implements RadioGroup.OnCheckedChangeListener {
 
     private static final String TAG = RefreshModeDemoActivity.class.getSimpleName();
 
-    @Bind(R.id.rg_refresh_mode)
-    public RadioGroup rgRefreshmode;
+    private ActivityRefreshModeDemoBinding binding;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_refresh_mode_demo);
-        ButterKnife.bind(this);
-
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_refresh_mode_demo);
         initData();
-        rgRefreshmode.setOnCheckedChangeListener(this);
+        binding.rgRefreshMode.setOnCheckedChangeListener(this);
     }
 
     private void initData() {
         UpdateOption updateOption = OnyxSdk.getInstance().getSystemRefreshMode();
-        rgRefreshmode.check(getRadioButtonIdByUpdateOption(updateOption));
+        binding.rgRefreshMode.check(getRadioButtonIdByUpdateOption(updateOption));
     }
 
     @Override

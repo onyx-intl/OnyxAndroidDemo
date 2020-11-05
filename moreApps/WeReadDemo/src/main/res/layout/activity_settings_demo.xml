@@ -1,173 +1,163 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="20dp"
-    >
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data></data>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        >
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="冷光取值："
+                android:textSize="@dimen/weread_demo_text_size_small" />
+
+            <TextView
+                android:id="@+id/tv_cold_values"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="暖光取值："
+                android:textSize="@dimen/weread_demo_text_size_small" />
+
+            <TextView
+                android:id="@+id/tv_warm_values"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp" />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="冷光"
+                android:textSize="@dimen/weread_demo_text_size_small" />
+
+            <ToggleButton
+                android:id="@+id/togglebutton_cold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp" />
+
+            <EditText
+                android:id="@+id/et_cold"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp" />
+
+            <Button
+                android:id="@+id/btn_cold"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:text="设置" />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="暖光"
+                android:textSize="@dimen/weread_demo_text_size_small" />
+
+            <ToggleButton
+                android:id="@+id/togglebutton_warm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp" />
+
+            <EditText
+                android:id="@+id/et_warm"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp" />
+
+            <Button
+                android:id="@+id/btn_warm"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:text="设置" />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="对比度"
+                android:textSize="@dimen/weread_demo_text_size_small" />
+
+
+            <EditText
+                android:id="@+id/et_contrast"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp" />
+
+            <Button
+                android:id="@+id/btn_contrast"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:text="设置" />
+
+        </LinearLayout>
+
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="冷光取值："
-            android:textSize="@dimen/weread_demo_text_size_small"
-            />
+            android:layout_marginTop="30dp"
+            android:text="状态："
+            android:textSize="@dimen/weread_demo_text_size_small" />
+
         <TextView
-            android:id="@+id/tv_cold_values"
+            android:id="@+id/tv_infos"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="15dp"
-            />
+            android:textSize="@dimen/weread_demo_text_size_small" />
+
 
     </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="10dp"
-        >
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="暖光取值："
-            android:textSize="@dimen/weread_demo_text_size_small"
-            />
-        <TextView
-            android:id="@+id/tv_warm_values"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="15dp"
-            />
-
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        >
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="冷光"
-            android:textSize="@dimen/weread_demo_text_size_small"
-            />
-
-        <ToggleButton
-            android:id="@+id/togglebutton_cold"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="30dp"
-            />
-
-        <EditText
-            android:id="@+id/et_cold"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="30dp"
-            />
-
-        <Button
-            android:id="@+id/btn_cold"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:text="设置"
-            android:layout_marginLeft="30dp"
-            />
-
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="30dp"
-        >
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="暖光"
-            android:textSize="@dimen/weread_demo_text_size_small"
-            />
-
-        <ToggleButton
-            android:id="@+id/togglebutton_warm"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="30dp"
-            />
-
-        <EditText
-            android:id="@+id/et_warm"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="30dp"
-            />
-
-        <Button
-            android:id="@+id/btn_warm"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:text="设置"
-            android:layout_marginLeft="30dp"
-            />
-
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="30dp"
-        >
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="对比度"
-            android:textSize="@dimen/weread_demo_text_size_small"
-            />
-
-
-        <EditText
-            android:id="@+id/et_contrast"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="30dp"
-            />
-
-        <Button
-            android:id="@+id/btn_contrast"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:text="设置"
-            android:layout_marginLeft="30dp"
-            />
-
-    </LinearLayout>
-
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:text="状态："
-        android:textSize="@dimen/weread_demo_text_size_small"
-        />
-    <TextView
-        android:id="@+id/tv_infos"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="@dimen/weread_demo_text_size_small"
-        />
-
-
-</LinearLayout>
+</layout>

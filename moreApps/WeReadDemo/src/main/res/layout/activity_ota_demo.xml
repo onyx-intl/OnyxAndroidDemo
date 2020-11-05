@@ -1,121 +1,125 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="50dp"
-    >
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data></data>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="升级包路径："
-            android:textSize="@dimen/weread_demo_text_size_middle"
-            android:textColor="@android:color/black"
-            />
-        <EditText
-            android:id="@+id/edittext_ota_package_path"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:minHeight="40dp"
-            android:hint="input keyword"
-            android:layout_height="wrap_content"
-            android:text="/sdcard/update.upx"/>
-        <Button
-            android:id="@+id/button_ota_update"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minHeight="40dp"
-            android:text="升级"
-            android:textColor="@android:color/black"/>
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical"
-        android:layout_marginTop="30dp"
-        >
-        <TextView
-            android:layout_width="wrap_content"
+        android:padding="50dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="当前固件信息："
-            android:textColor="@android:color/black"
-            android:textSize="@dimen/weread_demo_text_size_middle"
-            />
-        <TextView
-            android:id="@+id/tv_firmware_info"
-            android:layout_width="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="升级包路径："
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/weread_demo_text_size_middle" />
+
+            <EditText
+                android:id="@+id/edittext_ota_package_path"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="input keyword"
+                android:minHeight="40dp"
+                android:text="/sdcard/update.upx" />
+
+            <Button
+                android:id="@+id/button_ota_update"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="40dp"
+                android:text="升级"
+                android:textColor="@android:color/black" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="当前固件信息："
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/weread_demo_text_size_middle" />
+
+            <TextView
+                android:id="@+id/tv_firmware_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/weread_demo_text_size_middle" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="30dp"
+            android:background="@android:color/black" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:text="自定义升级api只返回升级进度，ui需要额外处理"
             android:textColor="@android:color/black"
-            android:textSize="@dimen/weread_demo_text_size_middle"
-            />
+            android:textSize="@dimen/weread_demo_text_size_middle" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="升级包路径："
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/weread_demo_text_size_middle" />
+
+            <EditText
+                android:id="@+id/edittext_ota_package_path_custom"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="input keyword"
+                android:minHeight="40dp"
+                android:text="/sdcard/update.upx" />
+
+            <Button
+                android:id="@+id/button_ota_update_custom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="40dp"
+                android:text="自定义升级"
+                android:textColor="@android:color/black" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_firmware_update_result"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/weread_demo_text_size_middle" />
+
+        </LinearLayout>
+
     </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@android:color/black"
-        android:layout_marginTop="30dp"
-        />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="自定义升级api只返回升级进度，ui需要额外处理"
-        android:textSize="@dimen/weread_demo_text_size_middle"
-        android:textColor="@android:color/black"
-        android:layout_marginTop="30dp"
-        />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="30dp">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="升级包路径："
-            android:textSize="@dimen/weread_demo_text_size_middle"
-            android:textColor="@android:color/black"
-            />
-        <EditText
-            android:id="@+id/edittext_ota_package_path_custom"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:minHeight="40dp"
-            android:hint="input keyword"
-            android:layout_height="wrap_content"
-            android:text="/sdcard/update.upx"/>
-        <Button
-            android:id="@+id/button_ota_update_custom"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minHeight="40dp"
-            android:text="自定义升级"
-            android:textColor="@android:color/black"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginTop="10dp"
-        >
-        <TextView
-            android:id="@+id/tv_firmware_update_result"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/black"
-            android:textSize="@dimen/weread_demo_text_size_middle"
-            />
-
-    </LinearLayout>
-
-</LinearLayout>
+</layout>

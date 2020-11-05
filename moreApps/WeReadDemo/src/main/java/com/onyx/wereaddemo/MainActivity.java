@@ -1,63 +1,76 @@
 package com.onyx.wereaddemo;
 
 import android.content.Intent;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 
 import com.onyx.wereaddemo.bluetooth.BluetoothDemoActivity;
-
-import butterknife.ButterKnife;
-import butterknife.OnClick;
+import com.onyx.wereaddemo.databinding.ActivityMainBinding;
 
 
 public class MainActivity extends AppCompatActivity {
 
+    private ActivityMainBinding binding;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        initView();
     }
 
-    @OnClick(R.id.open_wifi)
-    public void openWifi() {
-        go(WifiDemoActivity.class);
-    }
+    private void initView() {
+        binding.openWifi.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                go(WifiDemoActivity.class);
+            }
+        });
+        binding.openBluetooth.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                go(BluetoothDemoActivity.class);
+            }
+        });
+        binding.btnOpenOta.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                go(OTADemoActivity.class);
+            }
+        });
 
-    @OnClick(R.id.open_bluetooth)
-    public void openBluetooth() {
-        go(BluetoothDemoActivity.class);
-    }
-
-    @OnClick(R.id.btn_open_ota)
-    public void btn_open_ota() {
-        go(OTADemoActivity.class);
-    }
-
-
-    @OnClick(R.id.button_datetime)
-    public void onClickButtonDeviceSetting() {
-        go(DateTimeDemoActivity.class);
-    }
-
-    @OnClick(R.id.btn_open_settingsdemo)
-    public void onClickButtonSettingsDemo() {
-        go(SettingsDemoActivity.class);
-    }
-
-    @OnClick(R.id.btn_open_refreshmode)
-    public void onClickButtonRefreshModeDemo() {
-        go(RefreshModeDemoActivity.class);
-    }
-
-    @OnClick(R.id.open_system_settings)
-    public void onClickButtonSystemSettingsDemo() {
-        go(SystemSettingsDemoActivity.class);
-    }
-
-    @OnClick(R.id.btn_open_factory_reset)
-    public void onClickButtonFactoryResetDemo() {
-        go(FactoryResetDemoActivity.class);
+        binding.buttonDatetime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                go(DateTimeDemoActivity.class);
+            }
+        });
+        binding.btnOpenSettingsdemo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                go(SettingsDemoActivity.class);
+            }
+        });
+        binding.btnOpenRefreshmode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                go(RefreshModeDemoActivity.class);
+            }
+        });
+        binding.openSystemSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                go(SystemSettingsDemoActivity.class);
+            }
+        });
+        binding.btnOpenFactoryReset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                go(FactoryResetDemoActivity.class);
+            }
+        });
     }
 
     private void go(Class<?> activityClass){
