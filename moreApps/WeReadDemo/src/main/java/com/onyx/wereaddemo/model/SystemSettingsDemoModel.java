@@ -22,6 +22,7 @@ public class SystemSettingsDemoModel extends BaseObservable {
     public ObservableField<String> screenOffTimeout = new ObservableField<>();
     public ObservableField<String> powerOffTimeout = new ObservableField<>();
     public ObservableField<String> workLowpowerWakelockTimeoutTimeout = new ObservableField<>();
+    public ObservableBoolean swipeFromLeftEnable = new ObservableBoolean();
 
     private Context mContext;
     private ActivitySystemSettingsDemoBinding binding;
@@ -42,6 +43,8 @@ public class SystemSettingsDemoModel extends BaseObservable {
         public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
             if (compoundButton == binding.checkboxAdb) {
                 OnyxSdk.getInstance().setADBEnabled(isChecked);
+            } else if (compoundButton == binding.checkboxSwipeFromLeft) {
+                OnyxSdk.getInstance().setSwipeFromLeftEnable(isChecked);
             }
         }
     };
@@ -115,8 +118,8 @@ public class SystemSettingsDemoModel extends BaseObservable {
         binding.spinnerWorkLowpowerWakelockTimeout.setSelection(KeyValueBeanUtils.getIndex(String.valueOf(OnyxSdk.getInstance().getWorkLowPowerWakelockTimeout()), workLowpowerWakelockTimeoutArr));
         binding.spinnerWorkLowpowerWakelockTimeout.setOnItemSelectedListener(onItemSelectedListener);
 
-        //binding.checkboxAdb.setChecked(OnyxSdk.getInstance().isEnableADB());
         binding.checkboxAdb.setOnCheckedChangeListener(checkedChangeListener);
+        binding.checkboxSwipeFromLeft.setOnCheckedChangeListener(checkedChangeListener);
     }
 
     private void initData() {
@@ -129,6 +132,7 @@ public class SystemSettingsDemoModel extends BaseObservable {
         workLowpowerWakelockTimeoutTimeout.set(KeyValueBeanUtils.getValue(String.valueOf(OnyxSdk.getInstance().getWorkLowPowerWakelockTimeout()), workLowpowerWakelockTimeoutArr));
 
         adbEnable.set(OnyxSdk.getInstance().isEnableADB());
+        swipeFromLeftEnable.set(OnyxSdk.getInstance().isSwipeFromLeftEnable());
     }
 
 
