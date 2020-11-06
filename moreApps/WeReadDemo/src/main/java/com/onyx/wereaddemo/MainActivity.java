@@ -1,66 +1,22 @@
 package com.onyx.wereaddemo;
 
-import android.content.Intent;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import com.onyx.wereaddemo.bluetooth.BluetoothDemoActivity;
-
-import butterknife.ButterKnife;
-import butterknife.OnClick;
+import com.onyx.wereaddemo.databinding.ActivityMainBinding;
+import com.onyx.wereaddemo.model.MainModel;
 
 
 public class MainActivity extends AppCompatActivity {
 
+    private ActivityMainBinding binding;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        binding.setModel(new MainModel(this));
     }
 
-    @OnClick(R.id.open_wifi)
-    public void openWifi() {
-        go(WifiDemoActivity.class);
-    }
-
-    @OnClick(R.id.open_bluetooth)
-    public void openBluetooth() {
-        go(BluetoothDemoActivity.class);
-    }
-
-    @OnClick(R.id.btn_open_ota)
-    public void btn_open_ota() {
-        go(OTADemoActivity.class);
-    }
-
-
-    @OnClick(R.id.button_datetime)
-    public void onClickButtonDeviceSetting() {
-        go(DateTimeDemoActivity.class);
-    }
-
-    @OnClick(R.id.btn_open_settingsdemo)
-    public void onClickButtonSettingsDemo() {
-        go(SettingsDemoActivity.class);
-    }
-
-    @OnClick(R.id.btn_open_refreshmode)
-    public void onClickButtonRefreshModeDemo() {
-        go(RefreshModeDemoActivity.class);
-    }
-
-    @OnClick(R.id.open_system_settings)
-    public void onClickButtonSystemSettingsDemo() {
-        go(SystemSettingsDemoActivity.class);
-    }
-
-    @OnClick(R.id.btn_open_factory_reset)
-    public void onClickButtonFactoryResetDemo() {
-        go(FactoryResetDemoActivity.class);
-    }
-
-    private void go(Class<?> activityClass){
-        startActivity(new Intent(this, activityClass));
-    }
 }

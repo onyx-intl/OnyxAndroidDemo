@@ -1,168 +1,24 @@
 package com.onyx.wereaddemo;
 
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.ToggleButton;
 
-import com.onyx.weread.api.OnyxSdk;
+import com.onyx.wereaddemo.databinding.ActivitySettingsDemoBinding;
+import com.onyx.wereaddemo.model.SettingsDemoModel;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-
-public class SettingsDemoActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener {
+public class SettingsDemoActivity extends AppCompatActivity {
 
     private static final String NEW_LINE = "\n";
 
-    @Bind(R.id.tv_cold_values)
-    public TextView tvColdValues;
-
-    @Bind(R.id.tv_warm_values)
-    public TextView tvWarmValues;
-
-    @Bind(R.id.togglebutton_cold)
-    public ToggleButton togglebuttonCold;
-
-    @Bind(R.id.et_cold)
-    public EditText et_cold;
-
-    @Bind(R.id.btn_cold)
-    public Button btn_cold;
-
-    @Bind(R.id.togglebutton_warm)
-    public ToggleButton togglebuttonWarm;
-
-    @Bind(R.id.et_warm)
-    public EditText et_warm;
-
-    @Bind(R.id.btn_warm)
-    public Button btn_warm;
-
-    @Bind(R.id.et_contrast)
-    public EditText et_contrast;
-
-    @Bind(R.id.btn_contrast)
-    public Button btn_contrast;
-
-    @Bind(R.id.tv_infos)
-    public TextView tvInfos;
+    private ActivitySettingsDemoBinding binding;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings_demo);
-        ButterKnife.bind(this);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_settings_demo);
+        binding.setModel(new SettingsDemoModel(binding));
 
-        initData();
     }
-
-    private void initData() {
-        tvColdValues.setText(getColdValues());
-        tvWarmValues.setText(getWarmValues());
-        et_cold.setText(String.valueOf(getCurrentColdLightValue()));
-        et_warm.setText(String.valueOf(getCurrentWarmLightValue()));
-        et_contrast.setText(String.valueOf(OnyxSdk.getInstance().getCurrentGlobalContrast()));
-
-        refreshValues();
-    }
-
-    private void refreshValues() {
-        togglebuttonCold.setOnCheckedChangeListener(null);
-        togglebuttonWarm.setOnCheckedChangeListener(null);
-
-        togglebuttonCold.setChecked(OnyxSdk.getInstance().isColdLightOn());
-        togglebuttonWarm.setChecked(OnyxSdk.getInstance().isWarmLightOn());
-        tvInfos.setText(getInfos());
-
-        togglebuttonCold.setOnCheckedChangeListener(this);
-        togglebuttonWarm.setOnCheckedChangeListener(this);
-    }
-
-    private String getInfos() {
-        StringBuffer sb = new StringBuffer();
-        sb.append("冷光: ").append(OnyxSdk.getInstance().isColdLightOn() ? "开启" : "关闭").append("    当前冷光值: ").append(OnyxSdk.getInstance().getCurrentColdLightValue()).append(NEW_LINE);
-        sb.append("暖光: ").append(OnyxSdk.getInstance().isWarmLightOn() ? "开启" : "关闭").append("    当前暖光值: ").append(OnyxSdk.getInstance().getCurrentWarmLightValue()).append(NEW_LINE);
-        sb.append("对比度: ").append(OnyxSdk.getInstance().getCurrentGlobalContrast()).append(NEW_LINE);
-        return sb.toString();
-    }
-
-    @OnClick(R.id.btn_cold)
-    public void onButtonColdClick() {
-        OnyxSdk.getInstance().setColdLightValue(Integer.valueOf(et_cold.getText().toString()));
-        refreshValues();
-    }
-
-    @OnClick(R.id.btn_warm)
-    public void onButtonWarmClick() {
-        OnyxSdk.getInstance().setWarmLightValue(Integer.valueOf(et_warm.getText().toString()));
-        refreshValues();
-    }
-
-    @OnClick(R.id.btn_contrast)
-    public void onButtonContrastClick() {
-        OnyxSdk.getInstance().setGlobalContrast(Integer.valueOf(et_contrast.getText().toString()));
-        refreshValues();
-    }
-
-    @Override
-    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        switch (buttonView.getId()) {
-            case R.id.togglebutton_cold:
-                if (isChecked) {
-                    OnyxSdk.getInstance().openColdLight();
-                } else {
-                    OnyxSdk.getInstance().closeColdLight();
-                }
-                break;
-            case R.id.togglebutton_warm:
-                if (isChecked) {
-                    OnyxSdk.getInstance().openWarmLight();
-                } else {
-                    OnyxSdk.getInstance().closeWarmLight();
-                }
-                break;
-        }
-        refreshValues();
-    }
-
-
-
-    private int getCurrentColdLightValue() {
-        return OnyxSdk.getInstance().getCurrentColdLightValue();
-    }
-
-    private int getCurrentWarmLightValue() {
-        return OnyxSdk.getInstance().getCurrentWarmLightValue();
-    }
-
-
-    private String getColdValues() {
-        return conversionToString(OnyxSdk.getInstance().getColdLightValues());
-    }
-
-    private String getWarmValues() {
-        return conversionToString(OnyxSdk.getInstance().getWarmLightValues());
-    }
-
-    private String conversionToString(Integer[] list) {
-        if (list == null) {
-            return "";
-        }
-        StringBuffer sb = new StringBuffer();
-        sb.append("[");
-        for (Integer v : list) {
-            sb.append(v).append(", ");
-        }
-        sb.deleteCharAt(sb.length() - 2);
-        sb.append("]");
-        return sb.toString();
-    }
-
-
 }

@@ -1,63 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="vertical"
-    tools:context="com.onyx.wereaddemo.MainActivity">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <Button
-        android:id="@+id/open_wifi"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="wifi" />
+    <data>
+        <variable
+            name="model"
+            type="com.onyx.wereaddemo.model.MainModel" />
+    </data>
 
-    <Button
-        android:id="@+id/open_bluetooth"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="蓝牙" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
 
-    <Button
-        android:id="@+id/button_datetime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="日期时间设置"/>
+        <Button
+            android:id="@+id/open_wifi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="wifi"
+            android:onClick="@{() -> model.gotoWifiDemo() }"
+            />
 
-    <Button
-        android:id="@+id/btn_open_settingsdemo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="背光/对比度设置"
-        />
+        <Button
+            android:id="@+id/open_bluetooth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="蓝牙"
+            android:onClick="@{() -> model.gotoBluetoothDemo() }" />
 
-    <Button
-        android:id="@+id/btn_open_refreshmode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="刷新模式设置"
-        />
+        <Button
+            android:id="@+id/button_datetime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="日期时间设置"
+            android:onClick="@{() -> model.gotoDateTimeDemo() }" />
 
-    <Button
-        android:id="@+id/open_system_settings"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="系统参数设置" />
+        <Button
+            android:id="@+id/btn_open_settingsdemo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="背光/对比度设置"
+            android:onClick="@{() -> model.gotoSettingsDemo() }" />
 
-    <Button
-        android:id="@+id/btn_open_ota"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="visible"
-        android:text="系统更新" />
+        <Button
+            android:id="@+id/btn_open_refreshmode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="刷新模式设置"
+            android:onClick="@{() -> model.gotoRefreshModeDemo() }" />
 
-    <Button
-        android:id="@+id/btn_open_factory_reset"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="visible"
-        android:text="恢复出厂设置" />
+        <Button
+            android:id="@+id/open_system_settings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="系统参数设置"
+            android:onClick="@{() -> model.gotoSystemSettingsDemo() }" />
+
+        <Button
+            android:id="@+id/btn_open_ota"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="系统更新"
+            android:onClick="@{() -> model.gotoOtaDemo() }" />
+
+        <Button
+            android:id="@+id/btn_open_factory_reset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="恢复出厂设置"
+            android:onClick="@{() -> model.gotoFactoryResetDemo() }" />
 
 
-</LinearLayout>
+    </LinearLayout>
+</layout>
