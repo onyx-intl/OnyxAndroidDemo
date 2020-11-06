@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <data></data>
+    <data>
+        <variable
+            name="model"
+            type="com.onyx.wereaddemo.model.SystemSettingsDemoModel" />
+    </data>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -25,7 +29,8 @@
             <CheckBox
                 android:id="@+id/checkbox_adb"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:checked="@{model.adbEnable}" />
         </LinearLayout>
 
         <View
@@ -51,7 +56,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/black"
-                android:textSize="@dimen/weread_demo_text_size_middle" />
+                android:textSize="@dimen/weread_demo_text_size_middle"
+                android:text="@{model.screenOffTimeout}" />
 
         </LinearLayout>
 
@@ -99,7 +105,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/black"
-                android:textSize="@dimen/weread_demo_text_size_middle" />
+                android:textSize="@dimen/weread_demo_text_size_middle"
+                android:text="@{model.powerOffTimeout}" />
 
         </LinearLayout>
 
@@ -147,7 +154,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/black"
-                android:textSize="@dimen/weread_demo_text_size_middle" />
+                android:textSize="@dimen/weread_demo_text_size_middle"
+                android:text="@{model.workLowpowerWakelockTimeoutTimeout}" />
 
         </LinearLayout>
 

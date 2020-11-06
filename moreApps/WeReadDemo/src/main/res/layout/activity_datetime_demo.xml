@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <data></data>
+    <data>
+        <variable
+            name="model"
+            type="com.onyx.wereaddemo.model.DateTimeDemoModel" />
+    </data>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -28,7 +32,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:textColor="@android:color/black"
-                android:textSize="@dimen/weread_demo_text_size_middle" />
+                android:textSize="@dimen/weread_demo_text_size_middle"
+                android:text="@{model.currentDatetime}"/>
         </LinearLayout>
 
         <RelativeLayout
@@ -45,7 +50,9 @@
                 android:layout_height="wrap_content"
                 android:minWidth="200dp"
                 android:textColor="@android:color/black"
-                android:textSize="18sp" />
+                android:textSize="18sp"
+                android:text="@={model.etDateTime}"
+                />
 
             <Button
                 android:id="@+id/btn_date_time_setting"
@@ -54,7 +61,9 @@
                 android:layout_marginLeft="10dp"
                 android:layout_toRightOf="@id/et_date_time"
                 android:text="修改时间"
-                android:textColor="@android:color/black" />
+                android:textColor="@android:color/black"
+                android:onClick="@{() -> model.onClickDateTimeSetting()}"
+                />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -81,13 +90,17 @@
                 android:id="@+id/auto_time_state"
                 android:layout_width="80dp"
                 android:layout_height="wrap_content"
-                android:textSize="@dimen/weread_demo_text_size_middle" />
+                android:textSize="@dimen/weread_demo_text_size_middle"
+                android:text="@{model.isAutoTimeEnabled ? String.valueOf('是') : String.valueOf('否')}"
+                />
 
             <Button
                 android:id="@+id/btn_auto_time_toggle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="自动获取时间开关" />
+                android:text="自动获取时间开关"
+                android:onClick="@{() -> model.autoTimeToggle()}"
+                />
 
         </LinearLayout>
 
@@ -107,13 +120,15 @@
                 android:id="@+id/state_12_24"
                 android:layout_width="80dp"
                 android:layout_height="wrap_content"
-                android:textSize="@dimen/weread_demo_text_size_middle" />
+                android:textSize="@dimen/weread_demo_text_size_middle"
+                android:text="@{model.is24HoursEnabled ? String.valueOf('是') : String.valueOf('否')}" />
 
             <Button
                 android:id="@+id/btn_12_24_toggle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="12/24小时制开关" />
+                android:text="12/24小时制开关"
+                android:onClick="@{() -> model.click24hoursToggle()}"/>
 
         </LinearLayout>
 
@@ -133,7 +148,8 @@
                 android:id="@+id/timezone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="@dimen/weread_demo_text_size_middle" />
+                android:textSize="@dimen/weread_demo_text_size_middle"
+                android:text="@{model.currentTimezone}"/>
 
         </LinearLayout>
 

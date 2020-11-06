@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <data></data>
+    <data>
+        <variable
+            name="model"
+            type="com.onyx.wereaddemo.model.SettingsDemoModel" />
+    </data>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -24,7 +28,8 @@
                 android:id="@+id/tv_cold_values"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="15dp" />
+                android:layout_marginLeft="15dp"
+                android:text="@{model.coldConfigValues}" />
 
         </LinearLayout>
 
@@ -44,7 +49,8 @@
                 android:id="@+id/tv_warm_values"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="15dp" />
+                android:layout_marginLeft="15dp"
+                android:text="@{model.warmConfigValues}" />
 
         </LinearLayout>
 
@@ -70,14 +76,16 @@
                 android:id="@+id/et_cold"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="30dp" />
+                android:layout_marginLeft="30dp"
+                android:text="@={model.coldValue}" />
 
             <Button
                 android:id="@+id/btn_cold"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="30dp"
-                android:text="设置" />
+                android:text="设置"
+                android:onClick="@{() -> model.onButtonColdClick()}" />
 
         </LinearLayout>
 
@@ -104,14 +112,16 @@
                 android:id="@+id/et_warm"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="30dp" />
+                android:layout_marginLeft="30dp"
+                android:text="@={model.warmValue}" />
 
             <Button
                 android:id="@+id/btn_warm"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="30dp"
-                android:text="设置" />
+                android:text="设置"
+                android:onClick="@{() -> model.onButtonWarmClick()}" />
 
         </LinearLayout>
 
@@ -133,14 +143,16 @@
                 android:id="@+id/et_contrast"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="30dp" />
+                android:layout_marginLeft="30dp"
+                android:text="@={model.contrastValue}" />
 
             <Button
                 android:id="@+id/btn_contrast"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="30dp"
-                android:text="设置" />
+                android:text="设置"
+                android:onClick="@{() -> model.onButtonContrastClick()}" />
 
         </LinearLayout>
 
@@ -156,7 +168,9 @@
             android:id="@+id/tv_infos"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/weread_demo_text_size_small" />
+            android:textSize="@dimen/weread_demo_text_size_small"
+            android:text="@{model.info}"
+            />
 
 
     </LinearLayout>
