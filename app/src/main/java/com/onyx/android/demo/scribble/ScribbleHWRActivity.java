@@ -143,6 +143,9 @@ public class ScribbleHWRActivity extends AppCompatActivity {
     }
 
     private void drawHwrChar(Canvas canvas ,HWRChar hwrChar, HWRTransform transform) {
+        if (hwrChar.boundBox == null) {
+            return;
+        }
         Paint textPaint = new Paint();
         textPaint.setTextSize(100);
         Rect textRect = new Rect();
