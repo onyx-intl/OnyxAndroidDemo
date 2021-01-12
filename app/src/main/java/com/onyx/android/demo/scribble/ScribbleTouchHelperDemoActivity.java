@@ -25,6 +25,7 @@ import com.onyx.android.sdk.pen.RawInputCallback;
 import com.onyx.android.sdk.pen.TouchHelper;
 import com.onyx.android.sdk.pen.data.TouchPoint;
 import com.onyx.android.sdk.pen.data.TouchPointList;
+import com.onyx.android.sdk.utils.NumberUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -298,7 +299,7 @@ public class ScribbleTouchHelperDemoActivity extends AppCompatActivity {
 
         if (rbBrush.isChecked()) {
             float maxPressure = EpdController.getMaxTouchPressure();
-            BrushRender.drawStroke(canvas, paint, list, STROKE_WIDTH, maxPressure);
+            BrushRender.drawStroke(canvas, paint, list, NumberUtils.FLOAT_ONE, STROKE_WIDTH, maxPressure, false);
         }
 
         if (rbPencil.isChecked()) {

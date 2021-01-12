@@ -19,10 +19,10 @@ import com.alibaba.fastjson.JSON;
 import com.onyx.android.demo.R;
 import com.onyx.android.demo.note.bean.MultipleExportResult;
 import com.onyx.android.demo.note.bean.NoteProgress;
-import com.onyx.android.sdk.scribble.data.NoteDataProvider;
 import com.onyx.android.sdk.scribble.data.NoteModel;
 import com.onyx.android.sdk.scribble.data.bean.OpenNoteBean;
 import com.onyx.android.sdk.scribble.provider.RemoteNoteProvider;
+import com.onyx.android.sdk.scribble.utils.ThumbnailUtils;
 import com.onyx.android.sdk.utils.JSONUtils;
 import com.onyx.android.sdk.utils.StringUtils;
 import com.raizlabs.android.dbflow.config.FlowConfig;
@@ -140,7 +140,7 @@ public class NoteDemoActivity extends AppCompatActivity {
             Toast.makeText(this, "Please create note first", Toast.LENGTH_SHORT).show();
             return;
         }
-        String thumbnailPath = NoteDataProvider.thumbnailPath(this, openNoteBean.documentId);
+        String thumbnailPath = ThumbnailUtils.thumbnailPath(this, openNoteBean.documentId);
         textViewNoteThumbnailPath.setText(thumbnailPath);
     }
 

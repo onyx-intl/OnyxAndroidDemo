@@ -5,7 +5,7 @@ android {
     buildToolsVersion "29.0.2"
     defaultConfig {
         applicationId "com.onyx.android.demo"
-        minSdkVersion 19
+        minSdkVersion 23
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
@@ -46,12 +46,12 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
-    implementation('com.onyx.android.sdk:onyxsdk-base:1.5.3')
-    implementation('com.onyx.android.sdk:onyxsdk-data:1.1.4')
-    implementation('com.onyx.android.sdk:onyxsdk-notedata:1.0.7@aar')
-    implementation('com.onyx.android.sdk:onyxsdk-pen:1.1.2')
-    implementation('com.onyx.android.sdk:onyxsdk-device:1.1.3')
-    implementation('com.onyx.android.sdk:onyxsdk-hwr:1.0.1')
+    implementation('com.onyx.android.sdk:onyxsdk-base:1.5.8')
+    implementation('com.onyx.android.sdk:onyxsdk-data:1.1.7')
+    implementation('com.onyx.android.sdk:onyxsdk-notedata:1.1.1@aar')
+    implementation('com.onyx.android.sdk:onyxsdk-pen:1.1.5')
+    implementation('com.onyx.android.sdk:onyxsdk-device:1.1.7')
+    implementation('com.onyx.android.sdk:onyxsdk-hwr:1.0.3')
 
     implementation "com.android.support:multidex:1.0.3"
     api "com.android.support.constraint:constraint-layout:1.1.3"
