@@ -30,4 +30,5 @@
     <string name="note_backup" translatable="false">BACKUP</string>
     <string name="note_common_setting" translatable="false">COMMON_SETTING</string>
     <string name="note_ai_setting" translatable="false">AI_SETTING</string>
+    <string name="root_directory">Root Directory</string>
 </resources>

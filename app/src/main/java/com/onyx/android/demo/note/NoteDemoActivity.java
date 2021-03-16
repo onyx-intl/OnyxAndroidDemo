@@ -115,12 +115,7 @@ public class NoteDemoActivity extends AppCompatActivity {
 
     @OnClick(R.id.button_create_note)
     public void createNewNote() {
-        Intent intent = new Intent();
-        openNoteBean = new OpenNoteBean().setTitle("Note").setJumpBackToNote(false);
-        intent.putExtra(NoteConstants.OPEN_NOTE_BEAN, JSON.toJSONString(openNoteBean));
-        ComponentName comp = new ComponentName(NoteConstants.NOTE_PACKAGE_NAME, NoteConstants.SCRIBBLE_ACTIVITY_CLASS_PATH);
-        intent.setComponent(comp);
-        startActivityForResult(intent, REQUEST_CODE_OPEN_NOTE);
+        createNote(null);
     }
 
     @OnClick(R.id.button_load_note_model)
@@ -167,6 +162,27 @@ public class NoteDemoActivity extends AppCompatActivity {
         } else {
             startService(intent);
         }
+    }
+
+    @OnClick(R.id.button_create_note_specified_folder)
+    public void createNewNoteSpecifiedFolder() {
+        new DialogCreateNoteFolder(this)
+                .setOnDialogCreateNoteListener(new DialogCreateNoteFolder.OnDialogCreateNoteListener() {
+                    @Override
+                    public void onCreateNote(NoteModel library) {
+                        createNote(library.getUniqueId());
+                    }
+                }).show();
+    }
+
+    private void createNote(String parentLibraryId) {
+        Intent intent = new Intent();
+        openNoteBean = new OpenNoteBean().setTitle("Note").setJumpBackToNote(false);
+        openNoteBean.setParentUniqueId(parentLibraryId);
+        intent.putExtra(NoteConstants.OPEN_NOTE_BEAN, JSON.toJSONString(openNoteBean));
+        ComponentName comp = new ComponentName(NoteConstants.NOTE_PACKAGE_NAME, NoteConstants.SCRIBBLE_ACTIVITY_CLASS_PATH);
+        intent.setComponent(comp);
+        startActivityForResult(intent, REQUEST_CODE_OPEN_NOTE);
     }
 
     private void appendText(TextView textView, CharSequence cs) {

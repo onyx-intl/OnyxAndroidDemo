@@ -11,6 +11,12 @@
         android:layout_height="wrap_content"
         android:text="Create New Note" />
 
+    <Button
+        android:id="@+id/button_create_note_specified_folder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Create New Note in specified folder" />
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
