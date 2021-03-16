@@ -7,6 +7,7 @@ import android.support.multidex.MultiDexApplication;
 import com.liulishuo.filedownloader.FileDownloader;
 import com.onyx.android.demo.data.ScribbleDatabase;
 import com.onyx.android.sdk.rx.RxManager;
+import com.onyx.android.sdk.utils.ResManager;
 import com.raizlabs.android.dbflow.config.DatabaseConfig;
 import com.raizlabs.android.dbflow.config.FlowConfig;
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -31,6 +32,7 @@ public class SampleApplication extends MultiDexApplication {
         initConfig();
         initDataProvider();
         RxManager.Builder.initAppContext(this);
+        ResManager.init(this);
     }
 
     private void initConfig() {
