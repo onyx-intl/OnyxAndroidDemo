@@ -10,6 +10,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.content.FileProvider;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,10 +50,12 @@ public class ReaderDemoActivity extends Activity {
             return;
         }
         Intent intent = new Intent(Intent.ACTION_VIEW);
-        ComponentName componentName = new ComponentName("com.onyx.kreader", "com.onyx.kreader.ui.ReaderTab1Activity");
+        ComponentName componentName = new ComponentName("com.onyx.kreader", "com.onyx.android.sdk.readerview.service.ReaderService");
         intent.setComponent(componentName);
-        intent.setData(Uri.fromFile(new File(etFile.getText().toString())));
-        startActivity(intent);
+        intent.setData(FileProvider.getUriForFile(this,
+                "com.onyx.android.demo.onyx.fileprovider",
+                new File(etFile.getText().toString())));
+        startService(intent);
     }
 
     @OnClick(R.id.btn_query_progress)

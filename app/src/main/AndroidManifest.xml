@@ -43,6 +43,17 @@
         <activity android:name="com.onyx.android.demo.DictionaryActivity"/>
         <activity android:name=".note.NoteDemoActivity" />
         <activity android:name="com.onyx.android.demo.RefreshModeDemoActivity" />
+
+        <provider
+            android:name="com.onyx.android.sdk.common.provider.OnyxFileProvider"
+            android:authorities="${applicationId}.onyx.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true" >
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/onyx_file_paths" />
+        </provider>
+
     </application>
 
 </manifest>
