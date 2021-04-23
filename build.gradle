@@ -19,8 +19,11 @@ allprojects {
         google()
         jcenter()
 
-        maven { url  "http://dl.bintray.com/onyx-intl/maven" }
         maven { url "https://jitpack.io" }
+
+        maven {
+            url "http://repo.boox.com/repository/maven-public/"
+        }
     }
 }
 
