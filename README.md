@@ -13,6 +13,9 @@ To use the SDK, please include the following dependencies in your build.gradle:
 The `onyxsdk-scribble` SDK has a dependency on the `dbflow` library which is hosted in the jitpack repository. This can be added in your project's build.gradle with the following entry:
 ```gradle
     maven { url "https://jitpack.io" }
+    
+    maven { url "http://repo.boox.com/repository/maven-public/" }
+    
 ```
 
 # Demo
