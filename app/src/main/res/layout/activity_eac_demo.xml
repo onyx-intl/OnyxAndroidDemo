@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".EacDemoActivity">
+
+    <Button
+        android:id="@+id/hook_epdc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAllCaps="false"
+        android:text="Hook Epdc" />
+
+    <Button
+        android:id="@+id/eac_enable"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="APP Optimize Enable" />
+
+    <Button
+        android:id="@+id/allow_eac"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Allow APP Optimize" />
+
+    <Button
+        android:id="@+id/disallow_eac"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Disallow APP Optimize" />
+
+</LinearLayout>
