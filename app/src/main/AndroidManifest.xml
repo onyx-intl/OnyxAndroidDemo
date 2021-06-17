@@ -43,6 +43,7 @@
         <activity android:name="com.onyx.android.demo.DictionaryActivity"/>
         <activity android:name=".note.NoteDemoActivity" />
         <activity android:name="com.onyx.android.demo.RefreshModeDemoActivity" />
+        <activity android:name=".EacDemoActivity" />
 
         <provider
             android:name="com.onyx.android.sdk.common.provider.OnyxFileProvider"

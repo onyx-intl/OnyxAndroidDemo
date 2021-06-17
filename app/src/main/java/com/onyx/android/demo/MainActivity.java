@@ -95,6 +95,11 @@ public class MainActivity extends AppCompatActivity {
         go(RefreshModeDemoActivity.class);
     }
 
+    @OnClick(R.id.button_eac)
+    public void onClickButtonEacDemo() {
+        go(EacDemoActivity.class);
+    }
+
     private void go(Class<?> activityClass){
         startActivity(new Intent(this, activityClass));
     }

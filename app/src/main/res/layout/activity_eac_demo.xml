@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".EacDemoActivity">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/hook_epdc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hook Epdc"
+            android:textAllCaps="false" />
+
+        <TextView
+            android:id="@+id/hook_epdc_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/eac_enable"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="APP Optimize Enable" />
+
+        <TextView
+            android:id="@+id/eac_enable_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/allow_eac"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Allow APP Optimize" />
+
+    <Button
+        android:id="@+id/disallow_eac"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Disallow APP Optimize" />
+
+</LinearLayout>
