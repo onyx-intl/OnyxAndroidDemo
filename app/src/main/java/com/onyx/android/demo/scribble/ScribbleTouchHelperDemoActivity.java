@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
@@ -138,6 +139,22 @@ public class ScribbleTouchHelperDemoActivity extends AppCompatActivity {
             }
         });
 
+        final SurfaceHolder.Callback surfaceCallback = new SurfaceHolder.Callback() {
+            @Override
+            public void surfaceCreated(SurfaceHolder holder) {
+                cleanSurfaceView();
+            }
+
+            @Override
+            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+            }
+
+            @Override
+            public void surfaceDestroyed(SurfaceHolder holder) {
+                holder.removeCallback(this);
+            }
+        };
+        surfaceView.getHolder().addCallback(surfaceCallback);
     }
 
     @OnClick(R.id.button_pen)
