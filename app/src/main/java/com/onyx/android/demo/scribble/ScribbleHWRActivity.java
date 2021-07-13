@@ -91,6 +91,7 @@ public class ScribbleHWRActivity extends AppCompatActivity {
         final SurfaceHolder.Callback surfaceCallback = new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
+                cleanSurfaceView(surfaceView);
                 initTouchHelper();
             }
 

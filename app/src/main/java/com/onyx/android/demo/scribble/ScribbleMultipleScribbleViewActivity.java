@@ -76,6 +76,7 @@ public class ScribbleMultipleScribbleViewActivity extends AppCompatActivity {
         final SurfaceHolder.Callback surfaceCallback = new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
+                cleanSurfaceView(surfaceView);
                 Rect limit = new Rect();
                 surfaceView.getGlobalVisibleRect(limit);
                 limitRectList.add(limit);
