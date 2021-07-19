@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.onyx.android.sample.com.onyx.android.demo.MainActivity">
+    tools:context="com.onyx.android.demo.MainActivity">
 
     <LinearLayout
         android:id="@+id/layout_function"
@@ -106,12 +106,6 @@
             android:layout_height="wrap_content"
             android:visibility="visible"
             android:text="Open OTA Demo" />
-
-        <Button
-            android:id="@+id/button_note_demo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Note Demo"/>
 
         <Button
             android:id="@+id/button_refresh_mode"
