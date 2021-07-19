@@ -23,7 +23,6 @@
         <activity android:name="com.onyx.android.demo.EpdDemoActivity"/>
         <activity android:name="com.onyx.android.demo.scribble.ScribbleMoveEraserDemoActivity"/>
         <activity android:name="com.onyx.android.demo.scribble.ScribbleMultipleScribbleViewActivity"/>
-        <activity android:name="com.onyx.android.demo.scribble.ScribbleHWRActivity"/>
         <activity android:name="com.onyx.android.demo.EnvironmentDemoActivity"/>
         <activity android:name="com.onyx.android.demo.FrontLightDemoActivity"/>
         <activity android:name="com.onyx.android.demo.FullScreenDemoActivity"/>

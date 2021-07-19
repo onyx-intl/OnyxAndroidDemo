@@ -46,11 +46,6 @@ public class ScribbleDemoActivity extends AppCompatActivity {
         go(ScribbleMultipleScribbleViewActivity.class);
     }
 
-    @OnClick(R.id.button_hwr)
-    public void button_hwr_scribble() {
-        go(ScribbleHWRActivity.class);
-    }
-
     @OnClick(R.id.button_pen_up_refresh)
     public void button_pen_up_refresh() {
         go(ScribblePenUpRefreshDemoActivity.class);

@@ -5,7 +5,6 @@ To use the SDK, please include the following dependencies in your build.gradle:
 ```gradle
     implementation('com.onyx.android.sdk:onyxsdk-device:1.1.11')
     implementation('com.onyx.android.sdk:onyxsdk-pen:1.2.1')
-    implementation('com.onyx.android.sdk:onyxsdk-hwr:1.0.4')
 ```
 
     
