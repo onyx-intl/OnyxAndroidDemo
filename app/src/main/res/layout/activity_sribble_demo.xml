@@ -43,12 +43,6 @@
         android:text="Scribble Multiple View"/>
 
     <Button
-        android:id="@+id/button_save_points"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Scribble Save Points"/>
-
-    <Button
         android:id="@+id/button_hwr"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

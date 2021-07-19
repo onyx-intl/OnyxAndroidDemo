@@ -15,7 +15,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.onyx.android.sdk.data.utils.ReaderDBUtils;
 import com.onyx.android.sdk.utils.FileUtils;
 import com.onyx.android.sdk.utils.StringUtils;
 
@@ -79,7 +78,6 @@ public class ReaderDemoActivity extends Activity {
             return;
         }
         try {
-            ReaderDBUtils.deleteBookData(this, etFile.getText().toString());
             //Handwritten notes have a cache, you need to restart Reader
             ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
             activityManager.killBackgroundProcesses("com.onyx.kreader");

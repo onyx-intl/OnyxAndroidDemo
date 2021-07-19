@@ -3,10 +3,10 @@ Sample project of SDKs from Onyx-Intl, including [onyxsdk-base](doc/Onyx-Base-SD
 
 To use the SDK, please include the following dependencies in your build.gradle:
 ```gradle
-    implementation('com.onyx.android.sdk:onyxsdk-base:1.5.4')
-    implementation('com.onyx.android.sdk:onyxsdk-pen:1.1.2')
-    implementation('com.onyx.android.sdk:onyxsdk-data:1.1.4')
-    implementation('com.onyx.android.sdk:onyxsdk-notedata:1.0.7@aar')
+    implementation('com.onyx.android.sdk:onyxsdk-base:1.5.8')
+    implementation('com.onyx.android.sdk:onyxsdk-pen:1.1.5')
+    implementation('com.onyx.android.sdk:onyxsdk-device:1.1.8.2')
+    implementation('com.onyx.android.sdk:onyxsdk-hwr:1.0.3')
 ```
 
     
