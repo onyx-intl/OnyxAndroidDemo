@@ -6,7 +6,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.onyx.android.sdk.api.device.eac.SimpleEACManage;
 import com.onyx.android.sdk.device.Device;
 import com.onyx.android.sdk.rx.RxUtils;
 
@@ -45,7 +44,7 @@ public class EacDemoActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public void onClick(View v) {
         if (v.equals(hookEpdc)) {
-            updateHookEpdaStatus();
+            updateHookEpdcStatus();
         } else if (v.equals(eacEnable)) {
             updateEacSwitchStatus();
         } else if (v.equals(allowEac)) {
@@ -53,7 +52,7 @@ public class EacDemoActivity extends AppCompatActivity implements View.OnClickLi
                 @Override
                 public void run() {
                     Device.currentDevice().unregisterEACWhiteList(getApplicationContext());
-                    updateHookEpdaStatus();
+                    updateHookEpdcStatus();
                 }
             });
         } else if (v.equals(disallowEac)) {
@@ -61,7 +60,7 @@ public class EacDemoActivity extends AppCompatActivity implements View.OnClickLi
                 @Override
                 public void run() {
                     Device.currentDevice().registerEACWhiteList(getApplicationContext());
-                    updateHookEpdaStatus();
+                    updateHookEpdcStatus();
                 }
             });
         }
@@ -74,8 +73,8 @@ public class EacDemoActivity extends AppCompatActivity implements View.OnClickLi
         RxUtils.runWith(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                return SimpleEACManage.getInstance().isAppEACEnabled(getPackageName());
-
+//                return SimpleEACManage.getInstance().isAppEACEnabled(getPackageName());
+                return false;
             }
         }, new Consumer<Boolean>() {
             @Override
@@ -85,12 +84,12 @@ public class EacDemoActivity extends AppCompatActivity implements View.OnClickLi
         }, Schedulers.io());
     }
 
-    private void updateHookEpdaStatus() {
+    private void updateHookEpdcStatus() {
         RxUtils.runWith(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                return SimpleEACManage.getInstance().isHookEpdc(getPackageName());
-
+//                return SimpleEACManage.getInstance().isHookEpdc(getPackageName());
+                return false;
             }
         }, new Consumer<Boolean>() {
             @Override
