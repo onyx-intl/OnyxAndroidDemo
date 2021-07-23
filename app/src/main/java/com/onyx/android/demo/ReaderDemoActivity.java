@@ -56,7 +56,10 @@ public class ReaderDemoActivity extends Activity {
                 new File(etFile.getText().toString())));
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-        startService(intent);
+        ComponentName result = startService(intent);
+        if (result == null) {
+            Toast.makeText(getApplicationContext(), "Service does not exist", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @OnClick(R.id.btn_query_progress)
