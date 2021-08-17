@@ -148,6 +148,8 @@ public class ScribbleTouchHelperDemoActivity extends AppCompatActivity {
                            .setLimitRect(limit, exclude)
                            .openRawDrawing();
                 touchHelper.setStrokeStyle(TouchHelper.STROKE_STYLE_BRUSH);
+                rbBrush.setChecked(true);
+                surfaceView.addOnLayoutChangeListener(this);
             }
         });
 
