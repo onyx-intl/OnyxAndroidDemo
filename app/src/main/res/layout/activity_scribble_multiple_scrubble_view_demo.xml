@@ -29,6 +29,19 @@
             android:layout_height="wrap_content"
             android:text="Eraser"/>
 
+        <Button
+            android:id="@+id/button_single_region_mode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Single Region Mode"/>
+
+        <Button
+            android:id="@+id/button_multi_region_mode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Multi Region Mode"/>
+
+
     </LinearLayout>
 
     <SurfaceView
