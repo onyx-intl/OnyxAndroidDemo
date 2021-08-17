@@ -19,6 +19,8 @@ import android.widget.CheckBox;
 import android.widget.RadioButton;
 
 import com.onyx.android.demo.R;
+import com.onyx.android.demo.broadcast.GlobalDeviceReceiver;
+import com.onyx.android.demo.scribble.request.RendererToScreenRequest;
 import com.onyx.android.demo.utils.TouchUtils;
 import com.onyx.android.sdk.api.device.epd.EpdController;
 import com.onyx.android.sdk.pen.BrushRender;
@@ -26,6 +28,7 @@ import com.onyx.android.sdk.pen.RawInputCallback;
 import com.onyx.android.sdk.pen.TouchHelper;
 import com.onyx.android.sdk.pen.data.TouchPoint;
 import com.onyx.android.sdk.pen.data.TouchPointList;
+import com.onyx.android.sdk.rx.RxManager;
 import com.onyx.android.sdk.utils.NumberUtils;
 
 import java.util.ArrayList;
@@ -55,6 +58,9 @@ public class ScribbleTouchHelperDemoActivity extends AppCompatActivity {
     @Bind(R.id.rb_pencil)
     RadioButton rbPencil;
 
+    private GlobalDeviceReceiver deviceReceiver = new GlobalDeviceReceiver();
+    private RxManager rxManager;
+
     private TouchHelper touchHelper;
 
     private Paint paint = new Paint();
@@ -70,10 +76,12 @@ public class ScribbleTouchHelperDemoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pen_stylus_touch_helper_demo);
+        deviceReceiver.enable(this, true);
 
         ButterKnife.bind(this);
         initPaint();
         initSurfaceView();
+        initReceiver();
     }
 
     @Override
@@ -95,7 +103,19 @@ public class ScribbleTouchHelperDemoActivity extends AppCompatActivity {
             bitmap.recycle();
             bitmap = null;
         }
+        deviceReceiver.enable(this, false);
         super.onDestroy();
+    }
+
+    public RxManager getRxManager() {
+        if (rxManager == null) {
+            rxManager = RxManager.Builder.sharedSingleThreadManager();
+        }
+        return rxManager;
+    }
+
+    public void renderToScreen(SurfaceView surfaceView, Bitmap bitmap) {
+        getRxManager().enqueue(new RendererToScreenRequest(surfaceView, bitmap), null);
     }
 
     private void initPaint(){
@@ -128,6 +148,8 @@ public class ScribbleTouchHelperDemoActivity extends AppCompatActivity {
                            .setLimitRect(limit, exclude)
                            .openRawDrawing();
                 touchHelper.setStrokeStyle(TouchHelper.STROKE_STYLE_BRUSH);
+                rbBrush.setChecked(true);
+                surfaceView.addOnLayoutChangeListener(this);
             }
         });
 
@@ -155,6 +177,21 @@ public class ScribbleTouchHelperDemoActivity extends AppCompatActivity {
             }
         };
         surfaceView.getHolder().addCallback(surfaceCallback);
+    }
+
+    private void initReceiver() {
+        deviceReceiver.setSystemNotificationPanelChangeListener(new GlobalDeviceReceiver.SystemNotificationPanelChangeListener() {
+            @Override
+            public void onNotificationPanelChanged(boolean open) {
+                touchHelper.setRawDrawingEnabled(!open);
+                renderToScreen(surfaceView, bitmap);
+            }
+        }).setSystemScreenOnListener(new GlobalDeviceReceiver.SystemScreenOnListener() {
+            @Override
+            public void onScreenOn() {
+                renderToScreen(surfaceView, bitmap);
+            }
+        });
     }
 
     @OnClick(R.id.button_pen)

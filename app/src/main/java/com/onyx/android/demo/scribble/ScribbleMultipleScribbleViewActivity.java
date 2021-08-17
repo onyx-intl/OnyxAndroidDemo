@@ -154,9 +154,29 @@ public class ScribbleMultipleScribbleViewActivity extends AppCompatActivity {
     @OnClick(R.id.button_eraser)
     public void onEraserClick(){
         touchHelper.setRawDrawingEnabled(false);
+        cleanAllSurfaceView();
+        touchHelper.setRawDrawingEnabled(true);
+    }
+
+    @OnClick(R.id.button_single_region_mode)
+    public void onSingleRegionModeClick() {
+        touchHelper.setRawDrawingEnabled(false);
+        cleanAllSurfaceView();
+        touchHelper.setSingleRegionMode();
+        touchHelper.setRawDrawingEnabled(true);
+    }
+
+    @OnClick(R.id.button_multi_region_mode)
+    public void onMultiRegionModeClick() {
+        touchHelper.setRawDrawingEnabled(false);
+        cleanAllSurfaceView();
+        touchHelper.setMultiRegionMode();
+        touchHelper.setRawDrawingEnabled(true);
+    }
+
+    private void cleanAllSurfaceView() {
         cleanSurfaceView(surfaceView1);
         cleanSurfaceView(surfaceView2);
-        touchHelper.setRawDrawingEnabled(true);
     }
 
     private void cleanSurfaceView(SurfaceView surfaceView) {
