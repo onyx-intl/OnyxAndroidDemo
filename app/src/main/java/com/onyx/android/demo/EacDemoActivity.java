@@ -51,7 +51,7 @@ public class EacDemoActivity extends AppCompatActivity implements View.OnClickLi
             RxUtils.runInIO(new Runnable() {
                 @Override
                 public void run() {
-                    Device.currentDevice().unregisterEACWhiteList(getApplicationContext());
+//                    Device.currentDevice().unregisterEACWhiteList(getApplicationContext());
                     updateHookEpdcStatus();
                 }
             });
@@ -59,7 +59,7 @@ public class EacDemoActivity extends AppCompatActivity implements View.OnClickLi
             RxUtils.runInIO(new Runnable() {
                 @Override
                 public void run() {
-                    Device.currentDevice().registerEACWhiteList(getApplicationContext());
+//                    Device.currentDevice().registerEACWhiteList(getApplicationContext());
                     updateHookEpdcStatus();
                 }
             });
