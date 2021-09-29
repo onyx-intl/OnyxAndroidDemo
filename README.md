@@ -42,9 +42,6 @@ The SDK also provides additional functionality such as a move eraser, inking on 
 
 * [ScribbleMultipleScribbleViewActivity](app/src/main/java/com/onyx/android/demo/scribble/ScribbleMultipleScribbleViewActivity.java): inking with multiple views
 
-* [ScribbleSavePointsDemoActivity](app/src/main/java/com/onyx/android/demo/scribble/ScribbleSavePointsDemoActivity.java): saving pen strokes
-
-* [ScribbleHWRActivity](app/src/main/java/com/onyx/android/demo/scribble/ScribbleHWRActivity.java): recognizing handwriting in pen strokes
 
 ## 4. Screensaver
 
