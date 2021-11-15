@@ -19,18 +19,23 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.onyx.android.demo.R;
 import com.onyx.android.demo.scribble.request.PartialRefreshRequest;
+import com.onyx.android.sdk.api.device.epd.EpdController;
 import com.onyx.android.sdk.data.PenConstant;
+import com.onyx.android.sdk.pen.NeoFountainPen;
 import com.onyx.android.sdk.pen.RawInputCallback;
 import com.onyx.android.sdk.pen.TouchHelper;
 import com.onyx.android.sdk.pen.data.TouchPoint;
 import com.onyx.android.sdk.pen.data.TouchPointList;
 import com.onyx.android.sdk.rx.RxCallback;
 import com.onyx.android.sdk.rx.RxManager;
+import com.onyx.android.sdk.utils.NumberUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +61,8 @@ public class ScribblePenUpRefreshDemoActivity extends AppCompatActivity {
     TextView penUpTime;
     @Bind(R.id.seekBar)
     SeekBar penUpTimeSeekBar;
+    @Bind(R.id.rg_stroke_style)
+    RadioGroup rgStrokeStyle;
 
     private TouchHelper touchHelper;
     private RawInputCallback rawInputCallback;
@@ -106,6 +113,29 @@ public class ScribblePenUpRefreshDemoActivity extends AppCompatActivity {
         bitmapRecycle();
         cleanSurfaceView(surfaceView);
         touchHelper.setRawDrawingEnabled(true);
+    }
+
+    @OnClick({R.id.rb_brush, R.id.rb_pencil})
+    public void onRadioButtonClicked(RadioButton radioButton) {
+        boolean checked = radioButton.isChecked();
+        Log.d(TAG, radioButton.toString());
+        switch (radioButton.getId()) {
+            case R.id.rb_brush:
+                if (checked) {
+                    touchHelper.setStrokeStyle(TouchHelper.STROKE_STYLE_BRUSH);
+                    Log.d(TAG, "STROKE_STYLE_BRUSH");
+                }
+                break;
+            case R.id.rb_pencil:
+                if (checked) {
+                    touchHelper.setStrokeStyle(TouchHelper.STROKE_STYLE_PENCIL);
+                    Log.d(TAG, "STROKE_STYLE_PENCIL");
+                }
+                break;
+        }
+        // refresh ui
+        onClearClick();
+        onPenClick();
     }
 
     public RawInputCallback getRawInputCallback() {
@@ -178,15 +208,24 @@ public class ScribblePenUpRefreshDemoActivity extends AppCompatActivity {
             bitmap = Bitmap.createBitmap(surfaceView.getWidth(), surfaceView.getHeight(), Bitmap.Config.ARGB_8888);
             canvas = new Canvas(bitmap);
         }
-        Path path = new Path();
-        PointF prePoint = new PointF(list.get(0).x, list.get(0).y);
-        path.moveTo(prePoint.x, prePoint.y);
-        for (TouchPoint point : list) {
-            path.quadTo(prePoint.x, prePoint.y, point.x, point.y);
-            prePoint.x = point.x;
-            prePoint.y = point.y;
+
+        switch (rgStrokeStyle.getCheckedRadioButtonId()) {
+            case R.id.rb_brush:
+                float maxPressure = EpdController.getMaxTouchPressure();
+                NeoFountainPen.drawStroke(canvas, paint, list, NumberUtils.FLOAT_ONE, STROKE_WIDTH, maxPressure, false);
+                break;
+            default:
+                Path path = new Path();
+                PointF prePoint = new PointF(list.get(0).x, list.get(0).y);
+                path.moveTo(prePoint.x, prePoint.y);
+                for (TouchPoint point : list) {
+                    path.quadTo(prePoint.x, prePoint.y, point.x, point.y);
+                    prePoint.x = point.x;
+                    prePoint.y = point.y;
+                }
+                canvas.drawPath(path, paint);
+                break;
         }
-        canvas.drawPath(path, paint);
     }
 
     private void initSurfaceView(final SurfaceView surfaceView) {
@@ -199,6 +238,7 @@ public class ScribblePenUpRefreshDemoActivity extends AppCompatActivity {
                 touchHelper.setLimitRect(limit, new ArrayList<Rect>())
                         .setStrokeWidth(STROKE_WIDTH)
                         .openRawDrawing();
+                touchHelper.setStrokeStyle(TouchHelper.STROKE_STYLE_PENCIL);
                 initPenUpRefreshConfig();
                 cleanSurfaceView(surfaceView);
             }

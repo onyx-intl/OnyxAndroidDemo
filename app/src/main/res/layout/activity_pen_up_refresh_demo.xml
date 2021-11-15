@@ -32,6 +32,34 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/layout_function2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RadioGroup
+            android:id="@+id/rg_stroke_style"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rb_pencil"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="STROKE_STYLE_PENCIL"/>
+
+            <RadioButton
+                android:id="@+id/rb_brush"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="STROKE_STYLE_BRUSH"/>
+
+        </RadioGroup>
+    </LinearLayout>
+
     <RelativeLayout
         android:id="@+id/pen_up_time_setting_layout"
         android:layout_width="match_parent"
