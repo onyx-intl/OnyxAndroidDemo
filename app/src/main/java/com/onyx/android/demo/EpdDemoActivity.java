@@ -11,7 +11,6 @@ import android.widget.TextView;
 import com.onyx.android.sdk.api.device.EpdDeviceManager;
 import com.onyx.android.sdk.api.device.epd.EpdController;
 import com.onyx.android.sdk.api.device.epd.UpdateMode;
-import com.onyx.android.sdk.api.device.epd.UpdateScheme;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -83,17 +82,17 @@ public class EpdDemoActivity extends AppCompatActivity implements View.OnClickLi
             EpdDeviceManager.exitAnimationUpdate(true);
             isFastMode = false;
         } else if (v.equals(button_enter_x_mode)) {
-            EpdController.clearApplicationFastMode();
-            EpdController.applyApplicationFastMode(TAG, true, true, UpdateMode.ANIMATION_X, Integer.MAX_VALUE);
+            EpdController.clearAppScopeUpdate();
+            EpdController.applyAppScopeUpdate(TAG, true, true, UpdateMode.ANIMATION_X, Integer.MAX_VALUE);
         } else if (v.equals(button_enter_A2_mode)) {
-            EpdController.clearApplicationFastMode();
-            EpdController.applyApplicationFastMode(TAG, true, true, UpdateMode.ANIMATION_QUALITY, Integer.MAX_VALUE);
+            EpdController.clearAppScopeUpdate();
+            EpdController.applyAppScopeUpdate(TAG, true, true, UpdateMode.ANIMATION_QUALITY, Integer.MAX_VALUE);
         } else if (v.equals(button_enter_normal_mode)) {
-            EpdController.clearApplicationFastMode();
-            EpdController.applyApplicationFastMode(TAG, false, true);
+            EpdController.clearAppScopeUpdate();
+            EpdController.applyAppScopeUpdate(TAG, false, true);
         } else if (v.equals(button_enter_du_mode)) {
-            EpdController.clearApplicationFastMode();
-            EpdController.applyApplicationFastMode(TAG, true, true, UpdateMode.DU_QUALITY, Integer.MAX_VALUE);
+            EpdController.clearAppScopeUpdate();
+            EpdController.applyAppScopeUpdate(TAG, true, true, UpdateMode.DU_QUALITY, Integer.MAX_VALUE);
         }
     }
 

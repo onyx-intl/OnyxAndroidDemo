@@ -23,7 +23,7 @@ import com.onyx.android.demo.broadcast.GlobalDeviceReceiver;
 import com.onyx.android.demo.scribble.request.RendererToScreenRequest;
 import com.onyx.android.demo.utils.TouchUtils;
 import com.onyx.android.sdk.api.device.epd.EpdController;
-import com.onyx.android.sdk.pen.BrushRender;
+import com.onyx.android.sdk.pen.NeoFountainPen;
 import com.onyx.android.sdk.pen.RawInputCallback;
 import com.onyx.android.sdk.pen.TouchHelper;
 import com.onyx.android.sdk.pen.data.TouchPoint;
@@ -353,7 +353,7 @@ public class ScribbleTouchHelperDemoActivity extends AppCompatActivity {
 
         if (rbBrush.isChecked()) {
             float maxPressure = EpdController.getMaxTouchPressure();
-            BrushRender.drawStroke(canvas, paint, list, NumberUtils.FLOAT_ONE, STROKE_WIDTH, maxPressure, false);
+            NeoFountainPen.drawStroke(canvas, paint, list, NumberUtils.FLOAT_ONE, STROKE_WIDTH, maxPressure, false);
         }
 
         if (rbPencil.isChecked()) {
