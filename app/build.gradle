@@ -4,7 +4,7 @@ android {
     compileSdkVersion 28
     buildToolsVersion "29.0.2"
     defaultConfig {
-        applicationId "com.onyx.android.demo"
+        applicationId "com.android.onyx.demo"
         minSdkVersion 23
         targetSdkVersion 28
         versionCode 1

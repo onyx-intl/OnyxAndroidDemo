@@ -4,7 +4,7 @@
     <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
 
     <application
-        android:name=".SampleApplication"
+        android:name="com.android.onyx.demo.SampleApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name="com.onyx.android.demo.MainActivity">
+        <activity android:name="com.android.onyx.demo.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -20,27 +20,27 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.onyx.android.demo.EpdDemoActivity"/>
-        <activity android:name="com.onyx.android.demo.scribble.ScribbleMoveEraserDemoActivity"/>
-        <activity android:name="com.onyx.android.demo.scribble.ScribbleMultipleScribbleViewActivity"/>
-        <activity android:name="com.onyx.android.demo.EnvironmentDemoActivity"/>
-        <activity android:name="com.onyx.android.demo.FrontLightDemoActivity"/>
-        <activity android:name="com.onyx.android.demo.FullScreenDemoActivity"/>
-        <activity android:name="com.onyx.android.demo.scribble.ScribbleTouchHelperDemoActivity"
+        <activity android:name="com.android.onyx.demo.EpdDemoActivity"/>
+        <activity android:name="com.android.onyx.demo.scribble.ScribbleMoveEraserDemoActivity"/>
+        <activity android:name="com.android.onyx.demo.scribble.ScribbleMultipleScribbleViewActivity"/>
+        <activity android:name="com.android.onyx.demo.EnvironmentDemoActivity"/>
+        <activity android:name="com.android.onyx.demo.FrontLightDemoActivity"/>
+        <activity android:name="com.android.onyx.demo.FullScreenDemoActivity"/>
+        <activity android:name="com.android.onyx.demo.scribble.ScribbleTouchHelperDemoActivity"
             android:label="PenStylusTouchHelperDemoActivity"/>
-        <activity android:name="com.onyx.android.demo.scribble.ScribbleWebViewDemoActivity"/>
-        <activity android:name="com.onyx.android.demo.scribble.ScribbleDemoActivity"/>
-        <activity android:name="com.onyx.android.demo.scribble.ScribblePenUpRefreshDemoActivity"/>
-        <activity android:name="com.onyx.android.demo.AppOptimizeActivity"/>
-        <activity android:name="com.onyx.android.demo.ReaderDemoActivity"/>
-        <activity android:name="com.onyx.android.demo.ScreensaverActivity"/>
-        <activity android:name="com.onyx.android.demo.OpenSettingActivity"/>
-        <activity android:name="com.onyx.android.demo.WebViewOptimizeActivity"/>
-        <activity android:name="com.onyx.android.demo.OpenKcbActivity"/>
-        <activity android:name="com.onyx.android.demo.OTADemoActivity"/>
-        <activity android:name="com.onyx.android.demo.DictionaryActivity"/>
-        <activity android:name="com.onyx.android.demo.RefreshModeDemoActivity" />
-        <activity android:name=".EacDemoActivity" />
+        <activity android:name="com.android.onyx.demo.scribble.ScribbleWebViewDemoActivity"/>
+        <activity android:name="com.android.onyx.demo.scribble.ScribbleDemoActivity"/>
+        <activity android:name="com.android.onyx.demo.scribble.ScribblePenUpRefreshDemoActivity"/>
+        <activity android:name="com.android.onyx.demo.AppOptimizeActivity"/>
+        <activity android:name="com.android.onyx.demo.ReaderDemoActivity"/>
+        <activity android:name="com.android.onyx.demo.ScreensaverActivity"/>
+        <activity android:name="com.android.onyx.demo.OpenSettingActivity"/>
+        <activity android:name="com.android.onyx.demo.WebViewOptimizeActivity"/>
+        <activity android:name="com.android.onyx.demo.OpenKcbActivity"/>
+        <activity android:name="com.android.onyx.demo.OTADemoActivity"/>
+        <activity android:name="com.android.onyx.demo.DictionaryActivity"/>
+        <activity android:name="com.android.onyx.demo.RefreshModeDemoActivity" />
+        <activity android:name="com.android.onyx.demo.EacDemoActivity" />
 
         <provider
             android:name="com.onyx.android.sdk.common.provider.OnyxFileProvider"
