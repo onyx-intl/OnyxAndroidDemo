@@ -48,6 +48,27 @@
             android:textSize="18sp" />
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/eac_support"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Support EAC"
+            android:textAllCaps="false" />
+
+        <TextView
+            android:id="@+id/eac_support_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
+    </LinearLayout>
+
     <Button
         android:id="@+id/allow_eac"
         android:layout_width="wrap_content"
