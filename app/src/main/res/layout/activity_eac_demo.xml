@@ -4,19 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:padding="@dimen/activity_horizontal_margin"
     tools:context="com.android.onyx.demo.EacDemoActivity">
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/hook_epdc"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Hook Epdc"
-            android:textAllCaps="false" />
 
         <TextView
             android:id="@+id/hook_epdc_status"
@@ -33,12 +27,6 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/eac_enable"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="APP Optimize Enable" />
-
         <TextView
             android:id="@+id/eac_enable_status"
             android:layout_width="wrap_content"
@@ -53,13 +41,6 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/eac_support"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Support EAC"
-            android:textAllCaps="false" />
-
         <TextView
             android:id="@+id/eac_support_status"
             android:layout_width="wrap_content"
@@ -73,12 +54,29 @@
         android:id="@+id/allow_eac"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Allow APP Optimize" />
+        android:layout_marginTop="20dp"
+        android:text="Allow EAC" />
 
     <Button
         android:id="@+id/disallow_eac"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Disallow APP Optimize" />
+        android:text="Disallow EAC" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:text="In version 3.1 and before, EAC config take effect need reopen app " />
+
+    <Button
+        android:id="@+id/update_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Update All Status" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Use other ways to change the eac configuration need to manually refresh the status" />
 </LinearLayout>

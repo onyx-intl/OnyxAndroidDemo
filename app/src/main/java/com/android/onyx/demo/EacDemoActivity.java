@@ -17,23 +17,22 @@ import butterknife.ButterKnife;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
+/**
+ * App optimize entrance:long press app to select the optimization option or FloatingButton optimization option.
+ */
 public class EacDemoActivity extends AppCompatActivity implements View.OnClickListener {
-    @Bind(R.id.hook_epdc)
-    Button hookEpdc;
     @Bind(R.id.hook_epdc_status)
     TextView hookEpdcStatus;
-    @Bind(R.id.eac_enable)
-    Button eacEnable;
     @Bind(R.id.eac_enable_status)
     TextView eacEnableStatus;
-    @Bind(R.id.eac_support)
-    Button eacSupport;
     @Bind(R.id.eac_support_status)
     TextView eacSupportStatus;
     @Bind(R.id.allow_eac)
     Button allowEAC;
     @Bind(R.id.disallow_eac)
     Button disallowEAC;
+    @Bind(R.id.update_status)
+    Button updateStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,44 +48,35 @@ public class EacDemoActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void initView() {
-        hookEpdc.setOnClickListener(this);
-        eacEnable.setOnClickListener(this);
-        eacSupport.setOnClickListener(this);
         allowEAC.setOnClickListener(this);
         disallowEAC.setOnClickListener(this);
+        updateStatus.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.hook_epdc:
-                updateHookEpdcStatus();
-                break;
-            case R.id.eac_enable:
-                updateEACSwitchStatus();
-                break;
-            case R.id.eac_support:
-                updateEACSupportStatus();
-                break;
             case R.id.allow_eac:
                 setSupportEAC(true);
                 break;
             case R.id.disallow_eac:
                 setSupportEAC(false);
                 break;
+            case R.id.update_status:
+                updateAllStatus();
+                break;
         }
     }
 
     /**
-     * @param support
      * If support EAC is turned off, the optimization setting will not be available.
-     * (App optimize entrance:long press app to select the optimization option or FloatingButton optimization option.)
+     * Parameters Context use activity can realize EAC config Immediate effect.(version 3.1 and before not supported，take effect need reopen app)
      */
     public void setSupportEAC(boolean support) {
         RxUtils.runInIO(new Runnable() {
             @Override
             public void run() {
-                SimpleEACManage.getInstance().setSupportEAC(getApplicationContext(), support);
+                SimpleEACManage.getInstance().setSupportEAC(EacDemoActivity.this, support);
                 updateAllStatus();
             }
         });
@@ -103,8 +93,8 @@ public class EacDemoActivity extends AppCompatActivity implements View.OnClickLi
             }
         }, new Consumer<Boolean>() {
             @Override
-            public void accept(Boolean aBoolean) throws Exception {
-                eacEnableStatus.setText(aBoolean + "");
+            public void accept(Boolean enable) throws Exception {
+                eacEnableStatus.setText(getString(R.string.eac_enable_format, enable + ""));
             }
         }, Schedulers.io());
     }
@@ -117,8 +107,8 @@ public class EacDemoActivity extends AppCompatActivity implements View.OnClickLi
             }
         }, new Consumer<Boolean>() {
             @Override
-            public void accept(Boolean aBoolean) throws Exception {
-                hookEpdcStatus.setText(aBoolean + "");
+            public void accept(Boolean enable) throws Exception {
+                hookEpdcStatus.setText(getString(R.string.hook_epdc_format, enable + ""));
             }
         }, Schedulers.io());
     }
@@ -132,7 +122,7 @@ public class EacDemoActivity extends AppCompatActivity implements View.OnClickLi
         }, new Consumer<Boolean>() {
             @Override
             public void accept(Boolean support) throws Exception {
-                eacSupportStatus.setText(support + "");
+                eacSupportStatus.setText(getString(R.string.eac_support_format, support + ""));
             }
         }, Schedulers.io());
     }

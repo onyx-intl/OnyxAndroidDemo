@@ -30,4 +30,7 @@
     <string name="note_backup" translatable="false">BACKUP</string>
     <string name="note_common_setting" translatable="false">COMMON_SETTING</string>
     <string name="note_ai_setting" translatable="false">AI_SETTING</string>
+    <string name="hook_epdc_format">Hook Epdc: %s</string>
+    <string name="eac_enable_format">EAC Enable: %s</string>
+    <string name="eac_support_format">EAC Support: %s</string>
 </resources>
