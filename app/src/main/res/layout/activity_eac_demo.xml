@@ -51,6 +51,17 @@
     </LinearLayout>
 
     <Button
+        android:id="@+id/update_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Update All Status" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Use other ways to change the eac configuration need to manually refresh the status" />
+
+    <Button
         android:id="@+id/allow_eac"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -68,15 +79,4 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
         android:text="In version 3.1 and before, EAC config take effect need reopen app " />
-
-    <Button
-        android:id="@+id/update_status"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Update All Status" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Use other ways to change the eac configuration need to manually refresh the status" />
 </LinearLayout>
