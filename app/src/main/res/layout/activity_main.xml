@@ -66,13 +66,6 @@
             android:text="Dict Query" />
 
         <Button
-            android:id="@+id/btn_onyx_test"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="visible"
-            android:text="Onyx Test" />
-
-        <Button
             android:id="@+id/btn_screen_saver"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
