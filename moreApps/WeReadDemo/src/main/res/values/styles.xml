@@ -1,9 +1,0 @@
-<resources>
-
-    <style name="WeRead_AppTheme_FullScreen" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:windowActionBar">false</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowFullscreen">true</item>
-        <item name="android:windowContentOverlay">@null</item>
-    </style>
-</resources>
