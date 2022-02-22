@@ -61,22 +61,37 @@
         android:layout_height="wrap_content"
         android:text="Use other ways to change the eac configuration need to manually refresh the status" />
 
-    <Button
-        android:id="@+id/allow_eac"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:text="Allow EAC" />
+        android:gravity="center_vertical">
 
-    <Button
-        android:id="@+id/disallow_eac"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Disallow EAC" />
+        <Button
+            android:id="@+id/allow_eac"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Allow EAC" />
+
+        <Button
+            android:id="@+id/disallow_eac"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:text="Disallow EAC" />
+    </LinearLayout>
+
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
         android:text="In version 3.1 and before, EAC config take effect need reopen app " />
+
+    <CheckBox
+        android:id="@+id/cb_refresh_config_enable"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Refresh config enable" />
+
 </LinearLayout>
