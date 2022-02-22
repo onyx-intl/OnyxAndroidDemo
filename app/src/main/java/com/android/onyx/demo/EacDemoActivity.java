@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.onyx.android.demo.R;
@@ -33,6 +34,8 @@ public class EacDemoActivity extends AppCompatActivity implements View.OnClickLi
     Button disallowEAC;
     @Bind(R.id.update_status)
     Button updateStatus;
+    @Bind(R.id.cb_refresh_config_enable)
+    CheckBox cbRefreshConfigEnable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +54,7 @@ public class EacDemoActivity extends AppCompatActivity implements View.OnClickLi
         allowEAC.setOnClickListener(this);
         disallowEAC.setOnClickListener(this);
         updateStatus.setOnClickListener(this);
+        cbRefreshConfigEnable.setOnClickListener(this);
     }
 
     @Override
@@ -65,7 +69,20 @@ public class EacDemoActivity extends AppCompatActivity implements View.OnClickLi
             case R.id.update_status:
                 updateAllStatus();
                 break;
+            case R.id.cb_refresh_config_enable:
+                toggleRefreshConfig();
         }
+    }
+
+    /**
+     * This API is targeted at 3.2 and above.
+     */
+    private void toggleRefreshConfig() {
+        RxUtils.runInIO(() -> {
+            boolean enable = cbRefreshConfigEnable.isChecked();
+            SimpleEACManage.getInstance().setEACRefreshConfigEnable(EacDemoActivity.this, enable);
+            updateRefreshConfigEnableStatus();
+        });
     }
 
     /**
@@ -83,7 +100,7 @@ public class EacDemoActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     /**
-     *It`s app optimize switch status, not about with eac enable/disable.
+     * It`s app optimize switch status, not about with eac enable/disable.
      */
     private void updateEACSwitchStatus() {
         RxUtils.runWith(new Callable<Boolean>() {
@@ -127,9 +144,16 @@ public class EacDemoActivity extends AppCompatActivity implements View.OnClickLi
         }, Schedulers.io());
     }
 
+    private void updateRefreshConfigEnableStatus() {
+        RxUtils.runWith(() -> SimpleEACManage.getInstance().isEACRefreshConfigEnable(getPackageName()),
+                enable -> cbRefreshConfigEnable.setChecked(enable),
+                Schedulers.io());
+    }
+
     private void updateAllStatus() {
         updateEACSupportStatus();
         updateEACSwitchStatus();
         updateHookEpdcStatus();
+        updateRefreshConfigEnableStatus();
     }
 }
