@@ -1,5 +1,7 @@
 package com.android.onyx.demo.scribble;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -63,6 +65,8 @@ public class ScribblePenUpRefreshDemoActivity extends AppCompatActivity {
     SeekBar penUpTimeSeekBar;
     @Bind(R.id.rg_stroke_style)
     RadioGroup rgStrokeStyle;
+    @Bind(R.id.button_test_view_update)
+    Button buttonTestViewUpdate;
 
     private TouchHelper touchHelper;
     private RawInputCallback rawInputCallback;
@@ -113,6 +117,13 @@ public class ScribblePenUpRefreshDemoActivity extends AppCompatActivity {
         bitmapRecycle();
         cleanSurfaceView(surfaceView);
         touchHelper.setRawDrawingEnabled(true);
+    }
+
+    @OnClick(R.id.button_test_view_update)
+    public void onTestViewUpdateClick() {
+        buttonTestViewUpdate.setEnabled(false);
+        touchHelper.setRawDrawingEnabled(false);
+        showTestDialog();
     }
 
     @OnClick({R.id.rb_brush, R.id.rb_pencil})
@@ -319,6 +330,28 @@ public class ScribblePenUpRefreshDemoActivity extends AppCompatActivity {
             bitmap.recycle();
             bitmap = null;
         }
+    }
+
+    private void showTestDialog() {
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.test_title)
+                .setMessage(R.string.test_message)
+                .create();
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(R.string.ok), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                buttonTestViewUpdate.setEnabled(true);
+                touchHelper.setRawDrawingEnabled(true);
+            }
+        });
+        dialog.show();
     }
 
 }
