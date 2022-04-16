@@ -30,6 +30,12 @@
             android:layout_height="wrap_content"
             android:text="Clear" />
 
+        <Button
+            android:id="@+id/button_test_view_update"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="view update"/>
+
     </LinearLayout>
 
     <LinearLayout
