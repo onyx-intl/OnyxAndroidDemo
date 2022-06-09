@@ -53,7 +53,7 @@ public class ReaderDemoActivity extends Activity {
         ComponentName componentName = new ComponentName("com.onyx.kreader", "com.onyx.android.sdk.readerview.service.ReaderService");
         intent.setComponent(componentName);
         intent.setData(FileProvider.getUriForFile(this,
-                "com.onyx.android.demo.onyx.fileprovider",
+                getPackageName() + ".onyx.fileprovider",
                 new File(etFile.getText().toString())));
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
