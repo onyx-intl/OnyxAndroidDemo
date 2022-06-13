@@ -13,7 +13,7 @@ import android.widget.Button;
 import com.onyx.android.demo.R;
 import com.onyx.android.sdk.pen.RawInputCallback;
 import com.onyx.android.sdk.pen.TouchHelper;
-import com.onyx.android.sdk.pen.data.TouchPoint;
+import com.onyx.android.sdk.data.note.TouchPoint;
 import com.onyx.android.sdk.pen.data.TouchPointList;
 
 import java.util.ArrayList;
