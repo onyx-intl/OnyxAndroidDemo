@@ -90,7 +90,7 @@ public class EpdDemoActivity extends AppCompatActivity implements View.OnClickLi
             EpdController.applyAppScopeUpdate(TAG, true, true, UpdateMode.ANIMATION_QUALITY, Integer.MAX_VALUE);
         } else if (v.equals(button_enter_normal_mode)) {
             EpdController.clearAppScopeUpdate();
-            EpdController.applyAppScopeUpdate(TAG, false, true);
+            EpdController.applyAppScopeUpdate(TAG, false, true, UpdateMode.None, Integer.MAX_VALUE);
         } else if (v.equals(button_enter_du_mode)) {
             EpdController.clearAppScopeUpdate();
             EpdController.applyAppScopeUpdate(TAG, true, true, UpdateMode.DU_QUALITY, Integer.MAX_VALUE);
