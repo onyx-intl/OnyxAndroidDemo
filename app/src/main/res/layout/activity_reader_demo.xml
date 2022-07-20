@@ -1,36 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+<layout>
 
-    <EditText
-        android:id="@+id/et_file"
+    <data>
+
+        <variable
+            name="activityReader"
+            type="com.android.onyx.demo.ReaderDemoActivity" />
+    </data>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:text="/storage/emulated/0/demo.pdf"/>
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-    <Button
-        android:id="@+id/btn_open"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/open_reader"/>
+        <EditText
+            android:id="@+id/et_file"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="/storage/emulated/0/demo.pdf" />
 
-    <TextView
-        android:id="@+id/textView_progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="10dp"/>
+        <Button
+            android:id="@+id/btn_open"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="@{activityReader::btn_open}"
+            android:text="@string/open_reader" />
 
-    <Button
-        android:id="@+id/btn_query_progress"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/query_reading_progress"/>
+        <TextView
+            android:id="@+id/textView_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp" />
 
-    <Button
-        android:id="@+id/btn_delete_reader_data"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/delete_reader_data"/>
-</LinearLayout>
+        <Button
+            android:id="@+id/btn_query_progress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="@{activityReader::btn_query_progress}"
+            android:text="@string/query_reading_progress" />
+
+        <Button
+            android:id="@+id/btn_delete_reader_data"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="@{activityReader::btn_delete_reader_data}"
+            android:text="@string/delete_reader_data" />
+    </LinearLayout>
+</layout>

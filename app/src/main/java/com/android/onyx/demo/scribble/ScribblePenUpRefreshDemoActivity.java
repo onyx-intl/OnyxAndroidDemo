@@ -18,16 +18,18 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
+
 import android.widget.CompoundButton;
 import android.widget.RadioButton;
-import android.widget.RadioGroup;
+
 import android.widget.SeekBar;
-import android.widget.TextView;
+
+
+import androidx.databinding.DataBindingUtil;
 
 import com.onyx.android.demo.R;
 import com.android.onyx.demo.scribble.request.PartialRefreshRequest;
+import com.onyx.android.demo.databinding.ActivityPenUpRefreshDemoBinding;
 import com.onyx.android.sdk.api.device.epd.EpdController;
 import com.onyx.android.sdk.data.PenConstant;
 import com.onyx.android.sdk.pen.NeoFountainPen;
@@ -42,31 +44,13 @@ import com.onyx.android.sdk.utils.NumberUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 public class ScribblePenUpRefreshDemoActivity extends AppCompatActivity {
 
     private static final String TAG = ScribblePenUpRefreshDemoActivity.class.getSimpleName();
     private final float STROKE_WIDTH = 3.0f;
 
-    @Bind(R.id.button_pen)
-    Button buttonPen;
-    @Bind(R.id.content)
-    View content;
-    @Bind(R.id.surfaceview1)
-    SurfaceView surfaceView;
-    @Bind(R.id.enable_pen_up_refresh)
-    CheckBox cbPenUpRefreshEnable;
-    @Bind(R.id.pen_up_time)
-    TextView penUpTime;
-    @Bind(R.id.seekBar)
-    SeekBar penUpTimeSeekBar;
-    @Bind(R.id.rg_stroke_style)
-    RadioGroup rgStrokeStyle;
-    @Bind(R.id.button_test_view_update)
-    Button buttonTestViewUpdate;
+    private ActivityPenUpRefreshDemoBinding binding;
 
     private TouchHelper touchHelper;
     private RawInputCallback rawInputCallback;
@@ -78,10 +62,9 @@ public class ScribblePenUpRefreshDemoActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pen_up_refresh_demo);
-
-        ButterKnife.bind(this);
-        initSurfaceView(surfaceView);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_pen_up_refresh_demo);
+        binding.setActivityPenUpRefresh(this);
+        initSurfaceView(binding.surfaceview1);
         initPaint();
     }
 
@@ -106,29 +89,25 @@ public class ScribblePenUpRefreshDemoActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    @OnClick(R.id.button_pen)
     public void onPenClick() {
         touchHelper.setRawDrawingEnabled(true);
     }
 
-    @OnClick(R.id.button_clear)
     public void onClearClick() {
         touchHelper.setRawDrawingEnabled(false);
         bitmapRecycle();
-        cleanSurfaceView(surfaceView);
+        cleanSurfaceView(binding.surfaceview1);
         touchHelper.setRawDrawingEnabled(true);
     }
 
-    @OnClick(R.id.button_test_view_update)
-    public void onTestViewUpdateClick() {
-        buttonTestViewUpdate.setEnabled(false);
+    public void onTestViewUpdateClick(View view) {
+        binding.buttonTestViewUpdate.setEnabled(false);
         touchHelper.setRawDrawingEnabled(false);
         showTestDialog();
     }
 
-    @OnClick({R.id.rb_brush, R.id.rb_pencil})
-    public void onRadioButtonClicked(RadioButton radioButton) {
-        boolean checked = radioButton.isChecked();
+    public void onRadioButtonClicked(View radioButton) {
+        boolean checked = ((RadioButton) radioButton).isChecked();
         Log.d(TAG, radioButton.toString());
         switch (radioButton.getId()) {
             case R.id.rb_brush:
@@ -194,7 +173,7 @@ public class ScribblePenUpRefreshDemoActivity extends AppCompatActivity {
                     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
                         return;
                     }
-                    getRxManager().enqueue(new PartialRefreshRequest(ScribblePenUpRefreshDemoActivity.this, surfaceView, refreshRect)
+                    getRxManager().enqueue(new PartialRefreshRequest(ScribblePenUpRefreshDemoActivity.this, binding.surfaceview1, refreshRect)
                                     .setBitmap(bitmap),
                             new RxCallback<PartialRefreshRequest>() {
                                 @Override
@@ -216,11 +195,11 @@ public class ScribblePenUpRefreshDemoActivity extends AppCompatActivity {
 
     private void drawScribbleToBitmap(List<TouchPoint> list) {
         if (bitmap == null) {
-            bitmap = Bitmap.createBitmap(surfaceView.getWidth(), surfaceView.getHeight(), Bitmap.Config.ARGB_8888);
+            bitmap = Bitmap.createBitmap(binding.surfaceview1.getWidth(), binding.surfaceview1.getHeight(), Bitmap.Config.ARGB_8888);
             canvas = new Canvas(bitmap);
         }
 
-        switch (rgStrokeStyle.getCheckedRadioButtonId()) {
+        switch (binding.rgStrokeStyle.getCheckedRadioButtonId()) {
             case R.id.rb_brush:
                 float maxPressure = EpdController.getMaxTouchPressure();
                 NeoFountainPen.drawStroke(canvas, paint, list, NumberUtils.FLOAT_ONE, STROKE_WIDTH, maxPressure, false);
@@ -267,17 +246,18 @@ public class ScribblePenUpRefreshDemoActivity extends AppCompatActivity {
     }
 
     private void initPenUpRefreshConfig() {
-        cbPenUpRefreshEnable.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        binding.enablePenUpRefresh.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 touchHelper.setRawDrawingEnabled(false);
                 bitmapRecycle();
-                cleanSurfaceView(surfaceView);
+                cleanSurfaceView(binding.surfaceview1);
                 touchHelper.setPenUpRefreshEnabled(isChecked);
                 touchHelper.setRawDrawingEnabled(true);
             }
         });
-        penUpTimeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+        binding.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 touchHelper.setRawDrawingEnabled(false);
@@ -295,14 +275,14 @@ public class ScribblePenUpRefreshDemoActivity extends AppCompatActivity {
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
-        cbPenUpRefreshEnable.setChecked(true);
-        penUpTimeSeekBar.setMax(PenConstant.MAX_PEN_UP_REFRESH_TIME_MS - PenConstant.MIN_PEN_UP_REFRESH_TIME_MS);
+        binding.enablePenUpRefresh.setChecked(true);
+        binding.seekBar.setMax(PenConstant.MAX_PEN_UP_REFRESH_TIME_MS - PenConstant.MIN_PEN_UP_REFRESH_TIME_MS);
         updateSeekBarValue(PenConstant.DEFAULT_PEN_UP_REFRESH_TIME_MS);
     }
 
     private void updateSeekBarValue(int time) {
-        penUpTime.setText(String.valueOf(time));
-        penUpTimeSeekBar.setProgress(time - PenConstant.MIN_PEN_UP_REFRESH_TIME_MS);
+        binding.penUpTime.setText(String.valueOf(time));
+        binding.seekBar.setProgress(time - PenConstant.MIN_PEN_UP_REFRESH_TIME_MS);
         touchHelper.setPenUpRefreshTimeMs(time);
     }
 
@@ -347,7 +327,7 @@ public class ScribblePenUpRefreshDemoActivity extends AppCompatActivity {
         dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
-                buttonTestViewUpdate.setEnabled(true);
+                binding.buttonTestViewUpdate.setEnabled(true);
                 touchHelper.setRawDrawingEnabled(true);
             }
         });

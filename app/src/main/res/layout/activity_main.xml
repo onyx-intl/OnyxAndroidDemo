@@ -1,116 +1,140 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_main"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.android.onyx.demo.MainActivity">
+<layout>
 
-    <LinearLayout
-        android:id="@+id/layout_function"
+    <data>
+
+        <variable
+            name="activityMain"
+            type="com.android.onyx.demo.MainActivity" />
+    </data>
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/activity_main"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_alignParentTop="true">
+        android:layout_height="match_parent"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        tools:context="com.android.onyx.demo.MainActivity">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/layout_function"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="You should take care of ths following demo:"/>
+            android:layout_alignParentTop="true"
+            android:orientation="vertical">
 
-        <Button
-            android:id="@+id/button_reader"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Reader Demo"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="You should take care of ths following demo:" />
 
-        <Button
-            android:id="@+id/button_epd"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Epd Demo"/>
+            <Button
+                android:id="@+id/button_reader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="@{activityMain::btn_reader}"
+                android:text="Reader Demo" />
 
-        <Button
-            android:id="@+id/button_front_light"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Front Light"/>
+            <Button
+                android:id="@+id/button_epd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="@{activityMain::button_epd}"
+                android:text="Epd Demo" />
 
-        <Button
-            android:id="@+id/button_full_screen"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Full Screen Demo" />
+            <Button
+                android:id="@+id/button_front_light"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="@{activityMain::button_front_light}"
+                android:text="Front Light" />
 
-        <Button
-            android:id="@+id/button_environment"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Environment Demo"/>
+            <Button
+                android:id="@+id/button_full_screen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="@{activityMain::button_full_screen}"
+                android:text="Full Screen Demo" />
 
-        <Button
-            android:id="@+id/button_scribble_demo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Scribble Demo" />
+            <Button
+                android:id="@+id/button_environment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="@{activityMain::button_environment}"
+                android:text="Environment Demo" />
 
-        <Button
-            android:id="@+id/btn_dict_query"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="visible"
-            android:text="Dict Query" />
+            <Button
+                android:id="@+id/button_scribble_demo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="@{activityMain::button_scribble_demo}"
+                android:text="Scribble Demo" />
 
-        <Button
-            android:id="@+id/btn_screen_saver"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="visible"
-            android:text="Screensaver Demo" />
+            <Button
+                android:id="@+id/btn_dict_query"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="@{activityMain::btn_dict_query}"
+                android:text="Dict Query"
+                android:visibility="visible" />
 
-        <Button
-            android:id="@+id/btn_open_setting"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="visible"
-            android:text="Open Setting Demo" />
+            <Button
+                android:id="@+id/btn_screen_saver"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="@{activityMain::btn_screen_saver}"
+                android:text="Screensaver Demo"
+                android:visibility="visible" />
 
-        <Button
-            android:id="@+id/btn_webview_optimize"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="visible"
-            android:text="WebView Optimize Demo" />
+            <Button
+                android:id="@+id/btn_open_setting"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="@{activityMain::btn_open_setting}"
+                android:text="Open Setting Demo"
+                android:visibility="visible" />
 
-        <Button
-            android:id="@+id/btn_open_kcb"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="visible"
-            android:text="Open KCB Demo" />
+            <Button
+                android:id="@+id/btn_webview_optimize"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="@{activityMain::btn_webview_optimize}"
+                android:text="WebView Optimize Demo"
+                android:visibility="visible" />
 
-        <Button
-            android:id="@+id/btn_open_ota"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="visible"
-            android:text="Open OTA Demo" />
+            <Button
+                android:id="@+id/btn_open_kcb"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="@{activityMain::btn_open_kcb}"
+                android:text="Open KCB Demo"
+                android:visibility="visible" />
 
-        <Button
-            android:id="@+id/button_refresh_mode"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Refresh Mode Demo"/>
+            <Button
+                android:id="@+id/btn_open_ota"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="btn_open_ota"
+                android:text="Open OTA Demo"
+                android:visibility="visible" />
 
-        <Button
-            android:id="@+id/button_eac"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="EAC Demo"/>
-    </LinearLayout>
+            <Button
+                android:id="@+id/button_refresh_mode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onClickButtonRefreshMode"
+                android:text="Refresh Mode Demo" />
 
-</RelativeLayout>
+            <Button
+                android:id="@+id/button_eac"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onClickButtonEacDemo"
+                android:text="EAC Demo" />
+        </LinearLayout>
+
+    </RelativeLayout>
+</layout>

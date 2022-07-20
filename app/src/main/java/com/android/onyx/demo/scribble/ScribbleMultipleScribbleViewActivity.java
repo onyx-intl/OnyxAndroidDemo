@@ -8,9 +8,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.widget.Button;
+
+import androidx.databinding.DataBindingUtil;
 
 import com.onyx.android.demo.R;
+import com.onyx.android.demo.databinding.ActivityScribbleMultipleScrubbleViewDemoBinding;
 import com.onyx.android.sdk.pen.RawInputCallback;
 import com.onyx.android.sdk.pen.TouchHelper;
 import com.onyx.android.sdk.data.note.TouchPoint;
@@ -19,24 +21,12 @@ import com.onyx.android.sdk.pen.data.TouchPointList;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 public class ScribbleMultipleScribbleViewActivity extends AppCompatActivity {
 
     private static final String TAG = ScribbleMultipleScribbleViewActivity.class.getSimpleName();
 
-    @Bind(R.id.button_pen)
-    Button buttonPen;
-    @Bind(R.id.button_eraser)
-    Button buttonEraser;
-    @Bind(R.id.content)
-    View content;
-    @Bind(R.id.surfaceview1)
-    SurfaceView surfaceView1;
-    @Bind(R.id.surfaceview2)
-    SurfaceView surfaceView2;
+    private ActivityScribbleMultipleScrubbleViewDemoBinding binding;
 
     private TouchHelper touchHelper;
 
@@ -46,12 +36,12 @@ public class ScribbleMultipleScribbleViewActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_scribble_multiple_scrubble_view_demo);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_scribble_multiple_scrubble_view_demo);
+        binding.setActivityScribbleMultiple(this);
 
-        ButterKnife.bind(this);
         touchHelper = TouchHelper.create(getWindow().getDecorView().getRootView(), getRawInputCallback());
-        initSurfaceView(surfaceView1);
-        initSurfaceView(surfaceView2);
+        initSurfaceView(binding.surfaceview1);
+        initSurfaceView(binding.surfaceview2);
     }
 
     @Override
@@ -145,29 +135,24 @@ public class ScribbleMultipleScribbleViewActivity extends AppCompatActivity {
         return rawInputCallback;
     }
 
-
-    @OnClick(R.id.button_pen)
-    public void onPenClick(){
+    public void onPenClick(View view) {
         touchHelper.setRawDrawingEnabled(true);
     }
 
-    @OnClick(R.id.button_eraser)
-    public void onEraserClick(){
+    public void onEraserClick(View view) {
         touchHelper.setRawDrawingEnabled(false);
         cleanAllSurfaceView();
         touchHelper.setRawDrawingEnabled(true);
     }
 
-    @OnClick(R.id.button_single_region_mode)
-    public void onSingleRegionModeClick() {
+    public void onSingleRegionModeClick(View view) {
         touchHelper.setRawDrawingEnabled(false);
         cleanAllSurfaceView();
         touchHelper.setSingleRegionMode();
         touchHelper.setRawDrawingEnabled(true);
     }
 
-    @OnClick(R.id.button_multi_region_mode)
-    public void onMultiRegionModeClick() {
+    public void onMultiRegionModeClick(View view) {
         touchHelper.setRawDrawingEnabled(false);
         cleanAllSurfaceView();
         touchHelper.setMultiRegionMode();
@@ -175,8 +160,8 @@ public class ScribbleMultipleScribbleViewActivity extends AppCompatActivity {
     }
 
     private void cleanAllSurfaceView() {
-        cleanSurfaceView(surfaceView1);
-        cleanSurfaceView(surfaceView2);
+        cleanSurfaceView(binding.surfaceview1);
+        cleanSurfaceView(binding.surfaceview2);
     }
 
     private void cleanSurfaceView(SurfaceView surfaceView) {

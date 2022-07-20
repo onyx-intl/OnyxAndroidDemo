@@ -1,96 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center_horizontal"
-    android:orientation="vertical">
+<layout>
 
-    <Button
-        android:id="@+id/button_create_note"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Create New Note" />
-
-    <TextView
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Note return result:"
-        android:textColor="#000" />
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/textView_note_return_result"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="10dp" />
+        <Button
+            android:id="@+id/button_create_note"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Create New Note" />
 
-    <EditText
-        android:id="@+id/editText_note_id"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="note id" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Note return result:"
+            android:textColor="#000" />
 
-    <Button
-        android:id="@+id/button_load_note_model"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Load NoteModel" />
+        <TextView
+            android:id="@+id/textView_note_return_result"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="10dp" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Load note model result:"
-        android:textColor="#000" />
+        <EditText
+            android:id="@+id/editText_note_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="note id" />
 
-    <TextView
-        android:id="@+id/textView_load_note_model_result"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="10dp" />
+        <Button
+            android:id="@+id/button_load_note_model"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Load NoteModel" />
 
-    <Button
-        android:id="@+id/button_get_note_thumbnail_path"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Get Note thumbnail path" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Load note model result:"
+            android:textColor="#000" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Note thumbnail path:"
-        android:textColor="#000" />
+        <TextView
+            android:id="@+id/textView_load_note_model_result"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="10dp" />
 
-    <TextView
-        android:id="@+id/textView_note_thumbnail_path"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="10dp" />
+        <Button
+            android:id="@+id/button_get_note_thumbnail_path"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Get Note thumbnail path" />
 
-    <EditText
-        android:id="@+id/editText_export_path"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="export pdf path" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Note thumbnail path:"
+            android:textColor="#000" />
 
-    <Button
-        android:id="@+id/button_export_pdf"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Export PDF" />
+        <TextView
+            android:id="@+id/textView_note_thumbnail_path"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="10dp" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Export result:"
-        android:textColor="#000" />
+        <EditText
+            android:id="@+id/editText_export_path"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="export pdf path" />
 
-    <TextView
-        android:id="@+id/textView_export_result"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="10dp" />
+        <Button
+            android:id="@+id/button_export_pdf"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Export PDF" />
 
-</LinearLayout>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Export result:"
+            android:textColor="#000" />
+
+        <TextView
+            android:id="@+id/textView_export_result"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="10dp" />
+
+    </LinearLayout>
+
+</layout>

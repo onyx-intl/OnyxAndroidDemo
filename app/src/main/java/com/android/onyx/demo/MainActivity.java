@@ -5,97 +5,84 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
+import androidx.databinding.DataBindingUtil;
+
 import com.android.onyx.demo.scribble.ScribbleDemoActivity;
 import com.onyx.android.demo.R;
+import com.onyx.android.demo.databinding.ActivityMainBinding;
 import com.onyx.android.sdk.api.device.epd.EpdController;
 
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity {
+    private ActivityMainBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        ButterKnife.bind(this);
-        final View view = findViewById(android.R.id.content);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        final View view = binding.getRoot();
+        binding.setActivityMain(this);
         EpdController.enablePost(view, 1);
     }
 
-
-    @OnClick(R.id.button_epd)
-    public void button_epd() {
+    public void button_epd(View view) {
         go(EpdDemoActivity.class);
     }
 
-    @OnClick(R.id.button_front_light)
-    public void button_front_light() {
+    public void button_front_light(View view) {
         go(FrontLightDemoActivity.class);
     }
 
-    @OnClick(R.id.button_full_screen)
-    public  void button_full_screen() {
+    public void button_full_screen(View view) {
         go(FullScreenDemoActivity.class);
     }
 
-    @OnClick(R.id.button_environment)
-    public void button_environment() {
+    public void button_environment(View view) {
         go(EnvironmentDemoActivity.class);
     }
 
-    @OnClick(R.id.button_scribble_demo)
-    public void button_scribble_demo() {
+    public void button_scribble_demo(View view) {
         go(ScribbleDemoActivity.class);
     }
 
-    @OnClick(R.id.btn_dict_query)
-    public void btn_dict_query(){
+    public void btn_dict_query(View view) {
         go(DictionaryActivity.class);
     }
-    
-    @OnClick(R.id.button_reader)
-    public void btn_reader() {
+
+    public void btn_reader(View view) {
         go(ReaderDemoActivity.class);
     }
 
-    @OnClick(R.id.btn_screen_saver)
-    public void btn_screen_saver() {
+    public void btn_screen_saver(View view) {
         go(ScreensaverActivity.class);
     }
 
-    @OnClick(R.id.btn_open_setting)
-    public void btn_open_setting() {
+    public void btn_open_setting(View view) {
         go(OpenSettingActivity.class);
     }
 
-    @OnClick(R.id.btn_webview_optimize)
-    public void btn_webview_optimize() {
+    public void btn_webview_optimize(View view) {
         go(WebViewOptimizeActivity.class);
     }
 
-    @OnClick(R.id.btn_open_kcb)
-    public void btn_open_kcb() {
+    public void btn_open_kcb(View view) {
         go(OpenKcbActivity.class);
     }
 
-    @OnClick(R.id.btn_open_ota)
-    public void btn_open_ota() {
+    public void btn_open_ota(View view) {
         go(OTADemoActivity.class);
     }
 
-    @OnClick(R.id.button_refresh_mode)
-    public void onClickButtonRefreshMode() {
+    public void onClickButtonRefreshMode(View view) {
         go(RefreshModeDemoActivity.class);
     }
 
-    @OnClick(R.id.button_eac)
-    public void onClickButtonEacDemo() {
+    public void onClickButtonEacDemo(View view) {
         go(EacDemoActivity.class);
     }
 
-    private void go(Class<?> activityClass){
+    private void go(Class<?> activityClass) {
         startActivity(new Intent(this, activityClass));
     }
+
 }

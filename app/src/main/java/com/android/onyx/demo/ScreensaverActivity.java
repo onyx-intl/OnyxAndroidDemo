@@ -10,28 +10,29 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.view.Display;
+import android.view.View;
 import android.view.WindowManager;
-import android.widget.EditText;
+
 import android.widget.Toast;
 
+import androidx.databinding.DataBindingUtil;
+
 import com.onyx.android.demo.R;
+import com.onyx.android.demo.databinding.ActivityScreenSaverBinding;
 import com.onyx.android.sdk.utils.BitmapUtils;
 
 import java.io.File;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 public class ScreensaverActivity extends AppCompatActivity {
-    @Bind(R.id.et_image)
-    EditText etImage;
+
+    private ActivityScreenSaverBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_screen_saver);
-        ButterKnife.bind(this);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_screen_saver);
+        binding.setActivityScreenSaver(this);
     }
 
     /**
@@ -40,23 +41,23 @@ public class ScreensaverActivity extends AppCompatActivity {
      * 2. file names format "standby-{num}.png", num starts from 1<br/>
      * 3. send broadcast with action "update_standby_pic"<br/>
      * PS.pic's width and height better matches the device's height and width, <br/>
-     *    for example device's size is 2200x1650, pic's size should be 1650x2200, with upside towards left, <br/>
-     *    and pic's file format should be png.
+     * for example device's size is 2200x1650, pic's size should be 1650x2200, with upside towards left, <br/>
+     * and pic's file format should be png.
      */
-    @OnClick(R.id.btn_set)
-    public void setScreensaver() {
-        String filePath = etImage.getText().toString();
-        if ( "".equals(filePath) ) {
-            Toast.makeText(this,R.string.enter_pic_path, Toast.LENGTH_SHORT).show();
+
+    public void setScreensaver(View view) {
+        String filePath = binding.etImage.getText().toString();
+        if ("".equals(filePath)) {
+            Toast.makeText(this, R.string.enter_pic_path, Toast.LENGTH_SHORT).show();
             return;
         }
         File f = new File(filePath);
-        if ( !f.exists() ) {
-            Toast.makeText(this,R.string.invalid_path, Toast.LENGTH_SHORT).show();
+        if (!f.exists()) {
+            Toast.makeText(this, R.string.invalid_path, Toast.LENGTH_SHORT).show();
             return;
         }
 
-        String path = etImage.getText().toString();
+        String path = binding.etImage.getText().toString();
         Bitmap temp = BitmapFactory.decodeFile(path);
         if (temp.getHeight() > temp.getWidth()) {
             temp = BitmapUtils.rotateBmp(temp, 270);
@@ -86,7 +87,7 @@ public class ScreensaverActivity extends AppCompatActivity {
     }
 
     public static Point getScreenResolution(final Context context) {
-        WindowManager w = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
+        WindowManager w = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         Display d = w.getDefaultDisplay();
         DisplayMetrics metrics = new DisplayMetrics();
         d.getMetrics(metrics);

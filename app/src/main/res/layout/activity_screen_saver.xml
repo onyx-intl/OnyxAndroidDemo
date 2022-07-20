@@ -1,18 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<layout>
 
-    <EditText
-        android:id="@+id/et_image"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:text="/sdcard/demo.png"/>
+    <data>
 
-    <Button
-        android:id="@+id/btn_set"
+        <variable
+            name="activityScreenSaver"
+            type="com.android.onyx.demo.ScreensaverActivity" />
+    </data>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/set_up_screensaver"/>
-</LinearLayout>
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/et_image"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="/sdcard/demo.png" />
+
+        <Button
+            android:id="@+id/btn_set"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="@{activityScreenSaver::setScreensaver}"
+            android:text="@string/set_up_screensaver" />
+    </LinearLayout>
+</layout>

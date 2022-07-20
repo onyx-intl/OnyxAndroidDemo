@@ -4,63 +4,41 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.TextView;
+
+
+import androidx.databinding.DataBindingUtil;
 
 import com.onyx.android.demo.R;
+import com.onyx.android.demo.databinding.ActivityFrontLightDemoBinding;
 import com.onyx.android.sdk.api.device.FrontLightController;
 import com.onyx.android.sdk.device.BaseDevice;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 public class FrontLightDemoActivity extends AppCompatActivity {
-
-    @Bind({R.id.ctm_cover})
-    View ctmCover;
-    @Bind({R.id.fl_cover})
-    View flCover;
-    @Bind({R.id.light_value})
-    TextView lightValue;
-    @Bind({R.id.warm_light_value})
-    TextView warmLightValue;
-    @Bind({R.id.cold_light_value})
-    TextView coldLightValue;
+    private ActivityFrontLightDemoBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_front_light_demo);
-
-        ButterKnife.bind(this);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_front_light_demo);
         initView();
+        binding.setActivityFrontlight(this);
     }
 
     private void initView() {
         if (FrontLightController.hasCTMBrightness(this)) {
-            warmLightValue.setText("Current value:" + FrontLightController.getWarmLightConfigValue(this));
-            coldLightValue.setText("Current value:" + FrontLightController.getColdLightConfigValue(this));
-            flCover.setVisibility(View.VISIBLE);
-            flCover.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+            binding.warmLightValue.setText("Current value:" + FrontLightController.getWarmLightConfigValue(this));
+            binding.coldLightValue.setText("Current value:" + FrontLightController.getColdLightConfigValue(this));
+            binding.flCover.setVisibility(View.VISIBLE);
 
-                }
-            });
         } else if (FrontLightController.hasFLBrightness(this)) {
-            lightValue.setText("Current value:" + FrontLightController.getBrightness(this));
-            ctmCover.setVisibility(View.VISIBLE);
-            ctmCover.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+            binding.lightValue.setText("Current value:" + FrontLightController.getBrightness(this));
+            binding.ctmCover.setVisibility(View.VISIBLE);
 
-                }
-            });
         }
     }
 
-    @OnClick(R.id.warm_light_toggle)
-    public void toggleWarmLight() {
+    public void toggleWarmLight(View view) {
         if (FrontLightController.isWarmLightOn(this)) {
             FrontLightController.closeWarmLight();
         } else {
@@ -68,18 +46,15 @@ public class FrontLightDemoActivity extends AppCompatActivity {
         }
     }
 
-    @OnClick(R.id.warm_light_increase)
-    public void increaseWarmLight() {
+    public void increaseWarmLight(View view) {
         increaseBrightness(FrontLightController.LIGHT_TYPE_CTM_WARM);
     }
 
-    @OnClick(R.id.warm_light_decrease)
-    public void decreaseWarmLight() {
+    public void decreaseWarmLight(View view) {
         decreaseBrightness(FrontLightController.LIGHT_TYPE_CTM_WARM);
     }
 
-    @OnClick(R.id.cold_light_toggle)
-    public void toggleColdLight() {
+    public void toggleColdLight(View view) {
         if (FrontLightController.isColdLightOn(this)) {
             FrontLightController.closeColdLight();
         } else {
@@ -87,23 +62,19 @@ public class FrontLightDemoActivity extends AppCompatActivity {
         }
     }
 
-    @OnClick(R.id.update_warm_light_value)
-    public void updateWarmLightValue() {
-        warmLightValue.setText("Current value:" + FrontLightController.getWarmLightConfigValue(this));
+    public void updateWarmLightValue(View view) {
+        binding.warmLightValue.setText("Current value:" + FrontLightController.getWarmLightConfigValue(this));
     }
 
-    @OnClick(R.id.cold_light_increase)
-    public void increaseColdLight() {
+    public void increaseColdLight(View view) {
         increaseBrightness(FrontLightController.LIGHT_TYPE_CTM_COLD);
     }
 
-    @OnClick(R.id.cold_light_decrease)
-    public void decreaseColdLight() {
+    public void decreaseColdLight(View view) {
         decreaseBrightness(FrontLightController.LIGHT_TYPE_CTM_COLD);
     }
 
-    @OnClick(R.id.button_light_toggle)
-    public void toggleFLLight() {
+    public void toggleFLLight(View view) {
         if (FrontLightController.isLightOn(this, BaseDevice.LIGHT_TYPE_FL)) {
             FrontLightController.turnOff(this);
         } else {
@@ -111,29 +82,24 @@ public class FrontLightDemoActivity extends AppCompatActivity {
         }
     }
 
-    @OnClick(R.id.update_cold_light_value)
-    public void updateColdLightValue() {
-        coldLightValue.setText("Current value:" + FrontLightController.getColdLightConfigValue(this));
+    public void updateColdLightValue(View view) {
+        binding.coldLightValue.setText("Current value:" + FrontLightController.getColdLightConfigValue(this));
     }
 
-    @OnClick(R.id.button_light_darker)
-    public void decreaseFLLight() {
+    public void decreaseFLLight(View view) {
         decreaseBrightness(FrontLightController.LIGHT_TYPE_FL);
     }
 
-    @OnClick(R.id.button_light_lighter)
-    public void increaseFLLight() {
+    public void increaseFLLight(View view) {
         increaseBrightness(FrontLightController.LIGHT_TYPE_FL);
     }
 
-    @OnClick(R.id.button_show_brightness_setting)
-    public void ShowBrightnessSetting() {
+    public void ShowBrightnessSetting(View view) {
         sendBroadcast(new Intent("action.show.brightness.dialog"));
     }
 
-    @OnClick(R.id.update_light_value)
-    public void updateLightValue() {
-        lightValue.setText("Current value:" + FrontLightController.getBrightness(this));
+    public void updateLightValue(View view) {
+        binding.lightValue.setText("Current value:" + FrontLightController.getBrightness(this));
     }
 
     public void increaseBrightness(int colorTemp) {

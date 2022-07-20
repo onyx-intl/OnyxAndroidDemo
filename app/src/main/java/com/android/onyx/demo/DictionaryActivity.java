@@ -12,7 +12,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.databinding.DataBindingUtil;
+
 import com.onyx.android.demo.R;
+import com.onyx.android.demo.databinding.ActivityDictqueryBinding;
 import com.onyx.android.sdk.data.DictionaryQuery;
 import com.onyx.android.sdk.utils.DictionaryUtil;
 
@@ -22,15 +25,15 @@ import java.util.List;
  * Created by seeksky on 2018/5/17.
  */
 
-public class DictionaryActivity extends AppCompatActivity implements View.OnClickListener{
-    private EditText editText;
-    private Button buttonQuery;
-    private TextView textViewDisplay;
+public class DictionaryActivity extends AppCompatActivity {
+
+    private ActivityDictqueryBinding binding;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_dictquery);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_dictquery);
+        binding.setActivityDictQuery(this);
         initView();
     }
 
@@ -40,20 +43,16 @@ public class DictionaryActivity extends AppCompatActivity implements View.OnClic
     }
 
     private void initView() {
-        editText = (EditText) findViewById(R.id.edittext_keyword);
-        buttonQuery = (Button) findViewById(R.id.button_query);
-        textViewDisplay = (TextView) findViewById(R.id.textview_query_result);
-        textViewDisplay.setMovementMethod(ScrollingMovementMethod.getInstance());
-        buttonQuery.setOnClickListener(this);
+        binding.textviewQueryResult.setMovementMethod(ScrollingMovementMethod.getInstance());
+
     }
 
-    @Override
     public void onClick(View v) {
-        doQueryJob(editText.getText().toString());
+        doQueryJob(binding.edittextKeyword.getText().toString());
     }
 
     private void doQueryJob(final String keyword) {
-        textViewDisplay.setText("");
+        binding.textviewQueryResult.setText("");
         hideSoftKeyboard();
         new AsyncTask<Void, Void, DictionaryQuery>() {
             @Override
@@ -71,9 +70,9 @@ public class DictionaryActivity extends AppCompatActivity implements View.OnClic
                     }
                     for (DictionaryQuery.Dictionary dictionary : list) {
                         System.out.println("dictionary = " + dictionary.getExplanation());
-                        textViewDisplay.append(dictionary.getDictName() + "\n");
-                        textViewDisplay.append(dictionary.getExplanation());
-                        textViewDisplay.append("\n=============================\n");
+                        binding.textviewQueryResult.append(dictionary.getDictName() + "\n");
+                        binding.textviewQueryResult.append(dictionary.getExplanation());
+                        binding.textviewQueryResult.append("\n=============================\n");
                     }
                 }
             }
@@ -83,7 +82,7 @@ public class DictionaryActivity extends AppCompatActivity implements View.OnClic
     private void hideSoftKeyboard() {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm != null) {
-            imm.hideSoftInputFromWindow(buttonQuery.getWindowToken(),0);
+            imm.hideSoftInputFromWindow(binding.buttonQuery.getWindowToken(), 0);
         }
     }
 }
