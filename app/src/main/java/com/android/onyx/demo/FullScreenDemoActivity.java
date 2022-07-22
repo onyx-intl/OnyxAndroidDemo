@@ -3,33 +3,26 @@ package com.android.onyx.demo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.Button;
+
+import androidx.databinding.DataBindingUtil;
 
 import com.onyx.android.demo.R;
+import com.onyx.android.demo.databinding.ActivityFullScreenDemoBinding;
 import com.onyx.android.sdk.utils.DeviceUtils;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
 
-public class FullScreenDemoActivity extends AppCompatActivity implements View.OnClickListener {
+public class FullScreenDemoActivity extends AppCompatActivity {
+    private ActivityFullScreenDemoBinding binding;
 
-    @Bind(R.id.button_full_screen)
-    Button buttonFullScreen;
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_full_screen_demo);
 
-        ButterKnife.bind(this);
-        buttonFullScreen.setOnClickListener(this);
+        super.onCreate(savedInstanceState);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_full_screen_demo);
+
     }
 
-    @Override
-    public void onClick(View v) {
-        if (v.equals(buttonFullScreen)) {
-            boolean fullscreen = !DeviceUtils.isFullScreen(this);
-            DeviceUtils.setFullScreenOnResume(this, fullscreen);
-        }
+    public void switchFullScreen(View v) {
+        boolean fullscreen = !DeviceUtils.isFullScreen(this);
+        DeviceUtils.setFullScreenOnResume(this, fullscreen);
     }
 }

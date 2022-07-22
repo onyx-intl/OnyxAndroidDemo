@@ -13,10 +13,14 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.SurfaceHolder;
-import android.view.SurfaceView;
-import android.widget.Button;
+
+import android.view.View;
+
+
+import androidx.databinding.DataBindingUtil;
 
 import com.onyx.android.demo.R;
+import com.onyx.android.demo.databinding.ActivityScribbleMoveEraseStylusDemoBinding;
 import com.onyx.android.sdk.api.device.epd.EpdController;
 import com.onyx.android.sdk.pen.RawInputCallback;
 import com.onyx.android.sdk.pen.TouchHelper;
@@ -27,21 +31,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 public class ScribbleMoveEraserDemoActivity extends AppCompatActivity {
 
     private static final String TAG = ScribbleMoveEraserDemoActivity.class.getSimpleName();
 
-    @Bind(R.id.button_pen)
-    Button buttonPen;
-    @Bind(R.id.button_eraser)
-    Button buttonEraser;
-    @Bind(R.id.surfaceview)
-    SurfaceView surfaceView;
-
+    private ActivityScribbleMoveEraseStylusDemoBinding binding;
     private TouchHelper touchHelper;
 
     private List<TouchPoint> points = new ArrayList<>();
@@ -58,10 +53,8 @@ public class ScribbleMoveEraserDemoActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_scribble_move_erase_stylus_demo);
-
-        ButterKnife.bind(this);
-
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_scribble_move_erase_stylus_demo);
+        binding.setActivityScribbleMoveErase(this);
         initSurfaceView();
     }
 
@@ -84,16 +77,16 @@ public class ScribbleMoveEraserDemoActivity extends AppCompatActivity {
     }
 
     private void initSurfaceView() {
-        touchHelper = TouchHelper.create(surfaceView, getRawInputCallback());
+        touchHelper = TouchHelper.create(binding.surfaceview, getRawInputCallback());
         if (surfaceCallback == null) {
             surfaceCallback = new SurfaceHolder.Callback() {
                 @Override
                 public void surfaceCreated(SurfaceHolder holder) {
                     Rect limit = new Rect();
-                    surfaceView.getLocalVisibleRect(limit);
+                    binding.surfaceview.getLocalVisibleRect(limit);
                     bkGroundBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.scribble_back_ground_grid);
-                    renderBitmap = Bitmap.createBitmap(surfaceView.getWidth(),
-                            surfaceView.getHeight(),
+                    renderBitmap = Bitmap.createBitmap(binding.surfaceview.getWidth(),
+                            binding.surfaceview.getHeight(),
                             Bitmap.Config.ARGB_8888);
                     renderBitmap.eraseColor(Color.TRANSPARENT);
                     canvas = new Canvas(renderBitmap);
@@ -114,7 +107,7 @@ public class ScribbleMoveEraserDemoActivity extends AppCompatActivity {
                 }
             };
         }
-        surfaceView.getHolder().addCallback(surfaceCallback);
+        binding.surfaceview.getHolder().addCallback(surfaceCallback);
     }
 
     public RawInputCallback getRawInputCallback() {
@@ -190,14 +183,11 @@ public class ScribbleMoveEraserDemoActivity extends AppCompatActivity {
         paint.setStrokeMiter(4.0f);
     }
 
-
-    @OnClick(R.id.button_pen)
-    public void onPenClick(){
+    public void onPenClick(View view) {
         touchHelper.setRawDrawingEnabled(true);
     }
 
-    @OnClick(R.id.button_eraser)
-    public void onEraserClick(){
+    public void onEraserClick(View view) {
         touchHelper.setRawDrawingEnabled(false);
         renderBitmap.eraseColor(Color.TRANSPARENT);
         drawBitmap();
@@ -237,22 +227,22 @@ public class ScribbleMoveEraserDemoActivity extends AppCompatActivity {
     }
 
     private void drawBitmap() {
-        if (surfaceView.getHolder() == null) {
+        if (binding.surfaceview.getHolder() == null) {
             return;
         }
-        Canvas canvas = surfaceView.getHolder().lockCanvas();
+        Canvas canvas = binding.surfaceview.getHolder().lockCanvas();
         if (canvas == null) {
             return;
         }
-        EpdController.enablePost(surfaceView, 1);
+        EpdController.enablePost(binding.surfaceview, 1);
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.FILL);
         paint.setColor(Color.WHITE);
-        Rect rect = new Rect(0, 0, surfaceView.getWidth(), surfaceView.getHeight());
+        Rect rect = new Rect(0, 0, binding.surfaceview.getWidth(), binding.surfaceview.getHeight());
         canvas.drawRect(rect, paint);
         canvas.drawBitmap(bkGroundBitmap, null, rect, paint);
         canvas.drawBitmap(renderBitmap, 0, 0, paint);
-        surfaceView.getHolder().unlockCanvasAndPost(canvas);
+        binding.surfaceview.getHolder().unlockCanvasAndPost(canvas);
     }
 
     public Path createPath(final TouchPointList pointList) {

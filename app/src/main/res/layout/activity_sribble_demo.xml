@@ -1,50 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin">
-    <Button
-        android:id="@+id/button_scribble_touch_helper"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Scribble Touch Helper Demo" />
+<layout>
 
-    <Button
-        android:id="@+id/button_surfaceview_stylus_scribble"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Scribble SurfaceView Demo"/>
+    <data>
 
-    <Button
-        android:id="@+id/button_webview_stylus_scribble"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Scribble WebView Demo"/>
+        <variable
+            name="activitySribble"
+            type="com.android.onyx.demo.scribble.ScribbleDemoActivity" />
+    </data>
 
-    <Button
-        android:id="@+id/button_touch_screen_scribble"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Scribble Touch Screen Demo"/>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingBottom="@dimen/activity_vertical_margin">
 
-    <Button
-        android:id="@+id/button_move_erase_scribble"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Scribble Move Erase Demo"/>
+        <Button
+            android:id="@+id/button_scribble_touch_helper"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="@{activitySribble::button_scribble_touch_helper}"
+            android:text="Scribble Touch Helper Demo" />
 
-    <Button
-        android:id="@+id/button_multiple_scribble"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Scribble Multiple View"/>
+        <Button
+            android:id="@+id/button_surfaceview_stylus_scribble"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="@{activitySribble::button_surfaceview_stylus_scribble}"
+            android:text="Scribble SurfaceView Demo" />
 
-    <Button
-        android:id="@+id/button_pen_up_refresh"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Scribble Pen up Refresh"/>
-</LinearLayout>
+        <Button
+            android:id="@+id/button_webview_stylus_scribble"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="@{activitySribble::button_webview_stylus_scribble}"
+            android:text="Scribble WebView Demo" />
+
+        <Button
+            android:id="@+id/button_touch_screen_scribble"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Scribble Touch Screen Demo" />
+
+        <Button
+            android:id="@+id/button_move_erase_scribble"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="@{activitySribble::button_move_erase_scribble}"
+            android:text="Scribble Move Erase Demo" />
+
+        <Button
+            android:id="@+id/button_multiple_scribble"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="@{activitySribble::button_multiple_scribble}"
+            android:text="Scribble Multiple View" />
+
+        <Button
+            android:id="@+id/button_pen_up_refresh"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="@{activitySribble::button_pen_up_refresh}"
+            android:text="Scribble Pen up Refresh" />
+    </LinearLayout>
+</layout>

@@ -4,36 +4,31 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.Button;
+import android.view.View;
+
 import android.widget.Toast;
 
-import com.onyx.android.demo.R;
+import androidx.databinding.DataBindingUtil;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
+import com.onyx.android.demo.R;
+import com.onyx.android.demo.databinding.ActivityOpenSettingBinding;
+
 
 public class OpenSettingActivity extends AppCompatActivity {
-
-    @Bind(R.id.btn_open_network)
-    Button btnOpenNetwork;
-    @Bind(R.id.btn_open_date_time)
-    Button btnOpenDateTime;
+    private ActivityOpenSettingBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_open_setting);
-        ButterKnife.bind(this);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_open_setting);
+        binding.setActivityOpenSetting(this);
     }
 
-    @OnClick(R.id.btn_open_network)
-    public void openNetwork() {
+    public void openNetwork(View view) {
         openActivity("com.onyx", "com.onyx.setting.ui.SettingContainerActivity", "onyx.settings.action.network");
     }
 
-    @OnClick(R.id.btn_open_date_time)
-    public void openDateTime() {
+    public void openDateTime(View view) {
         openActivity("com.onyx", "com.onyx.setting.ui.SettingContainerActivity", "onyx.settings.action.datetime");
     }
 

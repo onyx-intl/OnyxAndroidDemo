@@ -12,11 +12,14 @@ import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Button;
+
 import android.widget.Toast;
+
+import androidx.databinding.DataBindingUtil;
 
 import com.android.onyx.demo.utils.TouchUtils;
 import com.onyx.android.demo.R;
+import com.onyx.android.demo.databinding.ActivityScribbleWebviewStylusDemoBinding;
 import com.onyx.android.sdk.api.device.epd.EpdController;
 import com.onyx.android.sdk.pen.RawInputCallback;
 import com.onyx.android.sdk.pen.TouchHelper;
@@ -28,8 +31,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
 
 /**
  * Created by seeksky on 2018/4/26.
@@ -38,22 +39,17 @@ import butterknife.ButterKnife;
 public class ScribbleWebViewDemoActivity extends AppCompatActivity implements View.OnClickListener {
     private final String TAG = getClass().getSimpleName();
 
-    @Bind(R.id.button_pen)
-    Button buttonPen;
-    @Bind(R.id.button_eraser)
-    Button buttonEraser;
-    @Bind(R.id.surfaceview)
-    WebView webView;
     private TouchHelper touchHelper;
+    private ActivityScribbleWebviewStylusDemoBinding binding;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_scribble_webview_stylus_demo);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_scribble_webview_stylus_demo);
 
-        ButterKnife.bind(this);
-        buttonPen.setOnClickListener(this);
-        buttonEraser.setOnClickListener(this);
+
+        binding.buttonPen.setOnClickListener(this);
+        binding.buttonEraser.setOnClickListener(this);
 
         initWebView();
     }
@@ -81,7 +77,7 @@ public class ScribbleWebViewDemoActivity extends AppCompatActivity implements Vi
         public void onPageFinished(WebView view, String url) {
             super.onPageFinished(view, url);
             String js = "android.btns(getBtns());";
-            webView.loadUrl("javascript:" + js);
+            binding.surfaceview.loadUrl("javascript:" + js);
         }
     }
 
@@ -106,7 +102,7 @@ public class ScribbleWebViewDemoActivity extends AppCompatActivity implements Vi
         try {
             int count;
             byte[] bytes = new byte[32768];
-            while ( (count = in.read(bytes,0, 32768)) > 0) {
+            while ((count = in.read(bytes, 0, 32768)) > 0) {
                 builder.append(new String(bytes, 0, count));
             }
 
@@ -118,19 +114,19 @@ public class ScribbleWebViewDemoActivity extends AppCompatActivity implements Vi
     }
 
     private void initWebView() {
-        EpdController.setWebViewContrastOptimize(webView, false);
-        touchHelper = TouchHelper.create(webView, callback);
-        webView.setWebViewClient(new MyWebViewClient());
-        webView.addJavascriptInterface(new WebJsInterface(this), "android");
-        webView.setWebChromeClient(new WebChromeClient() {
+        EpdController.setWebViewContrastOptimize(binding.surfaceview, false);
+        touchHelper = TouchHelper.create(binding.surfaceview, callback);
+        binding.surfaceview.setWebViewClient(new MyWebViewClient());
+        binding.surfaceview.addJavascriptInterface(new WebJsInterface(this), "android");
+        binding.surfaceview.setWebChromeClient(new WebChromeClient() {
             @Override
             public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
                 return super.onJsAlert(view, url, message, result);
             }
         });
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.loadData(readHtmlFile(), "text/html", "utf-8");
-        webView.post(new Runnable() {
+        binding.surfaceview.getSettings().setJavaScriptEnabled(true);
+        binding.surfaceview.loadData(readHtmlFile(), "text/html", "utf-8");
+        binding.surfaceview.post(new Runnable() {
             @Override
             public void run() {
                 initTouchHelper();
@@ -140,19 +136,19 @@ public class ScribbleWebViewDemoActivity extends AppCompatActivity implements Vi
 
     private void initTouchHelper() {
         List<Rect> exclude = new ArrayList<>();
-        exclude.add(getRelativeRect(webView, buttonEraser));
-        exclude.add(getRelativeRect(webView, buttonPen));
+        exclude.add(getRelativeRect(binding.surfaceview, binding.buttonEraser));
+        exclude.add(getRelativeRect(binding.surfaceview, binding.buttonPen));
         Rect limit = new Rect();
-        webView.getLocalVisibleRect(limit);
+        binding.surfaceview.getLocalVisibleRect(limit);
         touchHelper.setStrokeWidth(3.0f)
-                   .setLimitRect(limit, exclude)
-                   .openRawDrawing();
+                .setLimitRect(limit, exclude)
+                .openRawDrawing();
         touchHelper.setStrokeStyle(TouchHelper.STROKE_STYLE_PENCIL);
     }
 
     public Rect getRelativeRect(final View parentView, final View childView) {
-        int [] parent = new int[2];
-        int [] child = new int[2];
+        int[] parent = new int[2];
+        int[] child = new int[2];
         parentView.getLocationOnScreen(parent);
         childView.getLocationOnScreen(child);
         Rect rect = new Rect();
@@ -163,22 +159,21 @@ public class ScribbleWebViewDemoActivity extends AppCompatActivity implements Vi
 
     @Override
     public void onClick(View v) {
-        if (v.equals(buttonPen)) {
+        if (v.equals(binding.buttonPen)) {
             touchHelper.setRawDrawingEnabled(true);
             return;
-        } else if (v.equals(buttonEraser)) {
+        } else if (v.equals(binding.buttonEraser)) {
             touchHelper.setRawDrawingEnabled(false);
-            webView.reload();
+            binding.surfaceview.reload();
             return;
         }
     }
-
 
     private RawInputCallback callback = new RawInputCallback() {
         @Override
         public void onBeginRawDrawing(boolean b, TouchPoint touchPoint) {
             Log.d(TAG, "onBeginRawDrawing");
-            Log.d(TAG,touchPoint.getX() +", " +touchPoint.getY());
+            Log.d(TAG, touchPoint.getX() + ", " + touchPoint.getY());
             TouchUtils.disableFingerTouch(getApplicationContext());
         }
 
@@ -191,7 +186,7 @@ public class ScribbleWebViewDemoActivity extends AppCompatActivity implements Vi
         @Override
         public void onRawDrawingTouchPointMoveReceived(TouchPoint touchPoint) {
             Log.d(TAG, "onRawDrawingTouchPointMoveReceived");
-            Log.d(TAG,touchPoint.getX() +", " +touchPoint.getY());
+            Log.d(TAG, touchPoint.getX() + ", " + touchPoint.getY());
         }
 
         @Override

@@ -14,14 +14,16 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
+
 import android.widget.RadioButton;
+
+import androidx.databinding.DataBindingUtil;
 
 import com.onyx.android.demo.R;
 import com.android.onyx.demo.broadcast.GlobalDeviceReceiver;
 import com.android.onyx.demo.scribble.request.RendererToScreenRequest;
 import com.android.onyx.demo.utils.TouchUtils;
+import com.onyx.android.demo.databinding.ActivityPenStylusTouchHelperDemoBinding;
 import com.onyx.android.sdk.api.device.epd.EpdController;
 import com.onyx.android.sdk.pen.NeoFountainPen;
 import com.onyx.android.sdk.pen.RawInputCallback;
@@ -34,29 +36,16 @@ import com.onyx.android.sdk.utils.NumberUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import butterknife.OnCheckedChanged;
-import butterknife.OnClick;
 
 public class ScribbleTouchHelperDemoActivity extends AppCompatActivity {
 
     private static final String TAG = ScribbleTouchHelperDemoActivity.class.getSimpleName();
-    /** skip point count*/
+    /**
+     * skip point count
+     */
     private static final int INTERVAL = 10;
 
-    @Bind(R.id.button_pen)
-    Button buttonPen;
-    @Bind(R.id.button_eraser)
-    Button buttonEraser;
-    @Bind(R.id.surfaceview)
-    SurfaceView surfaceView;
-    @Bind(R.id.cb_render)
-    CheckBox cbRender;
-    @Bind(R.id.rb_brush)
-    RadioButton rbBrush;
-    @Bind(R.id.rb_pencil)
-    RadioButton rbPencil;
+    private ActivityPenStylusTouchHelperDemoBinding binding;
 
     private GlobalDeviceReceiver deviceReceiver = new GlobalDeviceReceiver();
     private RxManager rxManager;
@@ -75,10 +64,10 @@ public class ScribbleTouchHelperDemoActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pen_stylus_touch_helper_demo);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_pen_stylus_touch_helper_demo);
         deviceReceiver.enable(this, true);
+        binding.setActivityPenStylusTouchHelper(this);
 
-        ButterKnife.bind(this);
         initPaint();
         initSurfaceView();
         initReceiver();
@@ -99,7 +88,7 @@ public class ScribbleTouchHelperDemoActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         touchHelper.closeRawDrawing();
-        if (bitmap !=null) {
+        if (bitmap != null) {
             bitmap.recycle();
             bitmap = null;
         }
@@ -118,7 +107,7 @@ public class ScribbleTouchHelperDemoActivity extends AppCompatActivity {
         getRxManager().enqueue(new RendererToScreenRequest(surfaceView, bitmap), null);
     }
 
-    private void initPaint(){
+    private void initPaint() {
         paint.setAntiAlias(true);
         paint.setStyle(Paint.Style.STROKE);
         paint.setColor(Color.BLACK);
@@ -126,34 +115,34 @@ public class ScribbleTouchHelperDemoActivity extends AppCompatActivity {
     }
 
     private void initSurfaceView() {
-        touchHelper = TouchHelper.create(surfaceView, callback);
+        touchHelper = TouchHelper.create(binding.surfaceview, callback);
 
-        surfaceView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+        binding.surfaceview.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int
                     oldRight, int oldBottom) {
-                if (cleanSurfaceView()){
-                    surfaceView.removeOnLayoutChangeListener(this);
+                if (cleanSurfaceView()) {
+                    binding.surfaceview.removeOnLayoutChangeListener(this);
                 }
                 List<Rect> exclude = new ArrayList<>();
-                exclude.add(getRelativeRect(surfaceView, buttonEraser));
-                exclude.add(getRelativeRect(surfaceView, buttonPen));
-                exclude.add(getRelativeRect(surfaceView, cbRender));
-                exclude.add(getRelativeRect(surfaceView, rbBrush));
-                exclude.add(getRelativeRect(surfaceView, rbPencil));
+                exclude.add(getRelativeRect(binding.surfaceview, binding.buttonEraser));
+                exclude.add(getRelativeRect(binding.surfaceview, binding.buttonPen));
+                exclude.add(getRelativeRect(binding.surfaceview, binding.cbRender));
+                exclude.add(getRelativeRect(binding.surfaceview, binding.rbBrush));
+                exclude.add(getRelativeRect(binding.surfaceview, binding.rbPencil));
 
                 Rect limit = new Rect();
-                surfaceView.getLocalVisibleRect(limit);
+                binding.surfaceview.getLocalVisibleRect(limit);
                 touchHelper.setStrokeWidth(STROKE_WIDTH)
-                           .setLimitRect(limit, exclude)
-                           .openRawDrawing();
+                        .setLimitRect(limit, exclude)
+                        .openRawDrawing();
                 touchHelper.setStrokeStyle(TouchHelper.STROKE_STYLE_BRUSH);
-                rbBrush.setChecked(true);
-                surfaceView.addOnLayoutChangeListener(this);
+                binding.rbBrush.setChecked(true);
+                binding.surfaceview.addOnLayoutChangeListener(this);
             }
         });
 
-        surfaceView.setOnTouchListener(new View.OnTouchListener() {
+        binding.surfaceview.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 Log.d(TAG, "surfaceView.setOnTouchListener - onTouch::action - " + event.getAction());
@@ -176,7 +165,7 @@ public class ScribbleTouchHelperDemoActivity extends AppCompatActivity {
                 holder.removeCallback(this);
             }
         };
-        surfaceView.getHolder().addCallback(surfaceCallback);
+        binding.surfaceview.getHolder().addCallback(surfaceCallback);
     }
 
     private void initReceiver() {
@@ -184,46 +173,42 @@ public class ScribbleTouchHelperDemoActivity extends AppCompatActivity {
             @Override
             public void onNotificationPanelChanged(boolean open) {
                 touchHelper.setRawDrawingEnabled(!open);
-                renderToScreen(surfaceView, bitmap);
+                renderToScreen(binding.surfaceview, bitmap);
             }
         }).setSystemScreenOnListener(new GlobalDeviceReceiver.SystemScreenOnListener() {
             @Override
             public void onScreenOn() {
-                renderToScreen(surfaceView, bitmap);
+                renderToScreen(binding.surfaceview, bitmap);
             }
         });
     }
 
-    @OnClick(R.id.button_pen)
     public void onPenClick() {
         touchHelper.setRawDrawingEnabled(true);
         onRenderEnableClick();
     }
 
-    @OnClick(R.id.button_eraser)
     public void onEraserClick() {
         touchHelper.setRawDrawingEnabled(false);
-        if (bitmap !=null) {
+        if (bitmap != null) {
             bitmap.recycle();
             bitmap = null;
         }
         cleanSurfaceView();
     }
 
-    @OnCheckedChanged(R.id.cb_render)
     public void onRenderEnableClick() {
-        touchHelper.setRawDrawingRenderEnabled(cbRender.isChecked());
-        if (bitmap !=null) {
+        touchHelper.setRawDrawingRenderEnabled(binding.cbRender.isChecked());
+        if (bitmap != null) {
             bitmap.recycle();
             bitmap = null;
         }
-        Log.d(TAG,"onRenderEnableClick setRawDrawingRenderEnabled =  " + cbRender.isChecked());
+        Log.d(TAG, "onRenderEnableClick setRawDrawingRenderEnabled =  " + binding.cbRender.isChecked());
     }
 
-    @OnClick({R.id.rb_brush, R.id.rb_pencil})
-    public void onRadioButtonClicked(RadioButton radioButton) {
+    public void onRadioButtonClicked(View radioButton) {
 
-        boolean checked = radioButton.isChecked();
+        boolean checked = ((RadioButton) radioButton).isChecked();
         Log.d(TAG, radioButton.toString());
         switch (radioButton.getId()) {
             case R.id.rb_brush:
@@ -245,8 +230,8 @@ public class ScribbleTouchHelperDemoActivity extends AppCompatActivity {
     }
 
     public Rect getRelativeRect(final View parentView, final View childView) {
-        int [] parent = new int[2];
-        int [] child = new int[2];
+        int[] parent = new int[2];
+        int[] child = new int[2];
         parentView.getLocationOnScreen(parent);
         childView.getLocationOnScreen(child);
         Rect rect = new Rect();
@@ -256,33 +241,33 @@ public class ScribbleTouchHelperDemoActivity extends AppCompatActivity {
     }
 
     private boolean cleanSurfaceView() {
-        if (surfaceView.getHolder() == null) {
+        if (binding.surfaceview.getHolder() == null) {
             return false;
         }
-        Canvas canvas = surfaceView.getHolder().lockCanvas();
+        Canvas canvas = binding.surfaceview.getHolder().lockCanvas();
         if (canvas == null) {
             return false;
         }
         canvas.drawColor(Color.WHITE);
-        surfaceView.getHolder().unlockCanvasAndPost(canvas);
+        binding.surfaceview.getHolder().unlockCanvasAndPost(canvas);
         return true;
     }
 
-    private void drawRect(TouchPoint endPoint){
-        Canvas canvas = surfaceView.getHolder().lockCanvas();
-        if (canvas == null ) {
+    private void drawRect(TouchPoint endPoint) {
+        Canvas canvas = binding.surfaceview.getHolder().lockCanvas();
+        if (canvas == null) {
             return;
         }
 
         if (startPoint == null || endPoint == null) {
-            surfaceView.getHolder().unlockCanvasAndPost(canvas);
+            binding.surfaceview.getHolder().unlockCanvasAndPost(canvas);
             return;
         }
 
         canvas.drawColor(Color.WHITE);
         canvas.drawRect(startPoint.getX(), startPoint.getY(), endPoint.getX(), endPoint.getY(), paint);
-        Log.d(TAG,"drawRect ");
-        surfaceView.getHolder().unlockCanvasAndPost(canvas);
+        Log.d(TAG, "drawRect ");
+        binding.surfaceview.getHolder().unlockCanvasAndPost(canvas);
     }
 
     private RawInputCallback callback = new RawInputCallback() {
@@ -291,7 +276,7 @@ public class ScribbleTouchHelperDemoActivity extends AppCompatActivity {
         public void onBeginRawDrawing(boolean b, TouchPoint touchPoint) {
             Log.d(TAG, "onBeginRawDrawing");
             startPoint = touchPoint;
-            Log.d(TAG,touchPoint.getX() +", " +touchPoint.getY());
+            Log.d(TAG, touchPoint.getX() + ", " + touchPoint.getY());
             countRec = 0;
             TouchUtils.disableFingerTouch(getApplicationContext());
         }
@@ -299,20 +284,20 @@ public class ScribbleTouchHelperDemoActivity extends AppCompatActivity {
         @Override
         public void onEndRawDrawing(boolean b, TouchPoint touchPoint) {
             Log.d(TAG, "onEndRawDrawing###");
-            if (!cbRender.isChecked()){
+            if (!binding.cbRender.isChecked()) {
                 drawRect(touchPoint);
             }
-            Log.d(TAG,touchPoint.getX() +", " +touchPoint.getY());
+            Log.d(TAG, touchPoint.getX() + ", " + touchPoint.getY());
             TouchUtils.enableFingerTouch(getApplicationContext());
         }
 
         @Override
         public void onRawDrawingTouchPointMoveReceived(TouchPoint touchPoint) {
             Log.d(TAG, "onRawDrawingTouchPointMoveReceived");
-            Log.d(TAG,touchPoint.getX() +", " +touchPoint.getY());
+            Log.d(TAG, touchPoint.getX() + ", " + touchPoint.getY());
             countRec++;
             countRec = countRec % INTERVAL;
-            Log.d(TAG,"countRec = " + countRec);
+            Log.d(TAG, "countRec = " + countRec);
         }
 
         @Override
@@ -343,20 +328,20 @@ public class ScribbleTouchHelperDemoActivity extends AppCompatActivity {
     };
 
     private void drawScribbleToBitmap(List<TouchPoint> list) {
-        if (!cbRender.isChecked()) {
+        if (!binding.cbRender.isChecked()) {
             return;
         }
         if (bitmap == null) {
-            bitmap = Bitmap.createBitmap(surfaceView.getWidth(), surfaceView.getHeight(), Bitmap.Config.ARGB_8888);
+            bitmap = Bitmap.createBitmap(binding.surfaceview.getWidth(), binding.surfaceview.getHeight(), Bitmap.Config.ARGB_8888);
             canvas = new Canvas(bitmap);
         }
 
-        if (rbBrush.isChecked()) {
+        if (binding.rbBrush.isChecked()) {
             float maxPressure = EpdController.getMaxTouchPressure();
             NeoFountainPen.drawStroke(canvas, paint, list, NumberUtils.FLOAT_ONE, STROKE_WIDTH, maxPressure, false);
         }
 
-        if (rbPencil.isChecked()) {
+        if (binding.rbPencil.isChecked()) {
             Path path = new Path();
             PointF prePoint = new PointF(list.get(0).x, list.get(0).y);
             path.moveTo(prePoint.x, prePoint.y);
@@ -370,23 +355,23 @@ public class ScribbleTouchHelperDemoActivity extends AppCompatActivity {
     }
 
     private void drawBitmapToSurface() {
-        if (!cbRender.isChecked()) {
+        if (!binding.cbRender.isChecked()) {
             return;
         }
         if (bitmap == null) {
             return;
         }
-        Canvas lockCanvas= surfaceView.getHolder().lockCanvas();
+        Canvas lockCanvas = binding.surfaceview.getHolder().lockCanvas();
         if (lockCanvas == null) {
             return;
         }
         lockCanvas.drawColor(Color.WHITE);
         lockCanvas.drawBitmap(bitmap, 0f, 0f, paint);
-        surfaceView.getHolder().unlockCanvasAndPost(lockCanvas);
+        binding.surfaceview.getHolder().unlockCanvasAndPost(lockCanvas);
         // refresh ui
         touchHelper.setRawDrawingEnabled(false);
         touchHelper.setRawDrawingEnabled(true);
-        if (!cbRender.isChecked()) {
+        if (!binding.cbRender.isChecked()) {
             touchHelper.setRawDrawingRenderEnabled(false);
         }
     }

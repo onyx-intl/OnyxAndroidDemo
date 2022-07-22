@@ -5,17 +5,17 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.EditText;
-import android.widget.RadioGroup;
+import android.view.View;
+
 import android.widget.Toast;
 
+import androidx.databinding.DataBindingUtil;
+
 import com.onyx.android.demo.R;
+import com.onyx.android.demo.databinding.ActivityOpenKcbBinding;
 import com.onyx.android.sdk.utils.JSONUtils;
 import com.onyx.android.sdk.utils.StringUtils;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 /**
  * Created by zhilun on 2019/4/4.
@@ -46,67 +46,55 @@ public class OpenKcbActivity extends AppCompatActivity {
         }
     }
 
-    @Bind(R.id.et_storage_jump_path)
-    EditText etStorageJumpPath;
-
-    @Bind(R.id.rg_note)
-    RadioGroup rgNoteShop;
+    private ActivityOpenKcbBinding binding;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_open_kcb);
-        ButterKnife.bind(this);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_open_kcb);
+        binding.setActivityOpenKcb(this);
     }
 
-    @OnClick(R.id.btn_open_library)
-    public void openLibrary() {
+    public void openLibrary(View view) {
         openModule(new TabIntentData().setAction(TabAction.OPEN_HOME));
     }
 
-    @OnClick(R.id.btn_open_shop)
-    public void openShop() {
+    public void openShop(View view) {
         openModule(new TabIntentData().setAction(TabAction.OPEN_SHOP));
     }
 
-    @OnClick(R.id.btn_open_note)
-    public void openNote() {
+    public void openNote(View view) {
         openModule(setNoteJumpPath(new TabIntentData().setAction(TabAction.OPEN_NOTE)));
     }
 
-    @OnClick(R.id.btn_open_storage)
-    public void openStorage() {
+    public void openStorage(View view) {
         TabIntentData data = new TabIntentData().setAction(TabAction.OPEN_STORAGE);
-        String jumpPath = etStorageJumpPath.getText().toString();
+        String jumpPath = binding.etStorageJumpPath.getText().toString();
         if (!StringUtils.isNullOrEmpty(jumpPath)) {
             data.setJumpPath(jumpPath);
         }
         openModule(data);
     }
 
-    @OnClick(R.id.btn_open_apps)
-    public void openApps() {
+    public void openApps(View view) {
         openModule(new TabIntentData().setAction(TabAction.OPEN_APPS));
     }
 
-    @OnClick(R.id.btn_open_setting)
-    public void openSetting() {
+    public void openSetting(View view) {
         openModule(new TabIntentData().setAction(TabAction.OPEN_SETTING));
     }
 
-    @OnClick(R.id.btn_open_application_management)
-    public void openApplicationManagement() {
+    public void openApplicationManagement(View view) {
         openModule(new TabIntentData().setAction(TabAction.OPEN_APPLICATION_MANAGEMENT));
     }
 
-    @OnClick(R.id.btn_open_account_management)
-    public void openAccountManagement() {
+    public void openAccountManagement(View view) {
         openModule(new TabIntentData().setAction(TabAction.OPEN_ACCOUNT_MANAGER));
     }
 
     private TabIntentData setNoteJumpPath(TabIntentData data) {
         String jumpPath = "";
-        switch (rgNoteShop.getCheckedRadioButtonId()) {
+        switch (binding.rgNote.getCheckedRadioButtonId()) {
             case R.id.rb_search:
                 jumpPath = NoteRouter.SEARCH.toString();
                 break;

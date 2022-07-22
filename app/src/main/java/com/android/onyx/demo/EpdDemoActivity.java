@@ -2,96 +2,59 @@ package com.android.onyx.demo;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.SurfaceView;
+
 import android.view.View;
-import android.widget.Button;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
+
+
+import androidx.databinding.DataBindingUtil;
 
 import com.onyx.android.demo.R;
+import com.onyx.android.demo.databinding.ActivityEpdDemoBinding;
 import com.onyx.android.sdk.api.device.EpdDeviceManager;
 import com.onyx.android.sdk.api.device.epd.EpdController;
 import com.onyx.android.sdk.api.device.epd.UpdateMode;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
 
-public class EpdDemoActivity extends AppCompatActivity implements View.OnClickListener {
-
+public class EpdDemoActivity extends AppCompatActivity {
+    private ActivityEpdDemoBinding binding;
     private static final String TAG = EpdDemoActivity.class.getSimpleName();
-    @Bind(R.id.button_partial_update)
-    Button button_partial_update;
-    @Bind(R.id.button_regal_partial)
-    Button button_regal_partial;
-    @Bind(R.id.button_enter_fast_mode)
-    Button button_enter_fast_mode;
-    @Bind(R.id.button_quit_fast_mode)
-    Button button_quit_fast_mode;
-    @Bind(R.id.button_screen_refresh)
-    Button button_screen_refresh;
-    @Bind(R.id.textview)
-    TextView textView;
-    @Bind(R.id.surfaceview)
-    SurfaceView surfaceView;
-    @Bind(R.id.button_enter_x_mode)
-    Button button_enter_x_mode;
-    @Bind(R.id.activity_main)
-    RelativeLayout activityMain;
-    @Bind(R.id.button_enter_normal_mode)
-    Button button_enter_normal_mode;
-    @Bind(R.id.button_enter_A2_mode)
-    Button button_enter_A2_mode;
-    @Bind(R.id.button_enter_du_mode)
-    Button button_enter_du_mode;
+
     private boolean isFastMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_epd_demo);
-
-        ButterKnife.bind(this);
-        button_partial_update.setOnClickListener(this);
-        button_regal_partial.setOnClickListener(this);
-        button_enter_fast_mode.setOnClickListener(this);
-        button_quit_fast_mode.setOnClickListener(this);
-        button_screen_refresh.setOnClickListener(this);
-        button_enter_x_mode.setOnClickListener(this);
-        button_enter_normal_mode.setOnClickListener(this);
-        button_enter_A2_mode.setOnClickListener(this);
-        button_enter_du_mode.setOnClickListener(this);
-
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_epd_demo);
         // set full update after how many partial update
         EpdDeviceManager.setGcInterval(5);
     }
 
-    @Override
     public void onClick(View v) {
-        if (v.equals(button_partial_update)) {
+        if (v.equals(binding.buttonPartialUpdate)) {
             updateTextView();
-            EpdDeviceManager.applyWithGCIntervalWithoutRegal(textView);
-        } else if (v.equals(button_regal_partial)) {
+            EpdDeviceManager.applyWithGCIntervalWithoutRegal(binding.textview);
+        } else if (v.equals(binding.buttonRegalPartial)) {
             updateTextView();
-            EpdDeviceManager.applyWithGCIntervalWitRegal(textView, true);
-        } else if (v.equals(button_screen_refresh)) {
+            EpdDeviceManager.applyWithGCIntervalWitRegal(binding.textview, true);
+        } else if (v.equals(binding.buttonScreenRefresh)) {
             updateTextView();
             EpdController.repaintEveryThing(UpdateMode.GC);
-        } else if (v.equals(button_enter_fast_mode)) {
+        } else if (v.equals(binding.buttonEnterFastMode)) {
             isFastMode = true;
             EpdDeviceManager.enterAnimationUpdate(true);
-        } else if (v.equals(button_quit_fast_mode)) {
+        } else if (v.equals(binding.buttonQuitFastMode)) {
             EpdDeviceManager.exitAnimationUpdate(true);
             isFastMode = false;
-        } else if (v.equals(button_enter_x_mode)) {
+        } else if (v.equals(binding.buttonEnterXMode)) {
             EpdController.clearAppScopeUpdate();
             EpdController.applyAppScopeUpdate(TAG, true, true, UpdateMode.ANIMATION_X, Integer.MAX_VALUE);
-        } else if (v.equals(button_enter_A2_mode)) {
+        } else if (v.equals(binding.buttonEnterA2Mode)) {
             EpdController.clearAppScopeUpdate();
             EpdController.applyAppScopeUpdate(TAG, true, true, UpdateMode.ANIMATION_QUALITY, Integer.MAX_VALUE);
-        } else if (v.equals(button_enter_normal_mode)) {
+        } else if (v.equals(binding.buttonEnterNormalMode)) {
             EpdController.clearAppScopeUpdate();
             EpdController.applyAppScopeUpdate(TAG, false, true, UpdateMode.None, Integer.MAX_VALUE);
-        } else if (v.equals(button_enter_du_mode)) {
+        } else if (v.equals(binding.buttonEnterDuMode)) {
             EpdController.clearAppScopeUpdate();
             EpdController.applyAppScopeUpdate(TAG, true, true, UpdateMode.DU_QUALITY, Integer.MAX_VALUE);
         }
@@ -99,8 +62,8 @@ public class EpdDemoActivity extends AppCompatActivity implements View.OnClickLi
 
     private void updateTextView() {
         StringBuilder sb = new StringBuilder();
-        sb.append(textView.getText());
+        sb.append(binding.textview.getText());
         sb.append("hello world!");
-        textView.setText(sb.toString());
+        binding.textview.setText(sb.toString());
     }
 }

@@ -1,43 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:text="is fullScreen ? put the true or false"/>
-    <EditText
-        android:id="@+id/et_isfull"
-        android:layout_width="160dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"/>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:text="is fullScreen ? put the true or false" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
-        android:layout_alignParentLeft="true"
-        android:text=" put your app packageName"/>
-    <EditText
-        android:id="@+id/et_pkgname"
-        android:layout_width="160dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="100dp"/>
+        <EditText
+            android:id="@+id/et_isfull"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true" />
 
 
-    <Button
-        android:id="@+id/btn_send_broadcast"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:layout_below="@id/et_pkgname"
-        android:layout_centerInParent="true"
-        android:text="send Broadcast"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_marginTop="100dp"
+            android:text=" put your app packageName" />
+
+        <EditText
+            android:id="@+id/et_pkgname"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="100dp" />
 
 
+        <Button
+            android:id="@+id/btn_send_broadcast"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/et_pkgname"
+            android:layout_centerInParent="true"
+            android:layout_marginTop="50dp"
+            android:onClick="onClick"
+            android:text="send Broadcast" />
 
-</RelativeLayout>
+
+    </RelativeLayout>
+</layout>
