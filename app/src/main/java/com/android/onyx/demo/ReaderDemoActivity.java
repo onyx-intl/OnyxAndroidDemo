@@ -20,6 +20,7 @@ import androidx.databinding.DataBindingUtil;
 import com.onyx.android.demo.R;
 import com.onyx.android.demo.databinding.ActivityReaderDemoBinding;
 import com.onyx.android.sdk.utils.FileUtils;
+import com.onyx.android.sdk.utils.ServiceUtils;
 import com.onyx.android.sdk.utils.StringUtils;
 
 import java.io.File;
@@ -53,7 +54,7 @@ public class ReaderDemoActivity extends Activity {
                 new File(binding.etFile.getText().toString())));
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-        ComponentName result = startService(intent);
+        ComponentName result = ServiceUtils.startServiceSafely(this, intent);
         if (result == null) {
             Toast.makeText(getApplicationContext(), "Service does not exist", Toast.LENGTH_SHORT).show();
         }
