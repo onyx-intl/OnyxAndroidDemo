@@ -113,7 +113,7 @@ public class OpenKcbActivity extends AppCompatActivity {
 
     private void openModule(TabIntentData data) {
         Intent intent = new Intent();
-        intent.setComponent(new ComponentName("com.onyx", "com.onyx.main.ui.MainActivity"));
+        intent.setComponent(new ComponentName("com.onyx", "com.onyx.reader.main.ui.MainActivity"));
         intent.putExtra("json", JSONUtils.toJson(data));
         try {
             startActivity(intent);

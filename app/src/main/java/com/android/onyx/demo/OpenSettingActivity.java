@@ -25,11 +25,11 @@ public class OpenSettingActivity extends AppCompatActivity {
     }
 
     public void openNetwork(View view) {
-        openActivity("com.onyx", "com.onyx.setting.ui.SettingContainerActivity", "onyx.settings.action.network");
+        openActivity("com.onyx", "com.onyx.common.setting.ui.SettingContainerActivity", "onyx.settings.action.network");
     }
 
     public void openDateTime(View view) {
-        openActivity("com.onyx", "com.onyx.setting.ui.SettingContainerActivity", "onyx.settings.action.datetime");
+        openActivity("com.onyx", "com.onyx.common.setting.ui.SettingContainerActivity", "onyx.settings.action.datetime");
     }
 
     private void openActivity(String pkgName, String className, String action) {
