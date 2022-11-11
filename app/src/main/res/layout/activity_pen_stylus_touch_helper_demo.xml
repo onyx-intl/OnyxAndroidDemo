@@ -1,72 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/activity_scribble_demo"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingBottom="@dimen/activity_vertical_margin"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
-                android:paddingTop="@dimen/activity_vertical_margin">
+<layout>
 
-    <LinearLayout
-        android:id="@+id/layout_function"
+    <data>
+
+        <variable
+            name="activityPenStylusTouchHelper"
+            type="com.android.onyx.demo.scribble.ScribbleTouchHelperDemoActivity" />
+    </data>
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/activity_scribble_demo"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_alignParentTop="true">
+        android:layout_height="match_parent"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingBottom="@dimen/activity_vertical_margin">
 
-        <Button
-            android:id="@+id/button_pen"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/layout_function"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Pen"/>
-
-        <Button
-            android:id="@+id/button_eraser"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Eraser"/>
-        <CheckBox
-            android:id="@+id/cb_render"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="true"
-            android:text="RawDrawingRenderEnabled"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/layout_function2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/layout_function"
-        android:orientation="horizontal">
-
-        <RadioGroup
-            android:id="@+id/rg_stroke_style"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
             android:orientation="horizontal">
 
-            <RadioButton
-                android:id="@+id/rb_brush"
+            <Button
+                android:id="@+id/button_pen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="@{()->activityPenStylusTouchHelper.onPenClick()}"
+                android:text="Pen" />
+
+            <Button
+                android:id="@+id/button_eraser"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="@{()->activityPenStylusTouchHelper.onEraserClick()}"
+                android:text="Eraser" />
+
+            <CheckBox
+                android:id="@+id/cb_render"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true"
-                android:text="STROKE_STYLE_BRUSH"/>
+                android:text="RawDrawingRenderEnabled"
+                android:onClick="@{()->activityPenStylusTouchHelper.onRenderEnableClick()}"/>
 
-            <RadioButton
-                android:id="@+id/rb_pencil"
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_function2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/layout_function"
+            android:orientation="horizontal">
+
+            <RadioGroup
+                android:id="@+id/rg_stroke_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="STROKE_STYLE_PENCIL"/>
-        </RadioGroup>
-    </LinearLayout>
+                android:orientation="horizontal">
 
-    <SurfaceView
-        android:id="@+id/surfaceview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/layout_function2" />
+                <RadioButton
+                    android:id="@+id/rb_brush"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:onClick="@{activityPenStylusTouchHelper::onRadioButtonClicked}"
+                    android:text="STROKE_STYLE_BRUSH" />
 
-</RelativeLayout>
+                <RadioButton
+                    android:id="@+id/rb_pencil"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{activityPenStylusTouchHelper::onRadioButtonClicked}"
+                    android:text="STROKE_STYLE_PENCIL" />
+            </RadioGroup>
+        </LinearLayout>
+
+        <SurfaceView
+            android:id="@+id/surfaceview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/layout_function2" />
+
+    </RelativeLayout>
+</layout>

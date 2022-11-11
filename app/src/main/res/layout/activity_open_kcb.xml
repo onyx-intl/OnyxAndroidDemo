@@ -1,111 +1,128 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+<layout>
 
-    <Button
-        android:id="@+id/btn_open_library"
+    <data>
+
+        <variable
+            name="activityOpenKcb"
+            type="com.android.onyx.demo.OpenKcbActivity" />
+    </data>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="@string/open_library"/>
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-    <Button
-        android:id="@+id/btn_open_shop"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="@string/open_shop"
-        android:visibility="gone"/>
-
-    <RadioGroup
-        android:id="@+id/rg_note"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:visibility="gone">
-
-        <RadioButton
-            android:id="@+id/rb_search"
-            android:layout_width="0dp"
+        <Button
+            android:id="@+id/btn_open_library"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/note_search"/>
+            android:layout_margin="10dp"
+            android:onClick="@{activityOpenKcb::openLibrary}"
+            android:text="@string/open_library" />
 
-        <RadioButton
-            android:id="@+id/rb_backup"
-            android:layout_width="0dp"
+        <Button
+            android:id="@+id/btn_open_shop"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/note_backup"/>
+            android:layout_margin="10dp"
+            android:onClick="@{activityOpenKcb::openShop}"
+            android:text="@string/open_shop"
+            android:visibility="gone" />
 
-        <RadioButton
-            android:id="@+id/rb_common_setting"
-            android:layout_width="0dp"
+        <RadioGroup
+            android:id="@+id/rg_note"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/note_common_setting"/>
+            android:orientation="horizontal"
+            android:visibility="gone">
 
-        <RadioButton
-            android:id="@+id/rb_ai_setting"
-            android:layout_width="0dp"
+            <RadioButton
+                android:id="@+id/rb_search"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/note_search" />
+
+            <RadioButton
+                android:id="@+id/rb_backup"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/note_backup" />
+
+            <RadioButton
+                android:id="@+id/rb_common_setting"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/note_common_setting" />
+
+            <RadioButton
+                android:id="@+id/rb_ai_setting"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/note_ai_setting" />
+
+        </RadioGroup>
+
+        <Button
+            android:id="@+id/btn_open_note"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/note_ai_setting"/>
+            android:layout_margin="10dp"
+            android:text="@string/open_note"
+            android:visibility="gone" />
 
-    </RadioGroup>
+        <EditText
+            android:id="@+id/et_storage_jump_path"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="jumpPath"
+            android:text="/storage/emulated/0/books" />
 
-    <Button
-        android:id="@+id/btn_open_note"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="@string/open_note"
-        android:visibility="gone"/>
+        <Button
+            android:id="@+id/btn_open_storage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:onClick="@{activityOpenKcb::openStorage}"
+            android:text="@string/open_storage" />
 
-    <EditText
-        android:id="@+id/et_storage_jump_path"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="jumpPath"
-        android:text="/storage/emulated/0/books"/>
+        <Button
+            android:id="@+id/btn_open_apps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:onClick="@{activityOpenKcb::openApps}"
+            android:text="@string/open_apps" />
 
-    <Button
-        android:id="@+id/btn_open_storage"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="@string/open_storage"/>
+        <Button
+            android:id="@+id/btn_open_setting"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:onClick="@{activityOpenKcb::openSetting}"
+            android:text="@string/open_setting" />
 
-    <Button
-        android:id="@+id/btn_open_apps"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="@string/open_apps"/>
+        <Button
+            android:id="@+id/btn_open_application_management"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:onClick="@{activityOpenKcb::openApplicationManagement}"
+            android:text="@string/open_application_management"
+            android:visibility="gone" />
 
-    <Button
-        android:id="@+id/btn_open_setting"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="@string/open_setting"/>
+        <Button
+            android:id="@+id/btn_open_account_management"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:onClick="@{activityOpenKcb::openAccountManagement}"
+            android:text="@string/open_account_management"
+            android:visibility="gone" />
 
-    <Button
-        android:id="@+id/btn_open_application_management"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="@string/open_application_management"
-        android:visibility="gone"/>
-
-    <Button
-        android:id="@+id/btn_open_account_management"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="@string/open_account_management"
-        android:visibility="gone"/>
-
-</LinearLayout>
+    </LinearLayout>
+</layout>
