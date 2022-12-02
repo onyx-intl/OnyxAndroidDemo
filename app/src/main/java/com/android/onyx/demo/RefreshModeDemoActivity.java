@@ -42,6 +42,9 @@ public class RefreshModeDemoActivity extends AppCompatActivity implements RadioG
             case R.id.rb_fast_quality:
                 Device.currentDevice().setSystemRefreshMode(UpdateOption.FAST_QUALITY);
                 break;
+            case R.id.rb_regal:
+                Device.currentDevice().setSystemRefreshMode(UpdateOption.REGAL);
+                break;
             case R.id.rb_fast:
                 Device.currentDevice().setSystemRefreshMode(UpdateOption.FAST);
                 break;
@@ -61,6 +64,8 @@ public class RefreshModeDemoActivity extends AppCompatActivity implements RadioG
                 return R.id.rb_fast;
             case FAST_X:
                 return R.id.rb_fast_x;
+            case REGAL:
+                return R.id.rb_regal;
         }
         return -1;
     }
