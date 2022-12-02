@@ -40,6 +40,14 @@
                     android:textSize="16sp" />
 
                 <RadioButton
+                    android:id="@+id/rb_regal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Regal刷新"
+                    android:textSize="16sp" />
+
+                <RadioButton
                     android:id="@+id/rb_fast_quality"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

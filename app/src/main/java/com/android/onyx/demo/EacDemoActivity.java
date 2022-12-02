@@ -3,9 +3,6 @@ package com.android.onyx.demo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.TextView;
 
 import androidx.databinding.DataBindingUtil;
 
@@ -15,7 +12,6 @@ import com.onyx.android.sdk.api.device.eac.SimpleEACManage;
 import com.onyx.android.sdk.rx.RxUtils;
 
 import java.util.concurrent.Callable;
-
 
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
@@ -51,6 +47,7 @@ public class EacDemoActivity extends AppCompatActivity {
                 break;
             case R.id.cb_refresh_config_enable:
                 toggleRefreshConfig();
+                break;
         }
     }
 
@@ -61,7 +58,7 @@ public class EacDemoActivity extends AppCompatActivity {
         RxUtils.runInIO(() -> {
             boolean enable = binding.cbRefreshConfigEnable.isChecked();
             SimpleEACManage.getInstance().setEACRefreshConfigEnable(EacDemoActivity.this, enable);
-            updateRefreshConfigEnableStatus();
+            binding.cbRefreshConfigEnable.setChecked(enable);
         });
     }
 

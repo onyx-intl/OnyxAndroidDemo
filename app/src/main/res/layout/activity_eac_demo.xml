@@ -97,6 +97,7 @@
             android:id="@+id/cb_refresh_config_enable"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:onClick="onClick"
             android:text="Refresh config enable" />
     </LinearLayout>
 </layout>
