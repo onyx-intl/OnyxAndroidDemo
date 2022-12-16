@@ -31,6 +31,7 @@
         <activity android:name="com.android.onyx.demo.scribble.ScribbleWebViewDemoActivity"/>
         <activity android:name="com.android.onyx.demo.scribble.ScribbleDemoActivity"/>
         <activity android:name="com.android.onyx.demo.scribble.ScribblePenUpRefreshDemoActivity"/>
+        <activity android:name="com.android.onyx.demo.scribble.ScribbleEpdControllerDemoActivity"/>
         <activity android:name="com.android.onyx.demo.AppOptimizeActivity"/>
         <activity android:name="com.android.onyx.demo.ReaderDemoActivity"/>
         <activity android:name="com.android.onyx.demo.ScreensaverActivity"/>
