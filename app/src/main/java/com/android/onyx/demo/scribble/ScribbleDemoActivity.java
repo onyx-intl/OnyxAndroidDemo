@@ -50,6 +50,10 @@ public class ScribbleDemoActivity extends AppCompatActivity {
         go(ScribblePenUpRefreshDemoActivity.class);
     }
 
+    public void button_epd_controller(View view) {
+        go(ScribbleEpdControllerDemoActivity.class);
+    }
+
     private void go(Class<?> activityClass) {
         startActivity(new Intent(this, activityClass));
     }

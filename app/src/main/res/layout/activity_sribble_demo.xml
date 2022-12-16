@@ -64,5 +64,12 @@
             android:layout_height="wrap_content"
             android:onClick="@{activitySribble::button_pen_up_refresh}"
             android:text="Scribble Pen up Refresh" />
+
+        <Button
+            android:id="@+id/button_epd_controller"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="@{activitySribble::button_epd_controller}"
+            android:text="Scribble EpdController Demo" />
     </LinearLayout>
 </layout>
