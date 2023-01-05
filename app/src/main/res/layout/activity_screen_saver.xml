@@ -3,6 +3,8 @@
 
     <data>
 
+        <import type="android.view.View" />
+
         <variable
             name="activityScreenSaver"
             type="com.android.onyx.demo.ScreensaverActivity" />
@@ -25,5 +27,21 @@
             android:layout_height="wrap_content"
             android:onClick="@{activityScreenSaver::setScreensaver}"
             android:text="@string/set_up_screensaver" />
+
+        <Button
+            android:id="@+id/btn_set_shutdown"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="@{activityScreenSaver::setShutdown}"
+            android:text="@string/set_up_shutdown"
+            android:visibility="@{activityScreenSaver.supportSetShutdown ? View.VISIBLE : View.GONE}" />
+
+        <Button
+            android:id="@+id/btn_set_wallpaper"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="@{activityScreenSaver::setWallpaper}"
+            android:text="@string/set_up_wallpaper"
+            android:visibility="@{activityScreenSaver.supportWallpaper ? View.VISIBLE : View.GONE}" />
     </LinearLayout>
 </layout>

@@ -3,7 +3,9 @@
     <string name="title_activity_environment_demo">EnvironmentDemoActivity</string>
     <string name="set_up_success">set up success</string>
     <string name="set_up_fail">set up fail</string>
-    <string name="set_up_screensaver">Set Up Screensaver</string>
+    <string name="set_up_screensaver">Set Up Screensaver Image</string>
+    <string name="set_up_shutdown">Set Up Shutdown Image</string>
+    <string name="set_up_wallpaper">Set Up Wallpaper</string>
     <string name="enter_pic_path">Please Enter Your Picture Path</string>
     <string name="invalid_path">Invalid Path</string>
     <string name="enter_book_path">Please Enter Your Book Path</string>
