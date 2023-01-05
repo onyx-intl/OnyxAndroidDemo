@@ -54,7 +54,7 @@ public class ScribbleEpdControllerDemoActivity extends AppCompatActivity {
                         onTouchDown(touchPoint);
                         break;
                     case MotionEvent.ACTION_MOVE:
-                        onTouchMove(touchPoint);
+                        onTouchMove(event);
                         break;
                     case MotionEvent.ACTION_UP:
                         onTouchUp(touchPoint);
@@ -162,10 +162,16 @@ public class ScribbleEpdControllerDemoActivity extends AppCompatActivity {
         }
     }
 
-    private void onTouchMove(TouchPoint touchPoint) {
-        if (drawEmitter != null) {
-            drawEmitter.onNext(touchPoint);
+    private void onTouchMove(MotionEvent event) {
+        TouchPoint touchPoint;
+        int size = event.getHistorySize();
+        for (int i = 0; i < size; i++) {
+            touchPoint = new TouchPoint(event.getHistoricalX(i), event.getHistoricalY(i),
+                    event.getHistoricalPressure(i), event.getHistoricalSize(i), event.getHistoricalEventTime(i));
+            executeDrawPointEmitting(touchPoint);
         }
+        touchPoint = new TouchPoint(event);
+        executeDrawPointEmitting(touchPoint);
     }
 
     private void onTouchUp(TouchPoint touchPoint) {
@@ -176,6 +182,12 @@ public class ScribbleEpdControllerDemoActivity extends AppCompatActivity {
     private void onTouchCancel(TouchPoint touchPoint) {
         finishStroke(touchPoint);
         delayPauseDrawing(touchPoint);
+    }
+
+    private void executeDrawPointEmitting(TouchPoint touchPoint) {
+        if (drawEmitter != null) {
+            drawEmitter.onNext(touchPoint);
+        }
     }
 
     private void showTouchPosition(float x, float y) {
