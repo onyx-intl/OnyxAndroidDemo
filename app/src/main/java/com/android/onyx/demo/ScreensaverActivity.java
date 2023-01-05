@@ -20,12 +20,19 @@ import androidx.databinding.DataBindingUtil;
 import com.onyx.android.demo.R;
 import com.onyx.android.demo.databinding.ActivityScreenSaverBinding;
 import com.onyx.android.sdk.utils.BitmapUtils;
+import com.onyx.android.sdk.utils.CompatibilityUtil;
 
 import java.io.File;
 
 
 public class ScreensaverActivity extends AppCompatActivity {
-
+    public static final int BUILD_VERSION_CODES_P = 28;
+    public static final int TYPE_SHUTDOWN_IMAGE = 0x11;
+    public static final int TYPE_SCREENSAVER = 0x10;
+    public static final String ONYX_SCREENSAVER_ACTION = "onyx.action.SCREENSAVER";
+    public static final String TYPE_TAG = "type";
+    public static final String FILE_TAG = "file";
+    public static final String SHOW_RESULT_HINT_TAG = "show_result_hint";
     private ActivityScreenSaverBinding binding;
 
     @Override
@@ -36,6 +43,8 @@ public class ScreensaverActivity extends AppCompatActivity {
     }
 
     /**
+     * if the system version is greater than 28, then call #setScreensaverAboveAndroidP
+     *
      * set up screensaver steps:<br/>
      * 1. save pic under directory "/data/local/assets/images"<br/>
      * 2. file names format "standby-{num}.png", num starts from 1<br/>
@@ -54,6 +63,11 @@ public class ScreensaverActivity extends AppCompatActivity {
         File f = new File(filePath);
         if (!f.exists()) {
             Toast.makeText(this, R.string.invalid_path, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (CompatibilityUtil.apiLevelCheck(BUILD_VERSION_CODES_P)) {
+            setScreensaverAboveAndroidP(filePath);
             return;
         }
 
@@ -112,5 +126,20 @@ public class ScreensaverActivity extends AppCompatActivity {
             }
         }
         return new Point(widthPixels, heightPixels);
+    }
+
+    /**
+     * Parameter Description
+     *
+     * type: TYPE_SCREENSAVER or TYPE_SHUTDOWN_IMAGE
+     * file: file path to be set
+     * show_result_hint: whether to show setting result tips
+     */
+    private void setScreensaverAboveAndroidP(String filePath) {
+        Intent intent = new Intent(ONYX_SCREENSAVER_ACTION);
+        intent.putExtra(TYPE_TAG, TYPE_SHUTDOWN_IMAGE);
+        intent.putExtra(FILE_TAG, filePath);
+        intent.putExtra(SHOW_RESULT_HINT_TAG, true);
+        sendBroadcast(intent);
     }
 }
