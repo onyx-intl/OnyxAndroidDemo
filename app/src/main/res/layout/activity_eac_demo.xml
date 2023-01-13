@@ -27,6 +27,7 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <TextView
@@ -36,9 +37,16 @@
                 android:layout_marginLeft="10dp"
                 android:textColor="@android:color/black"
                 android:textSize="18sp" />
+
+            <Switch
+                android:id="@+id/switch_eac_enable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp" />
         </LinearLayout>
 
         <LinearLayout
+            android:layout_marginBottom="20dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
@@ -50,48 +58,47 @@
                 android:layout_marginLeft="10dp"
                 android:textColor="@android:color/black"
                 android:textSize="18sp" />
-        </LinearLayout>
 
-        <Button
-            android:id="@+id/update_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="onClick"
-            android:text="Update All Status" />
+            <Switch
+                android:id="@+id/switch_eac_support"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp" />
+        </LinearLayout>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Use other ways to change the eac configuration need to manually refresh the status" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="20dp"
+            android:text="In version 3.1 and before, EAC config take effect need reopen app " />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
             android:gravity="center_vertical">
 
             <Button
-                android:id="@+id/allow_eac"
+                android:id="@+id/system_rotation"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="onClick"
-                android:text="Allow EAC" />
+                android:text="System Rotation" />
 
             <Button
-                android:id="@+id/disallow_eac"
+                android:id="@+id/app_rotation"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
                 android:onClick="onClick"
-                android:text="Disallow EAC" />
+                android:text="App Rotation" />
         </LinearLayout>
-
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:text="In version 3.1 and before, EAC config take effect need reopen app " />
 
         <CheckBox
             android:id="@+id/cb_refresh_config_enable"

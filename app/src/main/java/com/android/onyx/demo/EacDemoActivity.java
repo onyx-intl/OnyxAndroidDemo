@@ -1,5 +1,7 @@
 package com.android.onyx.demo;
 
+import android.app.AlertDialog;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -10,9 +12,14 @@ import com.onyx.android.demo.R;
 import com.onyx.android.demo.databinding.ActivityEacDemoBinding;
 import com.onyx.android.sdk.api.device.eac.SimpleEACManage;
 import com.onyx.android.sdk.rx.RxUtils;
+import com.onyx.android.sdk.utils.DeviceUtils;
+import com.onyx.android.sdk.utils.RotationUtils;
+import com.onyx.android.sdk.utils.RxTimerUtil;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
+import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
@@ -21,13 +28,25 @@ import io.reactivex.schedulers.Schedulers;
  */
 
 public class EacDemoActivity extends AppCompatActivity {
+    private static final int UPDATE_EAC_STATUE_DELAY = 300;
+    private final String[] rotationItemArray = new String[]{"rotation 0", "rotation 90", "rotation 180", "rotation 270"};
     private ActivityEacDemoBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_eac_demo);
+        initView();
         initData();
+    }
+
+    private void initView() {
+        binding.switchEacSupport.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            setSupportEAC(isChecked);
+        });
+        binding.switchEacEnable.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            setEACEnable(isChecked);
+        });
     }
 
     private void initData() {
@@ -36,14 +55,11 @@ public class EacDemoActivity extends AppCompatActivity {
 
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.allow_eac:
-                setSupportEAC(true);
+            case R.id.system_rotation:
+                systemRotation();
                 break;
-            case R.id.disallow_eac:
-                setSupportEAC(false);
-                break;
-            case R.id.update_status:
-                updateAllStatus();
+            case R.id.app_rotation:
+                appRotation();
                 break;
             case R.id.cb_refresh_config_enable:
                 toggleRefreshConfig();
@@ -71,7 +87,17 @@ public class EacDemoActivity extends AppCompatActivity {
             @Override
             public void run() {
                 SimpleEACManage.getInstance().setSupportEAC(EacDemoActivity.this, support);
-                updateAllStatus();
+                updateAllStatusDelay();
+            }
+        });
+    }
+
+    public void setEACEnable(boolean enable) {
+        RxUtils.runInIO(new Runnable() {
+            @Override
+            public void run() {
+                SimpleEACManage.getInstance().setAppEACEnable(EacDemoActivity.this, enable);
+                updateAllStatusDelay();
             }
         });
     }
@@ -89,6 +115,7 @@ public class EacDemoActivity extends AppCompatActivity {
             @Override
             public void accept(Boolean enable) throws Exception {
                 binding.eacEnableStatus.setText(getString(R.string.eac_enable_format, enable + ""));
+                binding.switchEacEnable.setChecked(enable);
             }
         }, Schedulers.io());
     }
@@ -117,6 +144,7 @@ public class EacDemoActivity extends AppCompatActivity {
             @Override
             public void accept(Boolean support) throws Exception {
                 binding.eacSupportStatus.setText(getString(R.string.eac_support_format, support + ""));
+                binding.switchEacSupport.setChecked(support);
             }
         }, Schedulers.io());
     }
@@ -133,4 +161,114 @@ public class EacDemoActivity extends AppCompatActivity {
         updateHookEpdcStatus();
         updateRefreshConfigEnableStatus();
     }
+
+    private void updateAllStatusDelay() {
+        RxTimerUtil.timer(UPDATE_EAC_STATUE_DELAY, TimeUnit.MILLISECONDS, new RxTimerUtil.TimerObserver() {
+            @Override
+            public void onNext(@NonNull Long aLong) {
+                updateAllStatus();
+            }
+        });
+    }
+
+    private void appRotation() {
+        new AlertDialog.Builder(this)
+                .setTitle("App Rotation")
+                .setItems(rotationItemArray, (dialog, which) -> {
+                    int orientation = getCurrentRotation();
+                    switch (which) {
+                        case 0:
+                            orientation = computeNewRotation(getCurrentRotation(), 0);
+                            break;
+                        case 1:
+                            orientation = computeNewRotation(getCurrentRotation(), 90);
+                            break;
+                        case 2:
+                            orientation = computeNewRotation(getCurrentRotation(), 180);
+                            break;
+                        case 3:
+                            orientation = computeNewRotation(getCurrentRotation(), 270);
+                            break;
+                    }
+                    dialog.dismiss();
+                    RotationUtils.setRequestedOrientation(EacDemoActivity.this,
+                            orientation, false, RotationUtils.ROTATE_BY_APP);
+                }).show();
+    }
+
+    private void systemRotation() {
+        new AlertDialog.Builder(this)
+                .setTitle("System Rotation")
+                .setItems(rotationItemArray, (dialog, which) -> {
+                    int orientation = getCurrentRotation();
+                    switch (which) {
+                        case 0:
+                            orientation = computeNewRotation(getCurrentRotation(), 0);
+                            break;
+                        case 1:
+                            orientation = computeNewRotation(getCurrentRotation(), 90);
+                            break;
+                        case 2:
+                            orientation = computeNewRotation(getCurrentRotation(), 180);
+                            break;
+                        case 3:
+                            orientation = computeNewRotation(getCurrentRotation(), 270);
+                            break;
+                    }
+                    dialog.dismiss();
+                    RotationUtils.setRequestedOrientation(EacDemoActivity.this,
+                            orientation, true, RotationUtils.ROTATE_BY_APP);
+                }).show();
+    }
+
+    private int getCurrentRotation() {
+        return DeviceUtils.getScreenOrientation(this);
+    }
+
+    private int computeNewRotation(int currentOrientation, int rotationOperation) {
+        switch (rotationOperation) {
+            case 0:
+                return currentOrientation;
+            case 90:
+                if (currentOrientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
+                    return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+                } else if (currentOrientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+                    return ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
+                } else if (currentOrientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT) {
+                    return ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
+                } else if (currentOrientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE) {
+                    return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+                } else {
+                    return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+                }
+            case 270:
+                if (currentOrientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
+                    return ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
+                } else if (currentOrientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+                    return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+                } else if (currentOrientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT) {
+                    return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+                } else if (currentOrientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE) {
+                    return ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
+                } else {
+                    return ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
+                }
+            case 180:
+                if (currentOrientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
+                    return ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
+                } else if (currentOrientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+                    return ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
+                } else if (currentOrientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT) {
+                    return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+                } else if (currentOrientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE) {
+                    return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+                } else {
+                    return ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
+                }
+            default:
+                assert (false);
+                return currentOrientation;
+        }
+    }
+
 }
