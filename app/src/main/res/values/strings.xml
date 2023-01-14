@@ -33,6 +33,7 @@
     <string name="hook_epdc_format">Hook Epdc: %s</string>
     <string name="eac_enable_format">EAC Enable: %s</string>
     <string name="eac_support_format">EAC Support: %s</string>
+    <string name="eac_refresh_config_enable_format">Refresh Mode Enable: %s</string>
     <string name="ok">ok</string>
     <string name="test_title">This is a test tile</string>
     <string name="test_message">This is a test message.\nIn handwriting state, the screen will be locked. If the page view changed, you need to pause the handwriting first.</string>

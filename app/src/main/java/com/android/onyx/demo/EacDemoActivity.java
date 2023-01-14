@@ -28,7 +28,7 @@ import io.reactivex.schedulers.Schedulers;
  */
 
 public class EacDemoActivity extends AppCompatActivity {
-    private static final int UPDATE_EAC_STATUE_DELAY = 300;
+    private static final int UPDATE_EAC_STATUS_DELAY = 300;
     private final String[] rotationItemArray = new String[]{"rotation 0", "rotation 90", "rotation 180", "rotation 270"};
     private ActivityEacDemoBinding binding;
 
@@ -47,6 +47,9 @@ public class EacDemoActivity extends AppCompatActivity {
         binding.switchEacEnable.setOnCheckedChangeListener((buttonView, isChecked) -> {
             setEACEnable(isChecked);
         });
+        binding.switchRefreshConfigEnable.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            setEacRefreshConfigEnable(isChecked);
+        });
     }
 
     private void initData() {
@@ -61,20 +64,16 @@ public class EacDemoActivity extends AppCompatActivity {
             case R.id.app_rotation:
                 appRotation();
                 break;
-            case R.id.cb_refresh_config_enable:
-                toggleRefreshConfig();
-                break;
         }
     }
 
     /**
      * This API is targeted at 3.2 and above.
      */
-    private void toggleRefreshConfig() {
+    private void setEacRefreshConfigEnable(boolean isChecked) {
         RxUtils.runInIO(() -> {
-            boolean enable = binding.cbRefreshConfigEnable.isChecked();
-            SimpleEACManage.getInstance().setEACRefreshConfigEnable(EacDemoActivity.this, enable);
-            binding.cbRefreshConfigEnable.setChecked(enable);
+            SimpleEACManage.getInstance().setEACRefreshConfigEnable(EacDemoActivity.this, isChecked);
+            updateAllStatusDelay();
         });
     }
 
@@ -151,8 +150,10 @@ public class EacDemoActivity extends AppCompatActivity {
 
     private void updateRefreshConfigEnableStatus() {
         RxUtils.runWith(() -> SimpleEACManage.getInstance().isEACRefreshConfigEnable(getPackageName()),
-                enable -> binding.cbRefreshConfigEnable.setChecked(enable),
-                Schedulers.io());
+                enable -> {
+                    binding.tvEacRefreshConfigEnable.setText(getString(R.string.eac_refresh_config_enable_format, enable + ""));
+                    binding.switchRefreshConfigEnable.setChecked(enable);
+                }, Schedulers.io());
     }
 
     private void updateAllStatus() {
@@ -163,7 +164,7 @@ public class EacDemoActivity extends AppCompatActivity {
     }
 
     private void updateAllStatusDelay() {
-        RxTimerUtil.timer(UPDATE_EAC_STATUE_DELAY, TimeUnit.MILLISECONDS, new RxTimerUtil.TimerObserver() {
+        RxTimerUtil.timer(UPDATE_EAC_STATUS_DELAY, TimeUnit.MILLISECONDS, new RxTimerUtil.TimerObserver() {
             @Override
             public void onNext(@NonNull Long aLong) {
                 updateAllStatus();
