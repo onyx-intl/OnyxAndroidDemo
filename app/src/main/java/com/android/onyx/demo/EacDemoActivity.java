@@ -50,6 +50,9 @@ public class EacDemoActivity extends AppCompatActivity {
         binding.switchRefreshConfigEnable.setOnCheckedChangeListener((buttonView, isChecked) -> {
             setEacRefreshConfigEnable(isChecked);
         });
+        binding.switchFollowSystemRotationEnable.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            setEacFollowSystemRotation(isChecked);
+        });
     }
 
     private void initData() {
@@ -73,6 +76,16 @@ public class EacDemoActivity extends AppCompatActivity {
     private void setEacRefreshConfigEnable(boolean isChecked) {
         RxUtils.runInIO(() -> {
             SimpleEACManage.getInstance().setEACRefreshConfigEnable(EacDemoActivity.this, isChecked);
+            updateAllStatusDelay();
+        });
+    }
+
+    /**
+     * This API is targeted at 3.3.1 and above.
+     */
+    private void setEacFollowSystemRotation(boolean isChecked) {
+        RxUtils.runInIO(() -> {
+            SimpleEACManage.getInstance().setFollowSystemRotation(EacDemoActivity.this, isChecked);
             updateAllStatusDelay();
         });
     }
@@ -156,11 +169,20 @@ public class EacDemoActivity extends AppCompatActivity {
                 }, Schedulers.io());
     }
 
+    private void updateFollowSystemRotationStatus() {
+        RxUtils.runWith(() -> SimpleEACManage.getInstance().isFollowSystemRotation(getPackageName()),
+                enable -> {
+                    binding.tvEacFollowSystemRotationEnable.setText(getString(R.string.eac_follow_system_rotation_format, String.valueOf(enable)));
+                    binding.switchFollowSystemRotationEnable.setChecked(enable);
+                }, Schedulers.io());
+    }
+
     private void updateAllStatus() {
         updateEACSupportStatus();
         updateEACSwitchStatus();
         updateHookEpdcStatus();
         updateRefreshConfigEnableStatus();
+        updateFollowSystemRotationStatus();
     }
 
     private void updateAllStatusDelay() {
