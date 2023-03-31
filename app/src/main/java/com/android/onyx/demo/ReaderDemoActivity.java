@@ -19,6 +19,7 @@ import androidx.databinding.DataBindingUtil;
 
 import com.onyx.android.demo.R;
 import com.onyx.android.demo.databinding.ActivityReaderDemoBinding;
+import com.onyx.android.sdk.device.EnvironmentUtil;
 import com.onyx.android.sdk.utils.FileUtils;
 import com.onyx.android.sdk.utils.ServiceUtils;
 import com.onyx.android.sdk.utils.StringUtils;
@@ -39,6 +40,7 @@ public class ReaderDemoActivity extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_reader_demo);
+        binding.etFile.setText(EnvironmentUtil.getExternalStorageAppFilesDirectory(getPackageName()) + "/demo.pdf");
         binding.setActivityReader(this);
     }
 
@@ -50,7 +52,7 @@ public class ReaderDemoActivity extends Activity {
         ComponentName componentName = new ComponentName("com.onyx.kreader", "com.onyx.android.sdk.readerview.service.ReaderService");
         intent.setComponent(componentName);
         intent.setData(FileProvider.getUriForFile(this,
-                getPackageName() + ".onyx.fileprovider",
+                getPackageName() + ".fileprovider",
                 new File(binding.etFile.getText().toString())));
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);

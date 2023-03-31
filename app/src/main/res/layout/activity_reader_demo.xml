@@ -16,8 +16,7 @@
         <EditText
             android:id="@+id/et_file"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:text="/storage/emulated/0/demo.pdf" />
+            android:layout_height="60dp" />
 
         <Button
             android:id="@+id/btn_open"
