@@ -67,7 +67,7 @@ public void onRawErasePointListReceivedEvent(RawErasePointListReceivedEvent e) {
 // same as RawData, but triggered by stylus eraser button
 }
 ```
-You can see sample code in [ScribbleTouchHelperDemoActivity](../app/src/main/java/com/onyx/android/demo/scribble/ScribbleTouchHelperDemoActivity.java)
+You can see sample code in [ScribbleTouchHelperDemoActivity](../app/src/main/java/com/android/onyx/demo/scribble/ScribbleTouchHelperDemoActivity.java)
 
 # API
 

@@ -27,4 +27,4 @@ Enter/leave fast update mode:
 
 `EpdDeviceManager.exitAnimationUpdate(true);`
 
-You can see sample code in [EpdDemoActivity](../app/src/main/java/com/onyx/android/demo/EpdDemoActivity.java)
+You can see sample code in [EpdDemoActivity](../app/src/main/java/com/android/onyx/demo/EpdDemoActivity.java)

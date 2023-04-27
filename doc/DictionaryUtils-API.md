@@ -1,7 +1,7 @@
 update `onyx-base-sdk` to version 1.4.3.7 or above
 
 
-This Method may block thread, Do not invoke in UI thread, for more detail to see [DictionaryActivity](../app/src/main/java/com/onyx/android/demo/DictionaryActivity.java)
+This Method may block thread, Do not invoke in UI thread, for more detail to see [DictionaryActivity](../app/src/main/java/com/android/onyx/demo/DictionaryActivity.java)
 
 ```
     /**
