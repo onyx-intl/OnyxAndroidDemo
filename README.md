@@ -23,6 +23,7 @@ This repository contains the following examples:
 * [EPDDemoActivity](app/src/main/java/com/android/onyx/demo/EpdDemoActivity.java): basic demo of [refreshing the EPD Screen](doc/EPD-Screen-Update.md) with the [EpdController](doc/EpdController.md)
 * [FrontLightDemoActivity](app/src/main/java/com/android/onyx/demo/FrontLightDemoActivity.java): demo of [FrontLightController](doc/FrontLightController.md). If a device includes a frontLight, the screen brightness can be adjusted.
 * [FullScreenDemoActivity](app/src/main/java/com/android/onyx/demo/FullScreenDemoActivity.java): demontrates full screen switching. The `DeviceUtils.setFullScreenOnResume(this, fullscreen)` API call is supported on all devices.
+* [RefreshModeDemoActivity](app/src/main/java/com/android/onyx/demo/RefreshModeDemoActivity.java): show how to change app refresh mode, Characteristics of refresh mode can see [EPD-Screen-Update](doc/EPD-Screen-Update.md)
 
 ## 2. Storage (SD Card)
 * [EnvironmentDemoActivity](app/src/main/java/com/android/onyx/demo/EnvironmentDemoActivity.java): shows how to use [DeviceEnvironment](doc/DeviceEnvironment.md) to access internal storage or the removable SD card
