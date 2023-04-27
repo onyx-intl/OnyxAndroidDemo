@@ -17,7 +17,7 @@
 
     `EpdController.invalidate(view, UpdateMode.GC);`
 
-* Fast (Animation) mode
+# Fast (Animation) mode
 
     Black/white mode for fast screen update, such as zooming/scrolling/dragging
 
