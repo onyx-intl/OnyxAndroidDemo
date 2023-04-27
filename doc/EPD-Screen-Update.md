@@ -1,4 +1,4 @@
-[EpdController](./EpdController.md) provides API to update screen with different [Update Mode](./EPD-Update-Mode.md):
+# [EpdController](./EpdController.md) provides API to update screen with different [Update Mode](./EPD-Update-Mode.md):
 * Partial
 
     Default update mode
