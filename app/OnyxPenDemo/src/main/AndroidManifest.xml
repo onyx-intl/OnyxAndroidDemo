@@ -23,6 +23,7 @@
         <activity android:name=".scribble.ui.ScribbleMoveEraserDemoActivity"/>
         <activity android:name=".scribble.ui.ScribbleMultipleScribbleViewActivity"/>
         <activity android:name=".scribble.ui.ScribbleTouchHelperDemoActivity"/>
+        <activity android:name=".scribble.ui.ScribbleFingerTouchDemoActivity"/>
         <activity android:name=".scribble.ui.ScribbleWebViewDemoActivity"/>
         <activity android:name=".scribble.ui.ScribblePenUpRefreshDemoActivity"/>
         <activity android:name=".scribble.ui.ScribbleEpdControllerDemoActivity"/>
