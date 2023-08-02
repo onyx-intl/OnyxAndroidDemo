@@ -29,7 +29,7 @@ public class RefreshModeDemoActivity extends AppCompatActivity implements RadioG
     }
 
     private void initData() {
-        UpdateOption updateOption = Device.currentDevice().getSystemRefreshMode();
+        UpdateOption updateOption = Device.currentDevice().getAppScopeRefreshMode();
         binding.rgRefreshMode.check(getRadioButtonIdByUpdateOption(updateOption));
     }
 
@@ -37,19 +37,19 @@ public class RefreshModeDemoActivity extends AppCompatActivity implements RadioG
     public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
         switch (checkedId) {
             case R.id.rb_normal:
-                Device.currentDevice().setSystemRefreshMode(UpdateOption.NORMAL);
+                Device.currentDevice().setAppScopeRefreshMode(UpdateOption.NORMAL);
                 break;
             case R.id.rb_fast_quality:
-                Device.currentDevice().setSystemRefreshMode(UpdateOption.FAST_QUALITY);
+                Device.currentDevice().setAppScopeRefreshMode(UpdateOption.FAST_QUALITY);
                 break;
             case R.id.rb_regal:
-                Device.currentDevice().setSystemRefreshMode(UpdateOption.REGAL);
+                Device.currentDevice().setAppScopeRefreshMode(UpdateOption.REGAL);
                 break;
             case R.id.rb_fast:
-                Device.currentDevice().setSystemRefreshMode(UpdateOption.FAST);
+                Device.currentDevice().setAppScopeRefreshMode(UpdateOption.FAST);
                 break;
             case R.id.rb_fast_x:
-                Device.currentDevice().setSystemRefreshMode(UpdateOption.FAST_X);
+                Device.currentDevice().setAppScopeRefreshMode(UpdateOption.FAST_X);
                 break;
         }
     }
