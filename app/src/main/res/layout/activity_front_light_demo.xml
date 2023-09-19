@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -8,8 +9,7 @@
             type="com.android.onyx.demo.FrontLightDemoActivity" />
     </data>
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+    <LinearLayout
         android:id="@+id/activity_front_light_demo"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -20,213 +20,231 @@
         android:paddingBottom="@dimen/activity_vertical_margin"
         tools:context="com.android.onyx.demo.FrontLightDemoActivity">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="FL Brightness"
-            android:textSize="20sp" />
-
-        <RelativeLayout
+        <LinearLayout
+            android:id="@+id/fl_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/fl_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="FL Brightness"
+                android:textSize="20sp" />
+
+            <Button
+                android:id="@+id/fl_toggle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:onClick="@{activityFrontlight::toggleFLLight}"
+                android:text="Toggle Light" />
+
+            <LinearLayout
+                android:id="@+id/fl_brightness_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <SeekBar
+                    android:id="@+id/fl_brightness_seek"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/seek_bar_height"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:id="@+id/fl_brightness_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/warm_cold_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/warm_cold_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20sp"
+                android:layout_marginBottom="20sp"
+                android:text="Warm And Cold Brightness"
+                android:textSize="20sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/warm_cold_title"
                 android:orientation="vertical">
 
-                <Button
-                    android:id="@+id/button_light_toggle"
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:onClick="@{activityFrontlight::toggleFLLight}"
-                    android:text="light toggle" />
-
-                <Button
-                    android:id="@+id/button_light_darker"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="@{activityFrontlight::decreaseFLLight}"
-                    android:text="light decrease" />
+                    android:layout_marginTop="20dp"
+                    android:text="Cold Brightness" />
 
                 <Button
-                    android:id="@+id/button_light_lighter"
+                    android:id="@+id/cold_toggle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:onClick="@{activityFrontlight::increaseFLLight}"
-                    android:text="light increase" />
+                    android:onClick="@{activityFrontlight::toggleColdLight}"
+                    android:text="Toggle Light" />
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
-
-                    <Button
-                        android:id="@+id/update_light_value"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:onClick="@{activityFrontlight::updateLightValue}"
-                        android:text="update value" />
-
-                    <TextView
-                        android:id="@+id/light_value"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="20dp"
-                        android:textSize="19sp" />
-
-                </LinearLayout>
-            </LinearLayout>
-
-            <View
-                android:id="@+id/fl_cover"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="#22666666"
-                android:clickable="true"
-                android:focusable="true"
-                android:visibility="gone" />
-        </RelativeLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20sp"
-            android:layout_marginBottom="20sp"
-            android:text="CTM Brightness"
-            android:textSize="20sp" />
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1">
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <LinearLayout
-                    android:id="@+id/warm_light_container"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <Button
-                        android:id="@+id/warm_light_toggle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:onClick="@{activityFrontlight::toggleWarmLight}"
-                        android:text="Warm light toggle" />
-
-                    <Button
-                        android:id="@+id/warm_light_increase"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:onClick="@{activityFrontlight::increaseWarmLight}"
-                        android:text="Warm light increase" />
-
-                    <Button
-                        android:id="@+id/warm_light_decrease"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:onClick="@{activityFrontlight::decreaseWarmLight}"
-                        android:text="Warm light decrease" />
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
-
-                        <Button
-                            android:id="@+id/update_warm_light_value"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:onClick="@{activityFrontlight::updateWarmLightValue}"
-                            android:text="update value" />
-
-                        <TextView
-                            android:id="@+id/warm_light_value"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="20dp"
-                            android:textSize="19sp" />
-
-                    </LinearLayout>
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/cold_light_container"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/cold_brightness_container"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:gravity="center"
-                    android:orientation="vertical">
+                    android:orientation="horizontal">
 
-                    <Button
-                        android:id="@+id/cold_light_toggle"
+                    <SeekBar
+                        android:id="@+id/cold_brightness_seek"
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/seek_bar_height"
+                        android:layout_weight="1" />
+
+                    <TextView
+                        android:id="@+id/cold_brightness_value"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:onClick="@{activityFrontlight::toggleColdLight}"
-                        android:text="Cold light toggle" />
-
-                    <Button
-                        android:id="@+id/cold_light_increase"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:onClick="@{activityFrontlight::increaseColdLight}"
-                        android:text="Cold light increase" />
-
-                    <Button
-                        android:id="@+id/cold_light_decrease"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:onClick="@{activityFrontlight::decreaseColdLight}"
-                        android:text="Cold light decrease" />
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
-
-                        <Button
-                            android:id="@+id/update_cold_light_value"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:onClick="@{activityFrontlight::updateColdLightValue}"
-                            android:text="update value" />
-
-                        <TextView
-                            android:id="@+id/cold_light_value"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="20dp"
-                            android:textSize="19sp" />
-
-                    </LinearLayout>
+                        android:layout_height="wrap_content" />
 
                 </LinearLayout>
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Warm Brightness" />
+
                 <Button
-                    android:id="@+id/button_show_brightness_setting"
+                    android:id="@+id/warm_toggle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{activityFrontlight::toggleWarmLight}"
+                    android:text="Toggle Light" />
+
+                <LinearLayout
+                    android:id="@+id/warm_brightness_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/cold_light_container"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginBottom="20dp"
-                    android:onClick="@{activityFrontlight::ShowBrightnessSetting}"
-                    android:text="show brightness setting" />
+                    android:gravity="center"
+                    android:orientation="horizontal">
 
-            </RelativeLayout>
+                    <SeekBar
+                        android:id="@+id/warm_brightness_seek"
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/seek_bar_height"
+                        android:layout_weight="1" />
 
-            <View
-                android:id="@+id/ctm_cover"
+                    <TextView
+                        android:id="@+id/warm_brightness_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                </LinearLayout>
+            </LinearLayout>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/ctm_all_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/ctm_all_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20sp"
+                android:layout_marginBottom="20sp"
+                android:text="CTM All Brightness"
+                android:textSize="20sp" />
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#22666666"
-                android:clickable="true"
-                android:focusable="true"
-                android:visibility="gone" />
+                android:layout_below="@id/ctm_all_title"
+                android:orientation="vertical">
+
+                <Button
+                    android:id="@+id/brightness_toggle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{activityFrontlight::toggleCTMLight}"
+                    android:text="Toggle Light" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Brightness" />
+
+                <LinearLayout
+                    android:id="@+id/brightness_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <SeekBar
+                        android:id="@+id/ctm_all_brightness_seek"
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/seek_bar_height"
+                        android:layout_weight="1" />
+
+                    <TextView
+                        android:id="@+id/brightness_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="Temperature" />
+
+                <LinearLayout
+                    android:id="@+id/temperature_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <SeekBar
+                        android:id="@+id/ctm_all_temperature_seek"
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/seek_bar_height"
+                        android:layout_weight="1" />
+
+                    <TextView
+                        android:id="@+id/temperature_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                </LinearLayout>
+            </LinearLayout>
         </RelativeLayout>
+
+        <Button
+            android:id="@+id/button_show_brightness_setting"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="20dp"
+            android:onClick="@{activityFrontlight::ShowBrightnessSetting}"
+            android:text="show brightness setting" />
     </LinearLayout>
 </layout>
