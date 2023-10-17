@@ -71,5 +71,12 @@
             android:layout_height="wrap_content"
             android:onClick="@{activitySribble::button_epd_controller}"
             android:text="Scribble EpdController Demo" />
+
+        <Button
+            android:id="@+id/button_finger_scribble"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="@{activitySribble::gotoScribbleFingerTouchDemo}"
+            android:text="Scribble Finger Touch Demo" />
     </LinearLayout>
 </layout>
