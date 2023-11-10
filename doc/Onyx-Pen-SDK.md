@@ -87,7 +87,7 @@ In order to fully stop TouchHelper, you need call ` touchHelper.closeRawDrawing(
 ```
 ## 5.Demo
 
-Reference to the [ScribbleTouchHelperDemoActivity](../app/src/main/java/com/onyx/android/demo/scribble/ScribbleTouchHelperDemoActivity.java)
+Reference to the [ScribbleTouchHelperDemoActivity](../app/src/main/java/com/android/onyx/demo/scribble/ScribbleTouchHelperDemoActivity.java)
 
 ## 6.TouchHelper's API
 
@@ -101,7 +101,7 @@ Reference to the [ScribbleTouchHelperDemoActivity](../app/src/main/java/com/onyx
  - `setStrokeStyle(int style)` Support style: `TouchHelper.STROKE_STYLE_BRUSH`, `TouchHelper.STROKE_STYLE_PENCIL` 
 
 # BrushRender
-`BrushRender` is use to scribble pressure, for more detail to see [ScribbleTouchHelperDemoActivity](../app/src/main/java/com/onyx/android/demo/scribble/ScribbleTouchHelperDemoActivity.java) 
+`BrushRender` is use to scribble pressure, for more detail to see [ScribbleTouchHelperDemoActivity](../app/src/main/java/com/android/onyx/demo/scribble/ScribbleTouchHelperDemoActivity.java) 
 ```
     /**
      * 

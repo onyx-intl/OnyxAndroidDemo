@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.FileProvider;
 import android.view.View;
-
 import android.widget.Toast;
 
 import androidx.databinding.DataBindingUtil;
@@ -20,7 +19,6 @@ import androidx.databinding.DataBindingUtil;
 import com.onyx.android.demo.R;
 import com.onyx.android.demo.databinding.ActivityReaderDemoBinding;
 import com.onyx.android.sdk.utils.FileUtils;
-import com.onyx.android.sdk.utils.ServiceUtils;
 import com.onyx.android.sdk.utils.StringUtils;
 
 import java.io.File;
@@ -47,17 +45,14 @@ public class ReaderDemoActivity extends Activity {
             return;
         }
         Intent intent = new Intent(Intent.ACTION_VIEW);
-        ComponentName componentName = new ComponentName("com.onyx.kreader", "com.onyx.android.sdk.readerview.service.ReaderService");
+        ComponentName componentName = new ComponentName("com.onyx.kreader", "com.onyx.kreader.ui.ReaderHomeActivity");
         intent.setComponent(componentName);
         intent.setData(FileProvider.getUriForFile(this,
                 getPackageName() + ".onyx.fileprovider",
                 new File(binding.etFile.getText().toString())));
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-        ComponentName result = ServiceUtils.startServiceSafely(this, intent);
-        if (result == null) {
-            Toast.makeText(getApplicationContext(), "Service does not exist", Toast.LENGTH_SHORT).show();
-        }
+        startActivity(intent);
     }
 
     public void btn_query_progress(View view) {
