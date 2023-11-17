@@ -59,6 +59,10 @@ The SDK also provides additional functionality such as a move eraser, inking on 
 
 * [AppOpenGuide](doc/AppOpenGuide.md): opening an app using the Android Debug Bridge (adb)
 
+## 8. Eink Develop Guide
+
+* [EinkDevelopGuide](doc/Eink-Develop-Guide.md): Eink Develop Guide documentation
+
 ## PRs Welcome
 
 All contributions towards documentation, adding/improving unit tests, and examples are appreciated.
