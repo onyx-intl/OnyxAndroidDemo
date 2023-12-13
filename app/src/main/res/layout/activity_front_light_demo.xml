@@ -4,9 +4,17 @@
 
     <data>
 
+        <import type="com.onyx.android.sdk.device.BaseDevice" />
+
         <variable
-            name="activityFrontlight"
-            type="com.android.onyx.demo.FrontLightDemoActivity" />
+            name="ctmAllLightModel"
+            type="com.android.onyx.demo.model.CTMAllLightModel" />
+        <variable
+            name="warmAndColdLightModel"
+            type="com.android.onyx.demo.model.WarmAndColdLightModel" />
+        <variable
+            name="flLightModel"
+            type="com.android.onyx.demo.model.FLLightModel" />
     </data>
 
     <LinearLayout
@@ -40,7 +48,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:onClick="@{activityFrontlight::toggleFLLight}"
+                android:onClick="@{() -> flLightModel.toggleFLLight()}"
                 android:text="Toggle Light" />
 
             <LinearLayout
@@ -55,10 +63,12 @@
                     android:id="@+id/fl_brightness_seek"
                     android:layout_width="0dp"
                     android:layout_height="@dimen/seek_bar_height"
+                    android:progress="@{flLightModel.lightValue}"
                     android:layout_weight="1" />
 
                 <TextView
                     android:id="@+id/fl_brightness_value"
+                    android:text="@{@string/front_light_value(flLightModel.lightValue)}"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
 
@@ -97,7 +107,7 @@
                     android:id="@+id/cold_toggle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:onClick="@{activityFrontlight::toggleColdLight}"
+                    android:onClick="@{() -> warmAndColdLightModel.toggleColdLight()}"
                     android:text="Toggle Light" />
 
                 <LinearLayout
@@ -110,12 +120,14 @@
 
                     <SeekBar
                         android:id="@+id/cold_brightness_seek"
+                        android:progress="@{warmAndColdLightModel.coldValue}"
                         android:layout_width="0dp"
                         android:layout_height="@dimen/seek_bar_height"
                         android:layout_weight="1" />
 
                     <TextView
                         android:id="@+id/cold_brightness_value"
+                        android:text="@{@string/front_light_value(warmAndColdLightModel.coldValue)}"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
 
@@ -130,7 +142,7 @@
                     android:id="@+id/warm_toggle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:onClick="@{activityFrontlight::toggleWarmLight}"
+                    android:onClick="@{() -> warmAndColdLightModel.toggleWarmLight()}"
                     android:text="Toggle Light" />
 
                 <LinearLayout
@@ -142,12 +154,14 @@
 
                     <SeekBar
                         android:id="@+id/warm_brightness_seek"
+                        android:progress="@{warmAndColdLightModel.warmValue}"
                         android:layout_width="0dp"
                         android:layout_height="@dimen/seek_bar_height"
                         android:layout_weight="1" />
 
                     <TextView
                         android:id="@+id/warm_brightness_value"
+                        android:text="@{@string/front_light_value(warmAndColdLightModel.warmValue)}"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
 
@@ -181,7 +195,7 @@
                     android:id="@+id/brightness_toggle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:onClick="@{activityFrontlight::toggleCTMLight}"
+                    android:onClick="@{() -> ctmAllLightModel.toggleCTMLight()}"
                     android:text="Toggle Light" />
 
                 <TextView
@@ -198,12 +212,14 @@
 
                     <SeekBar
                         android:id="@+id/ctm_all_brightness_seek"
+                        android:progress="@{ctmAllLightModel.brightnessValue}"
                         android:layout_width="0dp"
                         android:layout_height="@dimen/seek_bar_height"
                         android:layout_weight="1" />
 
                     <TextView
                         android:id="@+id/brightness_value"
+                        android:text="@{@string/front_light_value(ctmAllLightModel.brightnessValue)}"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
 
@@ -225,12 +241,14 @@
 
                     <SeekBar
                         android:id="@+id/ctm_all_temperature_seek"
+                        android:progress="@{ctmAllLightModel.temperatureValue}"
                         android:layout_width="0dp"
                         android:layout_height="@dimen/seek_bar_height"
                         android:layout_weight="1" />
 
                     <TextView
                         android:id="@+id/temperature_value"
+                        android:text="@{@string/front_light_value(ctmAllLightModel.temperatureValue)}"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
 
@@ -244,7 +262,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="20dp"
-            android:onClick="@{activityFrontlight::ShowBrightnessSetting}"
             android:text="show brightness setting" />
     </LinearLayout>
 </layout>
