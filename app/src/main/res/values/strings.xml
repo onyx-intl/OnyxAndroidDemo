@@ -38,4 +38,5 @@
     <string name="ok">ok</string>
     <string name="test_title">This is a test tile</string>
     <string name="test_message">This is a test message.\nIn handwriting state, the screen will be locked. If the page view changed, you need to pause the handwriting first.</string>
+    <string name="front_light_value">Current value:%d</string>
 </resources>
