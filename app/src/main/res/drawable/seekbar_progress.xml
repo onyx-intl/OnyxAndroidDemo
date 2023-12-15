@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@android:id/background"
+        android:height="@dimen/seekbar_progress_height"
+        android:gravity="center">
+        <shape xmlns:android="http://schemas.android.com/apk/res/android">
+            <corners android:radius="@dimen/seekbar_progress_height" />
+            <stroke
+                android:width="1dp"
+                android:color="@android:color/black" />
+            <solid android:color="@android:color/white" />
+            <corners android:radius="0dp" />
+        </shape>
+    </item>
+    <item
+        android:id="@android:id/secondaryProgress"
+        android:height="@dimen/seekbar_progress_height"
+        android:gravity="center">
+        <clip>
+            <shape>
+                <corners android:radius="@dimen/seekbar_progress_height" />
+                <stroke
+                    android:width="1dp"
+                    android:color="@android:color/black" />
+                <solid android:color="@android:color/darker_gray" />
+                <corners android:radius="0dp" />
+            </shape>
+        </clip>
+    </item>
+    <item
+        android:id="@android:id/progress"
+        android:height="@dimen/seekbar_progress_height"
+        android:gravity="center">
+        <clip>
+            <shape>
+                <corners android:radius="@dimen/seekbar_progress_radius" />
+                <stroke
+                    android:width="1dp"
+                    android:color="@android:color/black" />
+                <solid android:color="@android:color/black" />
+                <corners android:radius="0dp" />
+            </shape>
+        </clip>
+    </item>
+</layer-list>  
