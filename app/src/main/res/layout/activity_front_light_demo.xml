@@ -47,6 +47,7 @@
                 android:id="@+id/fl_toggle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                style="@style/common_button_style"
                 android:layout_marginTop="20dp"
                 android:onClick="@{() -> flLightModel.toggleFLLight()}"
                 android:text="Toggle Light" />
@@ -64,6 +65,7 @@
                     android:layout_width="0dp"
                     android:layout_height="@dimen/seek_bar_height"
                     android:progress="@{flLightModel.lightValue}"
+                    android:progressDrawable="@drawable/seekbar_progress"
                     android:layout_weight="1" />
 
                 <TextView
@@ -107,6 +109,7 @@
                     android:id="@+id/cold_toggle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    style="@style/common_button_style"
                     android:onClick="@{() -> warmAndColdLightModel.toggleColdLight()}"
                     android:text="Toggle Light" />
 
@@ -121,6 +124,7 @@
                     <SeekBar
                         android:id="@+id/cold_brightness_seek"
                         android:progress="@{warmAndColdLightModel.coldValue}"
+                        android:progressDrawable="@drawable/seekbar_progress"
                         android:layout_width="0dp"
                         android:layout_height="@dimen/seek_bar_height"
                         android:layout_weight="1" />
@@ -142,6 +146,7 @@
                     android:id="@+id/warm_toggle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    style="@style/common_button_style"
                     android:onClick="@{() -> warmAndColdLightModel.toggleWarmLight()}"
                     android:text="Toggle Light" />
 
@@ -155,6 +160,7 @@
                     <SeekBar
                         android:id="@+id/warm_brightness_seek"
                         android:progress="@{warmAndColdLightModel.warmValue}"
+                        android:progressDrawable="@drawable/seekbar_progress"
                         android:layout_width="0dp"
                         android:layout_height="@dimen/seek_bar_height"
                         android:layout_weight="1" />
@@ -191,17 +197,18 @@
                 android:layout_below="@id/ctm_all_title"
                 android:orientation="vertical">
 
-                <Button
-                    android:id="@+id/brightness_toggle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="@{() -> ctmAllLightModel.toggleCTMLight()}"
-                    android:text="Toggle Light" />
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Brightness" />
+
+                <Button
+                    android:id="@+id/brightness_toggle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/common_button_style"
+                    android:onClick="@{() -> ctmAllLightModel.toggleCTMLight()}"
+                    android:text="Toggle Light" />
 
                 <LinearLayout
                     android:id="@+id/brightness_container"
@@ -213,6 +220,7 @@
                     <SeekBar
                         android:id="@+id/ctm_all_brightness_seek"
                         android:progress="@{ctmAllLightModel.brightnessValue}"
+                        android:progressDrawable="@drawable/seekbar_progress"
                         android:layout_width="0dp"
                         android:layout_height="@dimen/seek_bar_height"
                         android:layout_weight="1" />
@@ -231,6 +239,12 @@
                     android:layout_marginTop="20dp"
                     android:text="Temperature" />
 
+                <Button
+                    android:id="@+id/temperature_toggle"
+                    android:onClick="@{() -> ctmAllLightModel.toggleCTMTemperature()}"
+                    android:text="Toggle Temperature"
+                    style="@style/common_button_style" />
+
                 <LinearLayout
                     android:id="@+id/temperature_container"
                     android:layout_width="match_parent"
@@ -242,6 +256,7 @@
                     <SeekBar
                         android:id="@+id/ctm_all_temperature_seek"
                         android:progress="@{ctmAllLightModel.temperatureValue}"
+                        android:progressDrawable="@drawable/seekbar_progress"
                         android:layout_width="0dp"
                         android:layout_height="@dimen/seek_bar_height"
                         android:layout_weight="1" />
@@ -262,6 +277,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="20dp"
+            style="@style/common_button_style"
             android:text="show brightness setting" />
     </LinearLayout>
 </layout>

@@ -96,4 +96,15 @@ public class CTMAllLightModel extends BaseLightModel {
             }
         });
     }
+
+    public void toggleCTMTemperature() {
+        temperatureProvider.toggle();
+        delay(new RxTimerUtil.TimerObserver() {
+            @Override
+            public void onNext(Long aLong) {
+                updateLightValue();
+            }
+        });
+    }
+
 }
