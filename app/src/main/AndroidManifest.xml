@@ -42,6 +42,7 @@
         <activity android:name="com.android.onyx.demo.DictionaryActivity"/>
         <activity android:name="com.android.onyx.demo.RefreshModeDemoActivity" />
         <activity android:name="com.android.onyx.demo.EacDemoActivity" />
+        <activity android:name="com.android.onyx.demo.BooxSettingsDemoActivity" />
 
         <provider
             android:name="android.support.v4.content.FileProvider"
