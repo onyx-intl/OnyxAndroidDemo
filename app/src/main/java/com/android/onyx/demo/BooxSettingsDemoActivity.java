@@ -10,11 +10,13 @@ import androidx.databinding.ObservableBoolean;
 import com.onyx.android.demo.R;
 import com.onyx.android.demo.databinding.ActivityBooxSettingBinding;
 import com.onyx.android.sdk.api.device.GlobalContrastController;
+import com.onyx.android.sdk.utils.SystemPropertiesUtil;
 
 public class BooxSettingsDemoActivity extends AppCompatActivity {
 
     private ActivityBooxSettingBinding binding;
     public ObservableBoolean isHighContrastEnabled = new ObservableBoolean();
+    public ObservableBoolean supportHighContrast = new ObservableBoolean();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +28,7 @@ public class BooxSettingsDemoActivity extends AppCompatActivity {
 
     private void updateData() {
         isHighContrastEnabled.set(GlobalContrastController.isHighContrastEnabled());
+        supportHighContrast.set(SystemPropertiesUtil.isPhone() || SystemPropertiesUtil.isTablet());
     }
 
     /**
