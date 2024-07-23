@@ -11,8 +11,7 @@ Compared to Scribble SDK, Pen SDK is a lighter weight library.
 Add the following dependencies to your app's `build.gradle` file
 
 ```gradle
-    compile('com.onyx.android.sdk:onyxsdk-base:1.4.3.4')
-    compile('com.onyx.android.sdk:onyxsdk-pen:1.0.6.5')
+    compile('com.onyx.android.sdk:onyxsdk-pen:1.4.10.1')
 ```
 ## 2.Init TouchHelper
 
@@ -98,7 +97,7 @@ Reference to the [ScribbleTouchHelperDemoActivity](../app/src/main/java/com/andr
  - `setRawDrawingRenderEnabled(boolean enable)` set false, disable render during scribble.
  - `openRawDrawing()` Turn on scribble and initialize resources.
  - `closeRawDrawing()` Turn off scribble and release resources. Unlock the screen, screen can refresh..
- - `setStrokeStyle(int style)` Support style: `TouchHelper.STROKE_STYLE_BRUSH`, `TouchHelper.STROKE_STYLE_PENCIL` 
+ - `setStrokeStyle(int style)` Support style: `TouchHelper.STROKE_STYLE_FOUNTAIN`, `TouchHelper.STROKE_STYLE_PENCIL` 
 
 # BrushRender
 `BrushRender` is use to scribble pressure, for more detail to see [ScribbleTouchHelperDemoActivity](../app/src/main/java/com/android/onyx/demo/scribble/ScribbleTouchHelperDemoActivity.java) 

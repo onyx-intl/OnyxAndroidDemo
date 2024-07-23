@@ -21,7 +21,7 @@
                 android:layout_height="wrap_content"/>
             <Button
                 android:id="@+id/btn_brush"
-                android:text="brush"
+                android:text="Fountain"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
             <Button

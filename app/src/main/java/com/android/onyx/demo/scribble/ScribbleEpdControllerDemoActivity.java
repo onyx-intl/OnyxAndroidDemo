@@ -109,7 +109,7 @@ public class ScribbleEpdControllerDemoActivity extends AppCompatActivity {
         binding.btnBrush.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setStrokeStyle(StrokeStyle.BRUSH);
+                setStrokeStyle(StrokeStyle.FOUNTAIN);
                 setStrokeWidth(20f);
             }
         });
@@ -240,7 +240,7 @@ public class ScribbleEpdControllerDemoActivity extends AppCompatActivity {
 
     private void startPenDrawing() {
         EpdController.setScreenHandWritingPenState(getHostView(), EpdPenManager.PEN_START);
-        setStrokeStyle(StrokeStyle.BRUSH);
+        setStrokeStyle(StrokeStyle.FOUNTAIN);
     }
 
     private void resumePenDrawing() {
