@@ -54,6 +54,10 @@ public class ScribbleDemoActivity extends AppCompatActivity {
         go(ScribbleEpdControllerDemoActivity.class);
     }
 
+    public void gotoScribbleFingerTouchDemo(View view) {
+        go(ScribbleFingerTouchDemoActivity.class);
+    }
+
     private void go(Class<?> activityClass) {
         startActivity(new Intent(this, activityClass));
     }
