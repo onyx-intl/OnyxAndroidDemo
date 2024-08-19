@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:soundEffectsEnabled="false"
+        android:background="@drawable/border_black_2dp"
+        android:id="@+id/root"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <Button
+            android:id="@+id/float_brush_button"
+            android:layout_width="90dp"
+            android:layout_height="wrap_content"
+            android:text="笔刷"
+            android:textSize="25sp" />
+
+        <RadioButton
+            android:id="@+id/float_brush_check"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true" />
+
+        <TextView
+            android:id="@+id/float_erase_button"
+            android:layout_width="90dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:gravity="center"
+            android:text="擦除"
+            android:textColor="@color/black"
+            android:textSize="25sp" />
+
+        <RadioButton
+            android:id="@+id/float_erase_check"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:text="擦除轨迹"
+            android:textColor="@color/black"
+            android:textSize="25sp" />
+
+        <CheckBox
+            android:id="@+id/float_display_erase_track_check"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:id="@+id/float_pen_up_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="抬笔刷新"
+                android:textColor="@color/black"
+                android:textSize="25sp" />
+
+            <CheckBox
+                android:id="@+id/float_pen_up_check"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</layout>
