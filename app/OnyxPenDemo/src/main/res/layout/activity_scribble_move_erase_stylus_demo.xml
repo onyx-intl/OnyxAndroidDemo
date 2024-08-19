@@ -5,7 +5,7 @@
 
         <variable
             name="activityScribbleMoveErase"
-            type="com.android.onyx.demo.scribble.ScribbleMoveEraserDemoActivity" />
+            type="com.onyx.android.eink.pen.demo.scribble.ui.ScribbleMoveEraserDemoActivity" />
     </data>
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"

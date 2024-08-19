@@ -1,4 +1,4 @@
-package com.android.onyx.demo.scribble;
+package com.onyx.android.eink.pen.demo.scribble.ui;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -18,24 +18,21 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-
 import android.widget.CompoundButton;
 import android.widget.RadioButton;
-
 import android.widget.SeekBar;
-
 
 import androidx.databinding.DataBindingUtil;
 
-import com.onyx.android.demo.R;
-import com.android.onyx.demo.scribble.request.PartialRefreshRequest;
-import com.onyx.android.demo.databinding.ActivityPenUpRefreshDemoBinding;
+import com.onyx.android.eink.pen.demo.R;
+import com.onyx.android.eink.pen.demo.databinding.ActivityPenUpRefreshDemoBinding;
+import com.onyx.android.eink.pen.demo.scribble.request.PartialRefreshRequest;
 import com.onyx.android.sdk.api.device.epd.EpdController;
 import com.onyx.android.sdk.data.PenConstant;
+import com.onyx.android.sdk.data.note.TouchPoint;
 import com.onyx.android.sdk.pen.NeoFountainPen;
 import com.onyx.android.sdk.pen.RawInputCallback;
 import com.onyx.android.sdk.pen.TouchHelper;
-import com.onyx.android.sdk.data.note.TouchPoint;
 import com.onyx.android.sdk.pen.data.TouchPointList;
 import com.onyx.android.sdk.rx.RxCallback;
 import com.onyx.android.sdk.rx.RxManager;
@@ -43,7 +40,6 @@ import com.onyx.android.sdk.utils.NumberUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class ScribblePenUpRefreshDemoActivity extends AppCompatActivity {
 

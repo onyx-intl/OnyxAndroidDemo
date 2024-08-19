@@ -1,4 +1,4 @@
-package com.android.onyx.demo.utils;
+package com.onyx.android.eink.pen.demo.scribble.util;
 
 import android.content.Context;
 import android.graphics.Rect;

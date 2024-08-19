@@ -1,4 +1,4 @@
-package com.android.onyx.demo.broadcast;
+package com.onyx.android.eink.pen.demo.scribble.broadcast;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

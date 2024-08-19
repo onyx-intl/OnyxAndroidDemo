@@ -1,118 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <LinearLayout
-            android:id="@+id/func_container"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            android:paddingHorizontal="10dp">
+            android:id="@+id/layout_function"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:orientation="vertical">
 
             <Button
-                android:id="@+id/brush_button"
-                android:layout_width="90dp"
-                android:layout_height="wrap_content"
-                android:text="笔刷"
-                android:textSize="25sp" />
-
-            <RadioButton
-                android:id="@+id/brush_check"
+                android:id="@+id/button_scribble_demo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:checked="true" />
+                android:text="Scribble Demo" />
 
-            <TextView
-                android:id="@+id/erase_button"
-                android:layout_width="90dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
-                android:gravity="center"
-                android:text="擦除"
-                android:textColor="@color/black"
-                android:textSize="25sp" />
-
-            <RadioButton
-                android:id="@+id/erase_check"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-
-            <TextView
+            <Button
+                android:id="@+id/button_pen_demo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
-                android:text="擦除轨迹"
-                android:textColor="@color/black"
-                android:textSize="25sp" />
-
-            <CheckBox
-                android:id="@+id/display_erase_track_check"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <LinearLayout
-                android:id="@+id/pen_up_container"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:gravity="center_horizontal"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="抬笔刷新"
-                    android:textColor="@color/black"
-                    android:textSize="25sp" />
-
-                <CheckBox
-                    android:id="@+id/pen_up_check"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-
-            </LinearLayout>
-
+                android:text="Pen demo" />
         </LinearLayout>
 
-        <View
-            android:id="@+id/divider"
-            android:layout_width="0.5dp"
-            android:layout_height="match_parent"
-            android:layout_toEndOf="@+id/func_container"
-            android:background="@color/black" />
-
-        <RelativeLayout
-            android:id="@+id/surfaceView_root"
-            android:layout_toEndOf="@+id/divider"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <SurfaceView
-                    android:id="@+id/surfaceView"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-
-            </FrameLayout>
-
-            <include
-                android:layout_marginStart="450dp"
-                android:layout_marginTop="20dp"
-                android:id="@+id/float_menu_container"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                layout="@layout/layout_float_menu_vertical"/>
-
-        </RelativeLayout>
-
     </RelativeLayout>
-
 </layout>

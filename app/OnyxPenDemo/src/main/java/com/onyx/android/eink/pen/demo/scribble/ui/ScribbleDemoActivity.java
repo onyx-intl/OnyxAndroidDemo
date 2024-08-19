@@ -1,4 +1,4 @@
-package com.android.onyx.demo.scribble;
+package com.onyx.android.eink.pen.demo.scribble.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,9 +8,8 @@ import android.view.View;
 
 import androidx.databinding.DataBindingUtil;
 
-import com.onyx.android.demo.R;
-import com.onyx.android.demo.databinding.ActivitySribbleDemoBinding;
-
+import com.onyx.android.eink.pen.demo.R;
+import com.onyx.android.eink.pen.demo.databinding.ActivitySribbleDemoBinding;
 
 /**
  * Created by seeksky on 2018/4/26.

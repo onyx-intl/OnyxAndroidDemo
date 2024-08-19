@@ -1,4 +1,4 @@
-package com.android.onyx.demo.scribble;
+package com.onyx.android.eink.pen.demo.scribble.ui;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -14,21 +14,20 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-
 import android.widget.RadioButton;
 
 import androidx.databinding.DataBindingUtil;
 
-import com.onyx.android.demo.R;
-import com.android.onyx.demo.broadcast.GlobalDeviceReceiver;
-import com.android.onyx.demo.scribble.request.RendererToScreenRequest;
-import com.android.onyx.demo.utils.TouchUtils;
-import com.onyx.android.demo.databinding.ActivityPenStylusTouchHelperDemoBinding;
+import com.onyx.android.eink.pen.demo.R;
+import com.onyx.android.eink.pen.demo.databinding.ActivityPenStylusTouchHelperDemoBinding;
+import com.onyx.android.eink.pen.demo.scribble.broadcast.GlobalDeviceReceiver;
+import com.onyx.android.eink.pen.demo.scribble.request.RendererToScreenRequest;
+import com.onyx.android.eink.pen.demo.scribble.util.TouchUtils;
 import com.onyx.android.sdk.api.device.epd.EpdController;
+import com.onyx.android.sdk.data.note.TouchPoint;
 import com.onyx.android.sdk.pen.NeoFountainPen;
 import com.onyx.android.sdk.pen.RawInputCallback;
 import com.onyx.android.sdk.pen.TouchHelper;
-import com.onyx.android.sdk.data.note.TouchPoint;
 import com.onyx.android.sdk.pen.data.TouchPointList;
 import com.onyx.android.sdk.rx.RxManager;
 import com.onyx.android.sdk.utils.NumberUtils;

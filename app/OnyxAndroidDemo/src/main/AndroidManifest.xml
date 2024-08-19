@@ -21,17 +21,9 @@
         </activity>
 
         <activity android:name="com.android.onyx.demo.EpdDemoActivity"/>
-        <activity android:name="com.android.onyx.demo.scribble.ScribbleMoveEraserDemoActivity"/>
-        <activity android:name="com.android.onyx.demo.scribble.ScribbleMultipleScribbleViewActivity"/>
         <activity android:name="com.android.onyx.demo.EnvironmentDemoActivity"/>
         <activity android:name="com.android.onyx.demo.FrontLightDemoActivity"/>
         <activity android:name="com.android.onyx.demo.FullScreenDemoActivity"/>
-        <activity android:name="com.android.onyx.demo.scribble.ScribbleTouchHelperDemoActivity"
-            android:label="PenStylusTouchHelperDemoActivity"/>
-        <activity android:name="com.android.onyx.demo.scribble.ScribbleWebViewDemoActivity"/>
-        <activity android:name="com.android.onyx.demo.scribble.ScribbleDemoActivity"/>
-        <activity android:name="com.android.onyx.demo.scribble.ScribblePenUpRefreshDemoActivity"/>
-        <activity android:name="com.android.onyx.demo.scribble.ScribbleEpdControllerDemoActivity"/>
         <activity android:name="com.android.onyx.demo.AppOptimizeActivity"/>
         <activity android:name="com.android.onyx.demo.ReaderDemoActivity"/>
         <activity android:name="com.android.onyx.demo.ScreensaverActivity"/>

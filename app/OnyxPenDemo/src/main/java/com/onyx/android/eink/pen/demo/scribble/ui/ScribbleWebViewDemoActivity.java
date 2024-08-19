@@ -1,4 +1,4 @@
-package com.android.onyx.demo.scribble;
+package com.onyx.android.eink.pen.demo.scribble.ui;
 
 import android.content.Context;
 import android.graphics.Rect;
@@ -12,25 +12,23 @@ import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-
 import android.widget.Toast;
 
 import androidx.databinding.DataBindingUtil;
 
-import com.android.onyx.demo.utils.TouchUtils;
-import com.onyx.android.demo.R;
-import com.onyx.android.demo.databinding.ActivityScribbleWebviewStylusDemoBinding;
+import com.onyx.android.eink.pen.demo.R;
+import com.onyx.android.eink.pen.demo.databinding.ActivityScribbleWebviewStylusDemoBinding;
+import com.onyx.android.eink.pen.demo.scribble.util.TouchUtils;
 import com.onyx.android.sdk.api.device.epd.EpdController;
+import com.onyx.android.sdk.data.note.TouchPoint;
 import com.onyx.android.sdk.pen.RawInputCallback;
 import com.onyx.android.sdk.pen.TouchHelper;
-import com.onyx.android.sdk.data.note.TouchPoint;
 import com.onyx.android.sdk.pen.data.TouchPointList;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-
 
 /**
  * Created by seeksky on 2018/4/26.

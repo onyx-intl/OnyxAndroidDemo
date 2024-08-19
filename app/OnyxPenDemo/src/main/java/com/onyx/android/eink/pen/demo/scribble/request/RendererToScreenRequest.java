@@ -1,11 +1,11 @@
-package com.android.onyx.demo.scribble.request;
+package com.onyx.android.eink.pen.demo.scribble.request;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.view.SurfaceView;
 
-import com.android.onyx.demo.utils.RendererUtils;
+import com.onyx.android.eink.pen.demo.util.RendererUtils;
 import com.onyx.android.sdk.api.device.epd.EpdController;
 import com.onyx.android.sdk.api.device.epd.UpdateMode;
 import com.onyx.android.sdk.rx.RxRequest;

@@ -1,4 +1,4 @@
-package com.android.onyx.demo.scribble;
+package com.onyx.android.eink.pen.demo.scribble.ui;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -7,8 +7,8 @@ import android.view.View;
 
 import androidx.databinding.DataBindingUtil;
 
-import com.onyx.android.demo.R;
-import com.onyx.android.demo.databinding.ActivityScribbleEpdControllerDemoBinding;
+import com.onyx.android.eink.pen.demo.R;
+import com.onyx.android.eink.pen.demo.databinding.ActivityScribbleEpdControllerDemoBinding;
 import com.onyx.android.sdk.api.device.epd.EpdController;
 import com.onyx.android.sdk.data.note.TouchPoint;
 import com.onyx.android.sdk.pen.EpdPenManager;

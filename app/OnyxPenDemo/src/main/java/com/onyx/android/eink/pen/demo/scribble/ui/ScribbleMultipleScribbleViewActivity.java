@@ -1,4 +1,4 @@
-package com.android.onyx.demo.scribble;
+package com.onyx.android.eink.pen.demo.scribble.ui;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -11,16 +11,15 @@ import android.view.View;
 
 import androidx.databinding.DataBindingUtil;
 
-import com.onyx.android.demo.R;
-import com.onyx.android.demo.databinding.ActivityScribbleMultipleScrubbleViewDemoBinding;
+import com.onyx.android.eink.pen.demo.R;
+import com.onyx.android.eink.pen.demo.databinding.ActivityScribbleMultipleScrubbleViewDemoBinding;
+import com.onyx.android.sdk.data.note.TouchPoint;
 import com.onyx.android.sdk.pen.RawInputCallback;
 import com.onyx.android.sdk.pen.TouchHelper;
-import com.onyx.android.sdk.data.note.TouchPoint;
 import com.onyx.android.sdk.pen.data.TouchPointList;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class ScribbleMultipleScribbleViewActivity extends AppCompatActivity {
 

@@ -5,7 +5,7 @@
 
         <variable
             name="activityPenUpRefresh"
-            type="com.android.onyx.demo.scribble.ScribblePenUpRefreshDemoActivity" />
+            type="com.onyx.android.eink.pen.demo.scribble.ui.ScribblePenUpRefreshDemoActivity" />
     </data>
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"

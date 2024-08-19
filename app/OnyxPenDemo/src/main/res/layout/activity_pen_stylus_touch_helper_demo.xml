@@ -5,7 +5,7 @@
 
         <variable
             name="activityPenStylusTouchHelper"
-            type="com.android.onyx.demo.scribble.ScribbleTouchHelperDemoActivity" />
+            type="com.onyx.android.eink.pen.demo.scribble.ui.ScribbleTouchHelperDemoActivity" />
     </data>
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"

@@ -7,7 +7,6 @@ import android.view.View;
 
 import androidx.databinding.DataBindingUtil;
 
-import com.android.onyx.demo.scribble.ScribbleDemoActivity;
 import com.onyx.android.demo.R;
 import com.onyx.android.demo.databinding.ActivityMainBinding;
 import com.onyx.android.sdk.api.device.epd.EpdController;
@@ -39,10 +38,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void button_environment(View view) {
         go(EnvironmentDemoActivity.class);
-    }
-
-    public void button_scribble_demo(View view) {
-        go(ScribbleDemoActivity.class);
     }
 
     public void btn_dict_query(View view) {
