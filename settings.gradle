@@ -1,2 +1,2 @@
-include ':app'
-include ':moreApps:daydreamdemo'
+include ':app:OnyxAndroidDemo'
+include ':app:moreApps:daydreamdemo'

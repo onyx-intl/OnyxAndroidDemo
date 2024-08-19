@@ -137,13 +137,15 @@ public class ScribbleMoveEraserDemoActivity extends AppCompatActivity {
 
                 @Override
                 public void onBeginRawErasing(boolean b, TouchPoint touchPoint) {
-                    touchHelper.setRawDrawingRenderEnabled(false);
+                    Log.e(TAG, "onBeginRawErasing");
+                    // touchHelper.setRawDrawingRenderEnabled(false);
                     drawBitmap();
                 }
 
                 @Override
                 public void onEndRawErasing(boolean b, TouchPoint touchPoint) {
-                    touchHelper.setRawDrawingRenderEnabled(true);
+                    Log.e(TAG, "onEndRawErasing");
+                    // touchHelper.setRawDrawingRenderEnabled(true);
                 }
 
                 @Override
@@ -164,6 +166,7 @@ public class ScribbleMoveEraserDemoActivity extends AppCompatActivity {
 
                 @Override
                 public void onRawErasingTouchPointListReceived(TouchPointList touchPointList) {
+                    Log.e(TAG, "onRawErasingTouchPointListReceived");
                     Path path = createPath(touchPointList);
                     eraseBitmap(path);
                 }
