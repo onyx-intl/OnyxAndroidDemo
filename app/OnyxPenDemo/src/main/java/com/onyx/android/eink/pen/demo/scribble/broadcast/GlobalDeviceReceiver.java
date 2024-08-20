@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 
 import com.onyx.android.sdk.utils.BroadcastHelper;
-import com.onyx.android.sdk.utils.Debug;
 import com.onyx.android.sdk.utils.DeviceReceiver;
 import com.onyx.android.sdk.utils.StringUtils;
 
@@ -53,9 +52,6 @@ public class GlobalDeviceReceiver extends BroadcastReceiver {
 
     private IntentFilter intentFilter() {
         IntentFilter filter = new IntentFilter();
-        filter.addAction(DeviceReceiver.STATUS_BAR_SHOW_ACTION);
-        filter.addAction(DeviceReceiver.STATUS_BAR_HIDE_ACTION);
-        filter.addAction(SYSTEM_UI_DIALOG_OPEN_ACTION);
         filter.addAction(SYSTEM_UI_DIALOG_OPEN_ACTION);
         filter.addAction(SYSTEM_UI_DIALOG_CLOSE_ACTION);
         filter.addAction(SYSTEM_SCREEN_ON_ACTION);
@@ -87,7 +83,6 @@ public class GlobalDeviceReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
-        Debug.e(getClass(), "zzzzwb onReceive action = " + action);
         if (action == null) {
             return;
         }
