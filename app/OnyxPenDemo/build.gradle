@@ -5,7 +5,7 @@ android {
     buildToolsVersion "29.0.3"
 
     defaultConfig {
-        applicationId "com.onyx.android.eink.pen.demo"
+        applicationId "com.android.onyx.eink.pen.demo"
         minSdkVersion 26
         targetSdkVersion 30
         versionCode 1
