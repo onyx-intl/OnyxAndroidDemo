@@ -16,10 +16,10 @@
 
             <Button
                 android:id="@+id/brush_button"
-                android:layout_width="90dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/brush"
-                android:textSize="25sp" />
+                android:textSize="20sp" />
 
             <RadioButton
                 android:id="@+id/brush_check"
@@ -35,7 +35,7 @@
                 android:gravity="center"
                 android:text="@string/eraser"
                 android:textColor="@color/black"
-                android:textSize="25sp" />
+                android:textSize="20sp" />
 
             <RadioButton
                 android:id="@+id/erase_check"
@@ -48,7 +48,7 @@
                 android:layout_marginTop="30dp"
                 android:text="@string/erase_track"
                 android:textColor="@color/black"
-                android:textSize="25sp" />
+                android:textSize="20sp" />
 
             <CheckBox
                 android:id="@+id/display_erase_track_check"
@@ -68,7 +68,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/pen_up_refresh"
                     android:textColor="@color/black"
-                    android:textSize="25sp" />
+                    android:textSize="20sp" />
 
                 <CheckBox
                     android:id="@+id/pen_up_check"
@@ -104,7 +104,7 @@
             </FrameLayout>
 
             <include
-                android:layout_marginStart="450dp"
+                android:layout_marginStart="100dp"
                 android:layout_marginTop="20dp"
                 android:id="@+id/float_menu_container"
                 android:layout_height="wrap_content"
