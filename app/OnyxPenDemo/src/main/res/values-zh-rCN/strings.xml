@@ -1,0 +1,28 @@
+<resources>
+    <string name="brush">笔刷</string>
+    <string name="eraser">擦除</string>
+    <string name="erase_track">擦除轨迹</string>
+    <string name="pen_up_refresh">抬笔刷新</string>
+    <string name="color">颜色</string>
+    <string name="texture">纹理</string>
+    <string name="line_width">线宽</string>
+
+    <string name="fountain_pen">钢笔</string>
+    <string name="brush_pen">毛笔</string>
+    <string name="ballpoint_pen">圆珠笔</string>
+    <string name="marker_pen">马克笔</string>
+    <string name="pencil">铅笔</string>
+
+    <string name="black">黑色</string>
+    <string name="dark_gray_color">灰色</string>
+    <string name="green">绿色</string>
+    <string name="red">红色</string>
+    <string name="blue">蓝色</string>
+
+    <string name="texture_1">纹理1</string>
+    <string name="texture_2">纹理2</string>
+
+    <string name="move_eraser">移动擦除</string>
+    <string name="area_eraser">区域擦除</string>
+    <string name="stroke_eraser">笔画擦除</string>
+</resources>
