@@ -1,23 +1,31 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="app_name">OnyxPenDemo</string>
-    <string name="fountain_pen">钢笔</string>
-    <string name="brush_pen">毛笔</string>
-    <string name="ballpoint_pen">圆珠笔</string>
-    <string name="marker_pen">马克笔</string>
-    <string name="pencil">铅笔</string>
+    <string name="brush">Brush</string>
+    <string name="eraser">Eraser</string>
+    <string name="erase_track">Erasing Track</string>
+    <string name="pen_up_refresh">Pen Up Refresh</string>
+    <string name="color">Color</string>
+    <string name="texture">Texture</string>
+    <string name="line_width">Line width</string>
 
-    <string name="black">黑色</string>
-    <string name="dark_gray_color">灰色</string>
-    <string name="green">绿色</string>
-    <string name="red">红色</string>
-    <string name="blue">蓝色</string>
+    <string name="fountain_pen">Pen</string>
+    <string name="brush_pen">Brush Pen</string>
+    <string name="ballpoint_pen">Ballpoint Pen</string>
+    <string name="marker_pen">Marker</string>
+    <string name="pencil">Pencil</string>
 
-    <string name="texture_1">纹理1</string>
-    <string name="texture_2">纹理2</string>
+    <string name="black">Black</string>
+    <string name="dark_gray_color">Gray</string>
+    <string name="green">Green</string>
+    <string name="red">Red</string>
+    <string name="blue">Blue</string>
 
-    <string name="move_eraser">移动擦除</string>
-    <string name="area_eraser">区域擦除</string>
-    <string name="stroke_eraser">笔画擦除</string>
+    <string name="texture_1">Texture One</string>
+    <string name="texture_2">Texture Two</string>
+
+    <string name="move_eraser">Move Eraser</string>
+    <string name="area_eraser">Lasso Eraser</string>
+    <string name="stroke_eraser">Stroke Eraser</string>
 
     <string name="ok">ok</string>
     <string name="test_title">This is a test tile</string>
