@@ -16,9 +16,9 @@ buildscript {
 
 allprojects {
     repositories {
-        maven { url 'http://repo.boox.com/repository/proxy-public/' }
+        maven { url 'https://repo.boox.com/repository/proxy-public/' }
         maven {
-            url "http://repo.boox.com/repository/maven-public/"
+            url "https://repo.boox.com/repository/maven-public/"
         }
 
         google()
