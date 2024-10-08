@@ -1,4 +1,4 @@
-##### 📖 English Documentation | 📖 [中文文档](README_zh.md)
+##### [📖 English Documentation](README.md) | 📖 中文文档
 
 # Overview
 Sample project of SDKs from Onyx-Intl, including [onyxsdk-base](doc/Onyx-Base-SDK.md), [onyxsdk-scribble](doc/Onyx-Scribble-SDK.md), [onyxsdk-pen](doc/Onyx-Pen-SDK.md)
@@ -61,9 +61,9 @@ The SDK also provides additional functionality such as a move eraser, inking on 
 
 * [AppOpenGuide](doc/AppOpenGuide.md): opening an app using the Android Debug Bridge (adb)
 
-## 8. Eink Develop Guide
+## 8. 墨水屏开发指南
 
-* [EinkDevelopGuide](doc/Eink-Develop-Guide.md): Eink Develop Guide documentation
+* [墨水屏开发指南](doc/Eink-Develop-Guide_zh.md): 墨水屏开发指南文档
 
 ## PRs Welcome
 
