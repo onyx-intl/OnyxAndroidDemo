@@ -17,6 +17,9 @@ import com.onyx.android.demo.databinding.ActivityOpenSettingBinding;
 public class OpenSettingActivity extends AppCompatActivity {
     private ActivityOpenSettingBinding binding;
 
+    private static final String PACKAGE_NAME = "com.onyx";
+    private static final String ACTIVITY_KCB_SETTING = "com.onyx.common.setting.ui.SettingContainerActivity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,11 +28,11 @@ public class OpenSettingActivity extends AppCompatActivity {
     }
 
     public void openNetwork(View view) {
-        openActivity("com.onyx", "com.onyx.setting.ui.SettingContainerActivity", "onyx.settings.action.network");
+        openActivity(PACKAGE_NAME, ACTIVITY_KCB_SETTING, "onyx.settings.action.network");
     }
 
     public void openDateTime(View view) {
-        openActivity("com.onyx", "com.onyx.setting.ui.SettingContainerActivity", "onyx.settings.action.datetime");
+        openActivity(PACKAGE_NAME, ACTIVITY_KCB_SETTING, "onyx.settings.action.datetime");
     }
 
     private void openActivity(String pkgName, String className, String action) {
