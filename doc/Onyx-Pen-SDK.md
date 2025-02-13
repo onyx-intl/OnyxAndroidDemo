@@ -11,7 +11,7 @@ Compared to Scribble SDK, Pen SDK is a lighter weight library.
 Add the following dependencies to your app's `build.gradle` file
 
 ```gradle
-    compile('com.onyx.android.sdk:onyxsdk-pen:1.4.10.1')
+    compile('com.onyx.android.sdk:onyxsdk-pen:1.4.11')
 ```
 ## 2.Init TouchHelper
 
