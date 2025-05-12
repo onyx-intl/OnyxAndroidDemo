@@ -59,7 +59,8 @@ public class OTADemoActivity extends AppCompatActivity {
     public void onOTAUpdate(View view) {
         EditText editText = binding.edittextOtaPackagePath;
         String path = editText.getText().toString();
-        OTAManager.startFirmwareUpdate(this, path);
+        //TODO
+        //OTAManager.startFirmwareUpdate(this, path);
     }
 
     private FirmwareBean getCurrentFirmwareInfo() {
