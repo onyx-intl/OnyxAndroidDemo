@@ -3,7 +3,7 @@ package com.android.onyx.demo.data;
 
 import android.graphics.Bitmap;
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 
 import java.util.List;
 
