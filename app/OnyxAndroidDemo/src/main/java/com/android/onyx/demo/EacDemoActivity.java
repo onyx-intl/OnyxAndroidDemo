@@ -3,7 +3,7 @@ package com.android.onyx.demo;
 import android.app.AlertDialog;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 
 import androidx.databinding.DataBindingUtil;
@@ -60,13 +60,11 @@ public class EacDemoActivity extends AppCompatActivity {
     }
 
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.system_rotation:
-                systemRotation();
-                break;
-            case R.id.app_rotation:
-                appRotation();
-                break;
+        int id = v.getId();
+        if (id == R.id.system_rotation) {
+            systemRotation();
+        } else if (id == R.id.app_rotation) {
+            appRotation();
         }
     }
 

@@ -8,7 +8,7 @@ import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -216,19 +216,17 @@ public class ScribbleFingerTouchDemoActivity extends AppCompatActivity {
 
         boolean checked = ((RadioButton) radioButton).isChecked();
         Log.d(TAG, radioButton.toString());
-        switch (radioButton.getId()) {
-            case R.id.rb_marker:
-                if (checked) {
-                    touchHelper.setStrokeStyle(TouchHelper.STROKE_STYLE_MARKER);
-                    Log.d(TAG, "STROKE_STYLE_MARKER");
-                }
-                break;
-            case R.id.rb_pencil:
-                if (checked) {
-                    touchHelper.setStrokeStyle(TouchHelper.STROKE_STYLE_PENCIL);
-                    Log.d(TAG, "STROKE_STYLE_PENCIL");
-                }
-                break;
+        int id = radioButton.getId();
+        if (id == R.id.rb_marker) {
+            if (checked) {
+                touchHelper.setStrokeStyle(TouchHelper.STROKE_STYLE_MARKER);
+                Log.d(TAG, "STROKE_STYLE_MARKER");
+            }
+        } else if (id == R.id.rb_pencil) {
+            if (checked) {
+                touchHelper.setStrokeStyle(TouchHelper.STROKE_STYLE_PENCIL);
+                Log.d(TAG, "STROKE_STYLE_PENCIL");
+            }
         }
         // refresh ui
         onEraserClick();

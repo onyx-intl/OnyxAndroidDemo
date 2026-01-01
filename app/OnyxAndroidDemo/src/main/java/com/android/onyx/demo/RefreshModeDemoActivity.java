@@ -1,8 +1,8 @@
 package com.android.onyx.demo;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import android.widget.RadioGroup;
 
 import androidx.databinding.DataBindingUtil;
@@ -35,22 +35,16 @@ public class RefreshModeDemoActivity extends AppCompatActivity implements RadioG
 
     @Override
     public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
-        switch (checkedId) {
-            case R.id.rb_normal:
-                Device.currentDevice().setAppScopeRefreshMode(UpdateOption.NORMAL);
-                break;
-            case R.id.rb_fast_quality:
-                Device.currentDevice().setAppScopeRefreshMode(UpdateOption.FAST_QUALITY);
-                break;
-            case R.id.rb_regal:
-                Device.currentDevice().setAppScopeRefreshMode(UpdateOption.REGAL);
-                break;
-            case R.id.rb_fast:
-                Device.currentDevice().setAppScopeRefreshMode(UpdateOption.FAST);
-                break;
-            case R.id.rb_fast_x:
-                Device.currentDevice().setAppScopeRefreshMode(UpdateOption.FAST_X);
-                break;
+        if (checkedId == R.id.rb_normal) {
+            Device.currentDevice().setAppScopeRefreshMode(UpdateOption.NORMAL);
+        } else if (checkedId == R.id.rb_fast_quality) {
+            Device.currentDevice().setAppScopeRefreshMode(UpdateOption.FAST_QUALITY);
+        } else if (checkedId == R.id.rb_regal) {
+            Device.currentDevice().setAppScopeRefreshMode(UpdateOption.REGAL);
+        } else if (checkedId == R.id.rb_fast) {
+            Device.currentDevice().setAppScopeRefreshMode(UpdateOption.FAST);
+        } else if (checkedId == R.id.rb_fast_x) {
+            Device.currentDevice().setAppScopeRefreshMode(UpdateOption.FAST_X);
         }
     }
 

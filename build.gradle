@@ -4,10 +4,9 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.2'
+        classpath 'com.android.tools.build:gradle:8.13.2'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -16,17 +15,32 @@ buildscript {
 
 allprojects {
     repositories {
-        maven { url 'http://repo.boox.com/repository/proxy-public/' }
+        maven {
+            url 'http://repo.boox.com/repository/proxy-public/'
+            allowInsecureProtocol = true
+        }
         maven {
             url "http://repo.boox.com/repository/maven-public/"
+            allowInsecureProtocol = true
         }
 
         google()
         mavenCentral()
         maven { url "https://jitpack.io" }
     }
+
+    configurations.all {
+        resolutionStrategy {
+            // Force consistent Kotlin stdlib version and exclude old jdk7/jdk8 modules
+            force 'org.jetbrains.kotlin:kotlin-stdlib:1.8.22'
+            force 'org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22'
+        }
+        // Exclude the old jdk7/jdk8 modules that are now merged into kotlin-stdlib
+        exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk7'
+        exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
+    }
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+tasks.register('clean', Delete) {
+    delete rootProject.layout.buildDirectory
 }

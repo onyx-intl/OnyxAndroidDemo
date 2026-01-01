@@ -2,8 +2,8 @@ package com.android.onyx.demo;
 
 import android.content.Context;
 import android.os.Build;
-import android.support.multidex.MultiDex;
-import android.support.multidex.MultiDexApplication;
+import androidx.multidex.MultiDex;
+import androidx.multidex.MultiDexApplication;
 
 import com.onyx.android.sdk.rx.RxManager;
 

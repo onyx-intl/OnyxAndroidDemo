@@ -3,8 +3,8 @@ package com.android.onyx.demo;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 
 import android.widget.Toast;
@@ -94,19 +94,15 @@ public class OpenKcbActivity extends AppCompatActivity {
 
     private TabIntentData setNoteJumpPath(TabIntentData data) {
         String jumpPath = "";
-        switch (binding.rgNote.getCheckedRadioButtonId()) {
-            case R.id.rb_search:
-                jumpPath = NoteRouter.SEARCH.toString();
-                break;
-            case R.id.rb_backup:
-                jumpPath = NoteRouter.BACKUP.toString();
-                break;
-            case R.id.rb_common_setting:
-                jumpPath = NoteRouter.COMMON_SETTING.toString();
-                break;
-            case R.id.rb_ai_setting:
-                jumpPath = NoteRouter.AI_SETTING.toString();
-                break;
+        int checkedId = binding.rgNote.getCheckedRadioButtonId();
+        if (checkedId == R.id.rb_search) {
+            jumpPath = NoteRouter.SEARCH.toString();
+        } else if (checkedId == R.id.rb_backup) {
+            jumpPath = NoteRouter.BACKUP.toString();
+        } else if (checkedId == R.id.rb_common_setting) {
+            jumpPath = NoteRouter.COMMON_SETTING.toString();
+        } else if (checkedId == R.id.rb_ai_setting) {
+            jumpPath = NoteRouter.AI_SETTING.toString();
         }
         return data.setJumpPath(jumpPath);
     }

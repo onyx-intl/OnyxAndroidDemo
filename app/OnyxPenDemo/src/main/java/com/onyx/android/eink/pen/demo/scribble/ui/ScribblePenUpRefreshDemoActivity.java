@@ -12,8 +12,8 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -105,19 +105,17 @@ public class ScribblePenUpRefreshDemoActivity extends AppCompatActivity {
     public void onRadioButtonClicked(View radioButton) {
         boolean checked = ((RadioButton) radioButton).isChecked();
         Log.d(TAG, radioButton.toString());
-        switch (radioButton.getId()) {
-            case R.id.rb_brush:
-                if (checked) {
-                    touchHelper.setStrokeStyle(TouchHelper.STROKE_STYLE_FOUNTAIN);
-                    Log.d(TAG, "STROKE_STYLE_FOUNTAIN");
-                }
-                break;
-            case R.id.rb_pencil:
-                if (checked) {
-                    touchHelper.setStrokeStyle(TouchHelper.STROKE_STYLE_PENCIL);
-                    Log.d(TAG, "STROKE_STYLE_PENCIL");
-                }
-                break;
+        int id = radioButton.getId();
+        if (id == R.id.rb_brush) {
+            if (checked) {
+                touchHelper.setStrokeStyle(TouchHelper.STROKE_STYLE_FOUNTAIN);
+                Log.d(TAG, "STROKE_STYLE_FOUNTAIN");
+            }
+        } else if (id == R.id.rb_pencil) {
+            if (checked) {
+                touchHelper.setStrokeStyle(TouchHelper.STROKE_STYLE_PENCIL);
+                Log.d(TAG, "STROKE_STYLE_PENCIL");
+            }
         }
         // refresh ui
         onClearClick();
@@ -195,22 +193,20 @@ public class ScribblePenUpRefreshDemoActivity extends AppCompatActivity {
             canvas = new Canvas(bitmap);
         }
 
-        switch (binding.rgStrokeStyle.getCheckedRadioButtonId()) {
-            case R.id.rb_brush:
-                float maxPressure = EpdController.getMaxTouchPressure();
-                NeoFountainPen.drawStroke(canvas, paint, list, NumberUtils.FLOAT_ONE, STROKE_WIDTH, maxPressure, false);
-                break;
-            default:
-                Path path = new Path();
-                PointF prePoint = new PointF(list.get(0).x, list.get(0).y);
-                path.moveTo(prePoint.x, prePoint.y);
-                for (TouchPoint point : list) {
-                    path.quadTo(prePoint.x, prePoint.y, point.x, point.y);
-                    prePoint.x = point.x;
-                    prePoint.y = point.y;
-                }
-                canvas.drawPath(path, paint);
-                break;
+        int checkedId = binding.rgStrokeStyle.getCheckedRadioButtonId();
+        if (checkedId == R.id.rb_brush) {
+            float maxPressure = EpdController.getMaxTouchPressure();
+            NeoFountainPen.drawStroke(canvas, paint, list, NumberUtils.FLOAT_ONE, STROKE_WIDTH, maxPressure, false);
+        } else {
+            Path path = new Path();
+            PointF prePoint = new PointF(list.get(0).x, list.get(0).y);
+            path.moveTo(prePoint.x, prePoint.y);
+            for (TouchPoint point : list) {
+                path.quadTo(prePoint.x, prePoint.y, point.x, point.y);
+                prePoint.x = point.x;
+                prePoint.y = point.y;
+            }
+            canvas.drawPath(path, paint);
         }
     }
 
