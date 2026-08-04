@@ -1,6 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="app_name">OnyxPenDemo</string>
     <string name="brush">Brush</string>
+    <string name="clear_note">Clear</string>
     <string name="eraser">Eraser</string>
     <string name="eraser_width">Eraser width</string>
     <string name="erase_track">Erasing Track</string>

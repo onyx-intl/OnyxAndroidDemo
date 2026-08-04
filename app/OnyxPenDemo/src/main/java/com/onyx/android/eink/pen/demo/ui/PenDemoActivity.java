@@ -20,6 +20,7 @@ import java.util.function.Consumer;
 import com.onyx.android.eink.pen.demo.PenBundle;
 import com.onyx.android.eink.pen.demo.PenManager;
 import com.onyx.android.eink.pen.demo.R;
+import com.onyx.android.eink.pen.demo.action.ClearNoteAction;
 import com.onyx.android.eink.pen.demo.action.CommonPenAction;
 import com.onyx.android.eink.pen.demo.action.RefreshScreenAction;
 import com.onyx.android.eink.pen.demo.databinding.ActivityPenDemoBinding;
@@ -85,6 +86,7 @@ public class PenDemoActivity extends Activity implements EraseLifecycleCallbacks
 
     private final View.OnClickListener brushButtonClickListener = this::onBrushButtonClickImpl;
     private final View.OnClickListener eraseButtonClickListener = this::onEraseButtonClickImpl;
+    private final View.OnClickListener clearButtonClickListener = this::onClearButtonClickImpl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -205,6 +207,7 @@ public class PenDemoActivity extends Activity implements EraseLifecycleCallbacks
         });
         binding.brushButton.setOnClickListener(brushButtonClickListener);
         binding.eraseButton.setOnClickListener(eraseButtonClickListener);
+        binding.clearButton.setOnClickListener(clearButtonClickListener);
         binding.brushCheck.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (binding.floatMenuContainer.floatBrushCheck.isChecked() != isChecked) {
                 binding.floatMenuContainer.floatBrushCheck.setChecked(isChecked);
@@ -232,6 +235,7 @@ public class PenDemoActivity extends Activity implements EraseLifecycleCallbacks
     private void initFloatMenuListener() {
         binding.floatMenuContainer.floatBrushButton.setOnClickListener(brushButtonClickListener);
         binding.floatMenuContainer.floatEraseButton.setOnClickListener(eraseButtonClickListener);
+        binding.floatMenuContainer.floatClearButton.setOnClickListener(clearButtonClickListener);
         binding.floatMenuContainer.floatBrushCheck.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (binding.brushCheck.isChecked() != isChecked) {
                 binding.brushCheck.setChecked(isChecked);
@@ -295,6 +299,10 @@ public class PenDemoActivity extends Activity implements EraseLifecycleCallbacks
                 .setPenBundle(getPenBundle())
                 .setOnChanged(this::onEraseSettingChanged);
         showEraseSettingPop(view, eraseSettingPop);
+    }
+
+    private void onClearButtonClickImpl(View view) {
+        new ClearNoteAction().execute();
     }
 
     private void onEraseSettingChanged() {

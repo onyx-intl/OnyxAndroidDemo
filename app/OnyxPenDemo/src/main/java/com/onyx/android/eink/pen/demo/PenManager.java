@@ -63,6 +63,7 @@ public class PenManager {
     }
 
     public void destroy() {
+        drawShape.clear();
         getRenderContext().eraseArgs = null;
         getRenderContext().recycleBitmap();
         if (touchHelper != null) {
@@ -73,6 +74,16 @@ public class PenManager {
         hostSurfaceAttached = false;
         rawSessionNeedsRestart = false;
         currentMode = InteractiveMode.SCRIBBLE;
+    }
+
+    @WorkerThread
+    public void clearDrawShapes() {
+        drawShape.clear();
+        getRenderContext().eraseArgs = null;
+        if (getRenderContext().bitmap != null) {
+            activeRenderMode(InteractiveMode.SCRIBBLE);
+            getRenderContext().bitmap.eraseColor(Color.WHITE);
+        }
     }
 
     @WorkerThread
