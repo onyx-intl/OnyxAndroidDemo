@@ -1,3 +1,15 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
+}
+
 include ':app:OnyxAndroidDemo'
 include ':app:OnyxPenDemo'
 include ':app:moreApps:daydreamdemo'
