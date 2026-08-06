@@ -1,48 +1,45 @@
-package com.android.onyx.demo;
+package com.android.onyx.demo
 
-import android.content.ComponentName;
-import android.content.Intent;
-import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
-import android.view.View;
+import android.content.ComponentName
+import android.content.Intent
+import android.os.Bundle
+import android.view.View
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import com.android.onyx.demo.databinding.ActivityOpenSettingBinding
 
-import android.widget.Toast;
+class OpenSettingActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityOpenSettingBinding
 
-import androidx.databinding.DataBindingUtil;
-
-import com.android.onyx.demo.databinding.ActivityOpenSettingBinding;
-
-
-public class OpenSettingActivity extends AppCompatActivity {
-    private ActivityOpenSettingBinding binding;
-
-    private static final String PACKAGE_NAME = "com.onyx";
-    private static final String ACTIVITY_KCB_SETTING = "com.onyx.common.setting.ui.SettingContainerActivity";
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_open_setting);
-        binding.setActivityOpenSetting(this);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_open_setting)
+        binding.activityOpenSetting = this
     }
 
-    public void openNetwork(View view) {
-        openActivity(PACKAGE_NAME, ACTIVITY_KCB_SETTING, "onyx.settings.action.network");
+    fun openNetwork(view: View?) {
+        openActivity(PACKAGE_NAME, ACTIVITY_KCB_SETTING, "onyx.settings.action.network")
     }
 
-    public void openDateTime(View view) {
-        openActivity(PACKAGE_NAME, ACTIVITY_KCB_SETTING, "onyx.settings.action.datetime");
+    fun openDateTime(view: View?) {
+        openActivity(PACKAGE_NAME, ACTIVITY_KCB_SETTING, "onyx.settings.action.datetime")
     }
 
-    private void openActivity(String pkgName, String className, String action) {
+    private fun openActivity(pkgName: String, className: String, action: String) {
         try {
-            Intent intent = new Intent(action);
-            ComponentName componentName = new ComponentName(pkgName, className);
-            intent.setComponent(componentName);
-            startActivity(intent);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(getApplicationContext(), "open settings failed!", Toast.LENGTH_SHORT).show();
+            val intent = Intent(action)
+            intent.component = ComponentName(pkgName, className)
+            startActivity(intent)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(applicationContext, "open settings failed!", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    companion object {
+        private const val PACKAGE_NAME = "com.onyx"
+        private const val ACTIVITY_KCB_SETTING =
+            "com.onyx.common.setting.ui.SettingContainerActivity"
     }
 }

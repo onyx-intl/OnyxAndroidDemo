@@ -1,118 +1,117 @@
-package com.android.onyx.demo;
+package com.android.onyx.demo
 
-import android.app.Activity;
-import android.app.ActivityManager;
-import android.content.ComponentName;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.core.content.FileProvider;
-import android.view.View;
-import android.widget.Toast;
-
-import androidx.databinding.DataBindingUtil;
-
-import com.android.onyx.demo.databinding.ActivityReaderDemoBinding;
-import com.onyx.android.sdk.utils.FileUtils;
-import com.onyx.android.sdk.utils.StringUtils;
-
-import java.io.File;
-
+import android.app.Activity
+import android.app.ActivityManager
+import android.content.ComponentName
+import android.content.Intent
+import android.database.Cursor
+import android.net.Uri
+import android.os.Bundle
+import android.view.View
+import android.widget.Toast
+import androidx.core.content.FileProvider
+import androidx.databinding.DataBindingUtil
+import com.android.onyx.demo.databinding.ActivityReaderDemoBinding
+import com.onyx.android.sdk.utils.FileUtils
+import com.onyx.android.sdk.utils.StringUtils
+import java.io.File
 
 /**
  * Created by Administrator on 2018/4/25 17:23.
  */
-public class ReaderDemoActivity extends Activity {
+class ReaderDemoActivity : Activity() {
+    private lateinit var binding: ActivityReaderDemoBinding
 
-    private static final String READER_PROVIDER = "content://com.onyx.content.database.ContentProvider/Metadata";
-
-    private ActivityReaderDemoBinding binding;
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_reader_demo);
-        binding.setActivityReader(this);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_reader_demo)
+        binding.activityReader = this
     }
 
-    public void btn_open(View view) {
-        if (!FilePathValidation()) {
-            return;
+    fun btn_open(view: View?) {
+        if (!filePathValidation()) {
+            return
         }
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        ComponentName componentName = new ComponentName("com.onyx.kreader", "com.onyx.kreader.ui.ReaderHomeActivity");
-        intent.setComponent(componentName);
-        intent.setData(FileProvider.getUriForFile(this,
-                getPackageName() + ".onyx.fileprovider",
-                new File(binding.etFile.getText().toString())));
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-        startActivity(intent);
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.component =
+            ComponentName("com.onyx.kreader", "com.onyx.kreader.ui.ReaderHomeActivity")
+        intent.data = FileProvider.getUriForFile(
+            this,
+            "$packageName.onyx.fileprovider",
+            File(binding.etFile.text.toString())
+        )
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        startActivity(intent)
     }
 
-    public void btn_query_progress(View view) {
-        if (!FilePathValidation()) {
-            return;
+    fun btn_query_progress(view: View?) {
+        if (!filePathValidation()) {
+            return
         }
-        String progress = queryByPath(binding.etFile.getText().toString());
+        val progress = queryByPath(binding.etFile.text.toString())
         if (!StringUtils.isNullOrEmpty(progress)) {
-            binding.textViewProgress.setText(getString(R.string.reading_progress, progress));
+            binding.textViewProgress.text = getString(R.string.reading_progress, progress)
         } else {
-            Toast.makeText(getApplicationContext(), R.string.query_fail, Toast.LENGTH_SHORT).show();
+            Toast.makeText(applicationContext, R.string.query_fail, Toast.LENGTH_SHORT).show()
         }
     }
 
-    public void btn_delete_reader_data(View view) {
-        if (!FilePathValidation()) {
-            return;
+    fun btn_delete_reader_data(view: View?) {
+        if (!filePathValidation()) {
+            return
         }
         try {
-            //Handwritten notes have a cache, you need to restart Reader
-            ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-            activityManager.killBackgroundProcesses("com.onyx.kreader");
-            Toast.makeText(this, R.string.delete_reader_data_success, Toast.LENGTH_SHORT).show();
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(this, R.string.delete_reader_data_fail, Toast.LENGTH_SHORT).show();
+            // Handwritten notes have a cache, you need to restart Reader
+            val activityManager = getSystemService(ACTIVITY_SERVICE) as ActivityManager
+            activityManager.killBackgroundProcesses("com.onyx.kreader")
+            Toast.makeText(this, R.string.delete_reader_data_success, Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(this, R.string.delete_reader_data_fail, Toast.LENGTH_SHORT).show()
         }
     }
 
-    public String queryByPath(String path) {
-        Cursor cursor = null;
-        String progress = "";
+    fun queryByPath(path: String): String? {
+        var cursor: Cursor? = null
+        var progress: String? = ""
         try {
-            ContentResolver resolver = getContentResolver();
-            Uri uri = Uri.parse(READER_PROVIDER);
-            String md5 = FileUtils.computeMD5(new File(path));
-            cursor = resolver.query(uri, new String[]{"progress"}, "hashTag = ? or nativeAbsolutePath = ?", new String[]{md5, path}, null);
+            val resolver = contentResolver
+            val uri = Uri.parse(READER_PROVIDER)
+            val md5 = FileUtils.computeMD5(File(path))
+            cursor = resolver.query(
+                uri,
+                arrayOf("progress"),
+                "hashTag = ? or nativeAbsolutePath = ?",
+                arrayOf(md5, path),
+                null
+            )
             if (cursor != null && cursor.moveToFirst()) {
-                progress = cursor.getString(0);
+                progress = cursor.getString(0)
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (e: Exception) {
+            e.printStackTrace()
         } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
+            cursor?.close()
         }
-        return progress;
+        return progress
     }
 
-    private boolean FilePathValidation() {
-        String filePath = binding.etFile.getText().toString();
-        if ("".equals(filePath)) {
-            Toast.makeText(this, R.string.enter_book_path, Toast.LENGTH_SHORT).show();
-            return false;
+    private fun filePathValidation(): Boolean {
+        val filePath = binding.etFile.text.toString()
+        if (filePath.isEmpty()) {
+            Toast.makeText(this, R.string.enter_book_path, Toast.LENGTH_SHORT).show()
+            return false
         }
-        File f = new File(filePath);
-        if (!f.exists()) {
-            Toast.makeText(this, R.string.invalid_path, Toast.LENGTH_SHORT).show();
-            return false;
+        if (!File(filePath).exists()) {
+            Toast.makeText(this, R.string.invalid_path, Toast.LENGTH_SHORT).show()
+            return false
         }
-        return true;
+        return true
+    }
+
+    companion object {
+        private const val READER_PROVIDER =
+            "content://com.onyx.content.database.ContentProvider/Metadata"
     }
 }

@@ -1,33 +1,22 @@
-package com.onyx.android.eink.pen.demo.ui.popup;
+package com.onyx.android.eink.pen.demo.ui.popup
 
-import android.content.Context;
-import android.view.View;
-import android.widget.PopupWindow;
+import android.content.Context
+import android.view.View
+import android.widget.PopupWindow
+import com.onyx.android.eink.pen.demo.action.PopupChangeAction
 
-import com.onyx.android.eink.pen.demo.action.PopupChangeAction;
-
-public class BasePopup extends PopupWindow {
-    protected Context context;
-
-    public BasePopup(Context context) {
-        super(context);
-        this.context = context;
+open class BasePopup(protected var context: Context?) : PopupWindow(context) {
+    override fun showAsDropDown(anchor: View?, xoff: Int, yoff: Int, gravity: Int) {
+        onPopupWindowChange(true)
+        super.showAsDropDown(anchor, xoff, yoff, gravity)
     }
 
-    @Override
-    public void showAsDropDown(View anchor, int xoff, int yoff, int gravity) {
-        onPopupWindowChange(true);
-        super.showAsDropDown(anchor, xoff, yoff, gravity);
+    override fun dismiss() {
+        super.dismiss()
+        onPopupWindowChange(false)
     }
 
-    @Override
-    public void dismiss() {
-        super.dismiss();
-        onPopupWindowChange(false);
+    private fun onPopupWindowChange(show: Boolean) {
+        PopupChangeAction(show).execute()
     }
-
-    private void onPopupWindowChange(boolean show) {
-        new PopupChangeAction(show).execute();
-    }
-
 }

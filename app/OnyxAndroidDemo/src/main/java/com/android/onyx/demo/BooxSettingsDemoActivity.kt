@@ -1,42 +1,40 @@
-package com.android.onyx.demo;
+package com.android.onyx.demo
 
-import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
-import android.widget.CompoundButton;
+import android.os.Bundle
+import android.widget.CompoundButton
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ObservableBoolean
+import com.android.onyx.demo.databinding.ActivityBooxSettingBinding
+import com.onyx.android.sdk.api.device.GlobalContrastController
+import com.onyx.android.sdk.utils.SystemPropertiesUtil
 
-import androidx.databinding.DataBindingUtil;
-import androidx.databinding.ObservableBoolean;
+class BooxSettingsDemoActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityBooxSettingBinding
+    @JvmField
+    var isHighContrastEnabled: ObservableBoolean = ObservableBoolean()
+    @JvmField
+    var supportHighContrast: ObservableBoolean = ObservableBoolean()
 
-import com.android.onyx.demo.databinding.ActivityBooxSettingBinding;
-import com.onyx.android.sdk.api.device.GlobalContrastController;
-import com.onyx.android.sdk.utils.SystemPropertiesUtil;
-
-public class BooxSettingsDemoActivity extends AppCompatActivity {
-
-    private ActivityBooxSettingBinding binding;
-    public ObservableBoolean isHighContrastEnabled = new ObservableBoolean();
-    public ObservableBoolean supportHighContrast = new ObservableBoolean();
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_boox_setting);
-        binding.setActivity(this);
-        updateData();
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_boox_setting)
+        binding.activity = this
+        updateData()
     }
 
-    private void updateData() {
-        isHighContrastEnabled.set(GlobalContrastController.isHighContrastEnabled());
-        supportHighContrast.set(SystemPropertiesUtil.isPhone() || SystemPropertiesUtil.isTablet());
+    private fun updateData() {
+        isHighContrastEnabled.set(GlobalContrastController.isHighContrastEnabled())
+        supportHighContrast.set(SystemPropertiesUtil.isPhone() || SystemPropertiesUtil.isTablet())
     }
 
     /**
-     * {@link GlobalContrastController#isHighContrastEnabled()}
-     * {@link GlobalContrastController#setHighContrastEnabled(boolean)}
-     * Please be careful not to call it directly during the initial lifecycle of the application when using it, as this may cause incorrect results.You can use {@link android.view.View#post(Runnable)} call it.
+     * [GlobalContrastController.isHighContrastEnabled]
+     * [GlobalContrastController.setHighContrastEnabled]
+     * Please be careful not to call it directly during the initial lifecycle of the application when using it, as this may cause incorrect results.You can use [android.view.View.post] call it.
      */
-    public void onHighContrastCheckedChanged(CompoundButton view, boolean isChecked) {
-        GlobalContrastController.setHighContrastEnabled(isChecked);
-        isHighContrastEnabled.set(isChecked);
+    fun onHighContrastCheckedChanged(view: CompoundButton?, isChecked: Boolean) {
+        GlobalContrastController.setHighContrastEnabled(isChecked)
+        isHighContrastEnabled.set(isChecked)
     }
 }

@@ -1,73 +1,51 @@
-package com.android.onyx.demo;
+package com.android.onyx.demo
 
-import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
-import android.widget.RadioGroup;
+import android.os.Bundle
+import android.widget.RadioGroup
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import com.android.onyx.demo.databinding.ActivityRefreshModeDemoBinding
+import com.onyx.android.sdk.api.device.epd.UpdateOption
+import com.onyx.android.sdk.device.Device
 
-import androidx.databinding.DataBindingUtil;
+class RefreshModeDemoActivity : AppCompatActivity(), RadioGroup.OnCheckedChangeListener {
+    private lateinit var binding: ActivityRefreshModeDemoBinding
 
-import com.android.onyx.demo.databinding.ActivityRefreshModeDemoBinding;
-import com.onyx.android.sdk.api.device.epd.UpdateOption;
-import com.onyx.android.sdk.device.Device;
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_refresh_mode_demo)
 
-import org.jetbrains.annotations.Nullable;
-
-
-public class RefreshModeDemoActivity extends AppCompatActivity implements RadioGroup.OnCheckedChangeListener {
-
-    private static final String TAG = RefreshModeDemoActivity.class.getSimpleName();
-
-    private ActivityRefreshModeDemoBinding binding;
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_refresh_mode_demo);
-
-        initData();
-        binding.rgRefreshMode.setOnCheckedChangeListener(this);
+        initData()
+        binding.rgRefreshMode.setOnCheckedChangeListener(this)
     }
 
-    private void initData() {
-        UpdateOption updateOption = Device.currentDevice().getAppScopeRefreshMode();
-        binding.rgRefreshMode.check(getRadioButtonIdByUpdateOption(updateOption));
+    private fun initData() {
+        val updateOption = Device.currentDevice().appScopeRefreshMode
+        binding.rgRefreshMode.check(getRadioButtonIdByUpdateOption(updateOption))
     }
 
-    @Override
-    public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
-        switch (checkedId) {
-            case R.id.rb_normal:
-                Device.currentDevice().setAppScopeRefreshMode(UpdateOption.NORMAL);
-                break;
-            case R.id.rb_fast_quality:
-                Device.currentDevice().setAppScopeRefreshMode(UpdateOption.FAST_QUALITY);
-                break;
-            case R.id.rb_regal:
-                Device.currentDevice().setAppScopeRefreshMode(UpdateOption.REGAL);
-                break;
-            case R.id.rb_fast:
-                Device.currentDevice().setAppScopeRefreshMode(UpdateOption.FAST);
-                break;
-            case R.id.rb_fast_x:
-                Device.currentDevice().setAppScopeRefreshMode(UpdateOption.FAST_X);
-                break;
+    override fun onCheckedChanged(radioGroup: RadioGroup?, checkedId: Int) {
+        when (checkedId) {
+            R.id.rb_normal -> Device.currentDevice().setAppScopeRefreshMode(UpdateOption.NORMAL)
+            R.id.rb_fast_quality ->
+                Device.currentDevice().setAppScopeRefreshMode(UpdateOption.FAST_QUALITY)
+            R.id.rb_regal -> Device.currentDevice().setAppScopeRefreshMode(UpdateOption.REGAL)
+            R.id.rb_fast -> Device.currentDevice().setAppScopeRefreshMode(UpdateOption.FAST)
+            R.id.rb_fast_x -> Device.currentDevice().setAppScopeRefreshMode(UpdateOption.FAST_X)
         }
     }
 
-    public int getRadioButtonIdByUpdateOption(UpdateOption updateOption) {
-        switch (updateOption) {
-            case NORMAL:
-                return R.id.rb_normal;
-            case FAST_QUALITY:
-                return R.id.rb_fast_quality;
-            case FAST:
-                return R.id.rb_fast;
-            case FAST_X:
-                return R.id.rb_fast_x;
-            case REGAL:
-                return R.id.rb_regal;
+    fun getRadioButtonIdByUpdateOption(updateOption: UpdateOption): Int {
+        return when (updateOption) {
+            UpdateOption.NORMAL -> R.id.rb_normal
+            UpdateOption.FAST_QUALITY -> R.id.rb_fast_quality
+            UpdateOption.FAST -> R.id.rb_fast
+            UpdateOption.FAST_X -> R.id.rb_fast_x
+            UpdateOption.REGAL -> R.id.rb_regal
         }
-        return -1;
     }
 
+    companion object {
+        private val TAG: String = RefreshModeDemoActivity::class.java.simpleName
+    }
 }

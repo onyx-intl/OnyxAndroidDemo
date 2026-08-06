@@ -1,17 +1,9 @@
-package com.onyx.android.eink.pen.demo.request;
+package com.onyx.android.eink.pen.demo.request
 
-import androidx.annotation.NonNull;
+import com.onyx.android.eink.pen.demo.PenManager
 
-import com.onyx.android.eink.pen.demo.PenManager;
-
-public class RendererToScreenRequest extends BaseRequest {
-
-    public RendererToScreenRequest(@NonNull PenManager noteManager) {
-        super(noteManager);
+class RendererToScreenRequest(noteManager: PenManager) : BaseRequest(noteManager) {
+    @Throws(Exception::class)
+    override fun execute(penManager: PenManager) {
     }
-
-    @Override
-    public void execute(PenManager penManager) throws Exception {
-    }
-
 }

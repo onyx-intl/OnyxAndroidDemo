@@ -1,41 +1,39 @@
-package com.onyx.android.eink.pen.demo.util;
+package com.onyx.android.eink.pen.demo.util
 
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.Point;
-import android.graphics.Rect;
-import android.view.SurfaceView;
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Matrix
+import android.graphics.Paint
+import android.graphics.Rect
+import android.view.SurfaceView
+import com.onyx.android.eink.pen.demo.helper.RendererHelper
 
-import com.onyx.android.eink.pen.demo.helper.RendererHelper;
-
-public class RendererUtils {
-
-    public static void renderBackground(Canvas canvas,
-                                        Rect viewRect) {
-        RendererUtils.clearBackground(canvas, new Paint(), viewRect);
+object RendererUtils {
+    fun renderBackground(
+        canvas: Canvas,
+        viewRect: Rect
+    ) {
+        clearBackground(canvas, Paint(), viewRect)
     }
 
 
-    public static Rect checkSurfaceView(SurfaceView surfaceView) {
-        if (surfaceView == null || !surfaceView.getHolder().getSurface().isValid()) {
-            return null;
+    fun checkSurfaceView(surfaceView: SurfaceView?): Rect? {
+        if (surfaceView == null || !surfaceView.holder.surface.isValid) {
+            return null
         }
-        return new Rect(0, 0, surfaceView.getWidth(), surfaceView.getHeight());
+        return Rect(0, 0, surfaceView.width, surfaceView.height)
     }
 
-    public static void clearBackground(final Canvas canvas, final Paint paint, final Rect rect) {
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(Color.WHITE);
-        canvas.drawRect(rect, paint);
+    fun clearBackground(canvas: Canvas, paint: Paint, rect: Rect) {
+        paint.style = Paint.Style.FILL
+        paint.color = Color.WHITE
+        canvas.drawRect(rect, paint)
     }
 
-    public static Matrix getPointMatrix(final RendererHelper.RenderContext renderContext) {
-        Point anchorPoint = renderContext.viewPoint;
-        Matrix matrix = new Matrix();
-        matrix.postTranslate(anchorPoint.x, anchorPoint.y);
-        return matrix;
+    fun getPointMatrix(renderContext: RendererHelper.RenderContext): Matrix {
+        val anchorPoint = renderContext.viewPoint
+        val matrix = Matrix()
+        matrix.postTranslate(anchorPoint.x.toFloat(), anchorPoint.y.toFloat())
+        return matrix
     }
-
 }

@@ -1,41 +1,41 @@
-package com.onyx.android.eink.pen.demo.shape;
+package com.onyx.android.eink.pen.demo.shape
 
-import com.onyx.android.eink.pen.demo.helper.RendererHelper;
-import com.onyx.android.sdk.api.device.epd.EpdController;
-import com.onyx.android.sdk.data.note.TouchPoint;
-import com.onyx.android.sdk.pen.NeoBrushPenWrapper;
-import com.onyx.android.sdk.pen.PenUtils;
+import com.onyx.android.eink.pen.demo.helper.RendererHelper
+import com.onyx.android.sdk.api.device.epd.EpdController
+import com.onyx.android.sdk.data.note.TouchPoint
+import com.onyx.android.sdk.pen.NeoBrushPenWrapper
+import com.onyx.android.sdk.pen.PenUtils
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class NewBrushScribbleShape extends Shape {
-
-    @Override
-    public void render(RendererHelper.RenderContext renderContext) {
-        List<TouchPoint> points = touchPointList.getPoints();
-        applyStrokeStyle(renderContext);
-        if (points == null || points.size() < 2) {
-            return;
+class NewBrushScribbleShape : Shape() {
+    override fun render(renderContext: RendererHelper.RenderContext) {
+        val points = touchPointList?.getPoints() ?: return
+        applyStrokeStyle(renderContext)
+        if (points.size < 2) {
+            return
         }
-        List<TouchPoint> neoBrushPoints = computeNeoBrushPoints();
-        if (neoBrushPoints == null || neoBrushPoints.size() < 2) {
-            return;
+        val neoBrushPoints = computeNeoBrushPoints() ?: return
+        if (neoBrushPoints.size < 2) {
+            return
         }
-        PenUtils.drawStrokeByPointSize(renderContext.canvas, renderContext.paint,
-                neoBrushPoints, isTransparent());
+        val canvas = renderContext.canvas ?: return
+        PenUtils.drawStrokeByPointSize(
+            canvas, renderContext.paint, neoBrushPoints, isTransparent()
+        )
     }
 
-    private List<TouchPoint> computeNeoBrushPoints() {
-        List<TouchPoint> points = touchPointList.getPoints();
-        if (points == null || points.size() < 2) {
-            return null;
+    private fun computeNeoBrushPoints(): MutableList<TouchPoint>? {
+        val points = touchPointList?.getPoints() ?: return null
+        if (points.size < 2) {
+            return null
         }
-        List<TouchPoint> copy = new ArrayList<>(points.size());
-        for (TouchPoint p : points) {
-            copy.add(new TouchPoint(p));
+        val copy: MutableList<TouchPoint> = ArrayList(points.size)
+        for (p in points) {
+            if (p != null) {
+                copy.add(TouchPoint(p))
+            }
         }
-        return NeoBrushPenWrapper.computeStrokePoints(copy,
-                getRenderStrokeWidth(), EpdController.getMaxTouchPressure());
+        return NeoBrushPenWrapper.computeStrokePoints(
+            copy, getRenderStrokeWidth(), EpdController.getMaxTouchPressure()
+        )
     }
 }

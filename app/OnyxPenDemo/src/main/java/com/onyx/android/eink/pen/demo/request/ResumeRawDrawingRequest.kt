@@ -1,61 +1,57 @@
-package com.onyx.android.eink.pen.demo.request;
+package com.onyx.android.eink.pen.demo.request
 
-import com.onyx.android.eink.pen.demo.PenBundle;
-import com.onyx.android.eink.pen.demo.PenManager;
-import com.onyx.android.sdk.rx.RxRequest;
-import com.onyx.android.sdk.utils.ThreadUtils;
+import com.onyx.android.eink.pen.demo.PenBundle
+import com.onyx.android.eink.pen.demo.PenManager
+import com.onyx.android.sdk.rx.RxRequest
+import com.onyx.android.sdk.utils.ThreadUtils
+import kotlin.concurrent.Volatile
 
-public class ResumeRawDrawingRequest extends RxRequest {
+class ResumeRawDrawingRequest(private val penManager: PenManager) : RxRequest() {
+    @Volatile
+    private var resumeRawDrawingRender = false
 
-    private final PenManager penManager;
-    private volatile boolean resumeRawDrawingRender;
-    private volatile boolean resumeRawInputReader;
-    private volatile int delayResumePenTimeMs;
+    @Volatile
+    private var resumeRawInputReader = false
 
-    public ResumeRawDrawingRequest(PenManager penManager) {
-        this.penManager = penManager;
+    @Volatile
+    private var delayResumePenTimeMs = 0
+
+    fun setResumeRawDrawingRender(resumeRawDrawingRender: Boolean): ResumeRawDrawingRequest {
+        this.resumeRawDrawingRender = resumeRawDrawingRender
+        return this
     }
 
-    public ResumeRawDrawingRequest setResumeRawDrawingRender(boolean resumeRawDrawingRender) {
-        this.resumeRawDrawingRender = resumeRawDrawingRender;
-        return this;
+    fun setResumeRawInputReader(resumeRawInputReader: Boolean): ResumeRawDrawingRequest {
+        this.resumeRawInputReader = resumeRawInputReader
+        return this
     }
 
-    public ResumeRawDrawingRequest setResumeRawInputReader(boolean resumeRawInputReader) {
-        this.resumeRawInputReader = resumeRawInputReader;
-        return this;
+    fun setDelayResumePenTimeMs(delayResumePenTimeMs: Int): ResumeRawDrawingRequest {
+        this.delayResumePenTimeMs = delayResumePenTimeMs
+        return this
     }
 
-    public ResumeRawDrawingRequest setDelayResumePenTimeMs(int delayResumePenTimeMs) {
-        this.delayResumePenTimeMs = delayResumePenTimeMs;
-        return this;
-    }
-
-    @Override
-    public void execute() throws Exception {
+    @Throws(Exception::class)
+    override fun execute() {
         if (penManager.getTouchHelper() == null) {
-            return;
+            return
         }
         if (!resumeRawDrawingRender && !resumeRawInputReader) {
-            penManager.setRawDrawingRenderEnabled(false);
-            return;
+            penManager.setRawDrawingRenderEnabled(false)
+            return
         }
-        ThreadUtils.mySleep(delayResumePenTimeMs);
-        penManager.applyErasePenParams();
-        penManager.setPenUpRefreshTimeMs(getPenBundle().getPenUpRefreshTimeMs());
-        penManager.setDrawExcludeRect(getPenBundle().getExcludeRectList());
+        ThreadUtils.mySleep(delayResumePenTimeMs)
+        penManager.applyErasePenParams()
+        val bundle = PenBundle.getInstance()
+        penManager.setPenUpRefreshTimeMs(bundle.getPenUpRefreshTimeMs())
+        penManager.setDrawExcludeRect(bundle.getExcludeRectList())
         if (resumeRawInputReader) {
-            penManager.setRawInputReaderEnable(true);
+            penManager.setRawInputReaderEnable(true)
         }
         if (resumeRawDrawingRender) {
-            penManager.setRawDrawingRenderEnabled(true);
+            penManager.setRawDrawingRenderEnabled(true)
         } else {
-            penManager.setRawDrawingRenderEnabled(false);
+            penManager.setRawDrawingRenderEnabled(false)
         }
     }
-
-    private PenBundle getPenBundle() {
-        return PenBundle.getInstance();
-    }
-
 }

@@ -1,37 +1,30 @@
-package com.onyx.android.eink.pen.demo.action;
+package com.onyx.android.eink.pen.demo.action
 
-import com.onyx.android.eink.pen.demo.request.StrokeWidthChangeRequest;
+import com.onyx.android.eink.pen.demo.PenManager
+import com.onyx.android.eink.pen.demo.request.StrokeWidthChangeRequest
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.functions.Function
 
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-
-public class StrokeWidthChangeAction extends BaseAction<StrokeWidthChangeAction> {
-    private final int shapeType;
-    private final float width;
-
-    public StrokeWidthChangeAction(int shapeType, float width) {
-        this.shapeType = shapeType;
-        this.width = width;
-    }
-
-    @Override
-    protected Observable<StrokeWidthChangeAction> create() {
+class StrokeWidthChangeAction(private val shapeType: Int, private val width: Float) :
+    BaseAction<StrokeWidthChangeAction>() {
+    override fun create(): Observable<StrokeWidthChangeAction> {
         return getPenManager().createObservable()
-                .map(o -> change())
-                .observeOn(AndroidSchedulers.mainThread())
-                .map(o -> updateDrawingArgs());
+            .map<StrokeWidthChangeRequest?> { o: PenManager? -> change() }
+            .observeOn(AndroidSchedulers.mainThread())
+            .map<StrokeWidthChangeAction> { o: StrokeWidthChangeRequest? -> updateDrawingArgs() }
     }
 
-    private StrokeWidthChangeRequest change() throws Exception {
-        final StrokeWidthChangeRequest request = new StrokeWidthChangeRequest(getPenManager())
-                .setWidth(width);
-        request.execute();
-        return request;
+    @Throws(Exception::class)
+    private fun change(): StrokeWidthChangeRequest {
+        val request = StrokeWidthChangeRequest(getPenManager()).setWidth(width)
+        request.execute()
+        return request
     }
 
-    private StrokeWidthChangeAction updateDrawingArgs() {
-        getDataBundle().setCurrentStrokeWidth(width);
-        getDataBundle().savePenLineWidth(shapeType, width);
-        return this;
+    private fun updateDrawingArgs(): StrokeWidthChangeAction {
+        getDataBundle().setCurrentStrokeWidth(width)
+        getDataBundle().savePenLineWidth(shapeType, width)
+        return this
     }
 }

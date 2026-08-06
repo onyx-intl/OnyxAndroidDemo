@@ -1,422 +1,417 @@
-package com.onyx.android.eink.pen.demo.erase;
+package com.onyx.android.eink.pen.demo.erase
 
-import android.graphics.Color;
-import android.graphics.RectF;
+import android.graphics.Color
+import android.graphics.RectF
+import com.onyx.android.eink.pen.demo.PenBundle
+import com.onyx.android.eink.pen.demo.PenManager
+import com.onyx.android.eink.pen.demo.data.InteractiveMode
+import com.onyx.android.eink.pen.demo.erase.bean.EraseArgs
+import com.onyx.android.eink.pen.demo.erase.bean.EraseBean
+import com.onyx.android.eink.pen.demo.erase.bean.EraseContext
+import com.onyx.android.eink.pen.demo.erase.data.EraseTypes
+import com.onyx.android.eink.pen.demo.erase.util.EraseRedrawUtils
+import com.onyx.android.eink.pen.demo.erase.util.EraserTrackHelper
+import com.onyx.android.eink.pen.demo.erase.util.ShapeSplitter
+import com.onyx.android.eink.pen.demo.event.PenEvent
+import com.onyx.android.eink.pen.demo.shape.Shape
+import com.onyx.android.eink.pen.demo.util.ShapeUtils
+import com.onyx.android.sdk.data.note.TouchPoint
+import com.onyx.android.sdk.pen.data.TouchPointList
+import com.onyx.android.sdk.rx.ObservableHolder
+import com.onyx.android.sdk.utils.RectUtils
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.functions.Consumer
+import io.reactivex.functions.Function
+import java.util.concurrent.TimeUnit
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import com.onyx.android.eink.pen.demo.PenBundle;
-import com.onyx.android.eink.pen.demo.PenManager;
-import com.onyx.android.eink.pen.demo.data.InteractiveMode;
-import com.onyx.android.eink.pen.demo.erase.bean.EraseArgs;
-import com.onyx.android.eink.pen.demo.erase.bean.EraseBean;
-import com.onyx.android.eink.pen.demo.erase.bean.EraseContext;
-import com.onyx.android.eink.pen.demo.erase.bean.SplitShapeResult;
-import com.onyx.android.eink.pen.demo.erase.data.EraseTypes;
-import com.onyx.android.eink.pen.demo.erase.shape.AreaEraseShape;
-import com.onyx.android.eink.pen.demo.erase.util.EraseRedrawUtils;
-import com.onyx.android.eink.pen.demo.erase.util.EraserTrackHelper;
-import com.onyx.android.eink.pen.demo.erase.util.ShapeSplitter;
-import com.onyx.android.eink.pen.demo.event.PenEvent;
-import com.onyx.android.eink.pen.demo.shape.Shape;
-import com.onyx.android.eink.pen.demo.util.ShapeUtils;
-import com.onyx.android.sdk.data.note.TouchPoint;
-import com.onyx.android.sdk.pen.data.TouchPointList;
-import com.onyx.android.sdk.rx.ObservableHolder;
-import com.onyx.android.sdk.utils.RectUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import io.reactivex.android.schedulers.AndroidSchedulers;
-
-public final class EraseController {
-
-    private static final long MOVE_BUFFER_MS = 50;
-
-    private final PenBundle penBundle;
-    private final PenManager penManager;
-    private final EraseLifecycleCallbacks lifecycleCallbacks;
-
-    public EraseController(@NonNull PenBundle penBundle,
-                           @NonNull PenManager penManager,
-                           @NonNull EraseLifecycleCallbacks lifecycleCallbacks) {
-        this.penBundle = penBundle;
-        this.penManager = penManager;
-        this.lifecycleCallbacks = lifecycleCallbacks;
-    }
-
-    @NonNull
-    public EraseContext begin(@NonNull TouchPoint point,
-                              boolean temporaryErase,
-                              @Nullable Runnable onPenParamsReady) {
-        int eraseType = penBundle.getCurrentEraseType();
+class EraseController(
+    private val penBundle: PenBundle,
+    private val penManager: PenManager,
+    private val lifecycleCallbacks: EraseLifecycleCallbacks
+) {
+    fun begin(
+        point: TouchPoint,
+        temporaryErase: Boolean,
+        onPenParamsReady: Runnable?
+    ): EraseContext {
+        val eraseType = penBundle.getCurrentEraseType()
         if (eraseType == EraseTypes.ERASER_AREA) {
-            return beginAreaErase(point, temporaryErase);
+            return beginAreaErase(point, temporaryErase)
         }
-        return beginMoveStrokeErase(point, onPenParamsReady);
+        return beginMoveStrokeErase(point, onPenParamsReady)
     }
 
-    @NonNull
-    private EraseContext beginAreaErase(@NonNull TouchPoint point, boolean temporaryErase) {
-        submit(pm -> applyEraseBegin(), null);
+    private fun beginAreaErase(point: TouchPoint, temporaryErase: Boolean): EraseContext {
+        submit(PenTask { pm: PenManager? -> applyEraseBegin() }, null)
         if (!temporaryErase) {
-            submit(PenManager::applyErasePenParams, null);
+            submit(PenTask { pm: PenManager? ->
+                val manager = pm ?: return@PenTask
+                manager.applyErasePenParams()
+            }, null)
         }
-        EraseContext context = new EraseContext();
-        context.addErasePoint(point);
-        return context;
+        val context = EraseContext()
+        context.addErasePoint(point)
+        return context
     }
 
-    @NonNull
-    private EraseContext beginMoveStrokeErase(@NonNull TouchPoint point,
-                                              @Nullable Runnable onPenParamsReady) {
-        EraseContext context = new EraseContext();
-        context.addErasePoint(point);
-        submit(pm -> applyEraseBegin(), onPenParamsReady);
-        return context;
+    private fun beginMoveStrokeErase(
+        point: TouchPoint,
+        onPenParamsReady: Runnable?
+    ): EraseContext {
+        val context = EraseContext()
+        context.addErasePoint(point)
+        submit(PenTask { pm: PenManager? -> applyEraseBegin() }, onPenParamsReady)
+        return context
     }
 
-    @Nullable
-    public ObservableHolder<TouchPoint> openMoveEraseBuffer(@NonNull EraseContext eraseContext) {
+    fun openMoveEraseBuffer(eraseContext: EraseContext): ObservableHolder<TouchPoint>? {
         if (penBundle.getCurrentEraseType() == EraseTypes.ERASER_AREA) {
-            return null;
+            return null
         }
-        ObservableHolder<TouchPoint> holder = new ObservableHolder<>();
-        holder.setDisposable(holder.getObservable().buffer(MOVE_BUFFER_MS, TimeUnit.MILLISECONDS)
-                .subscribe(touchPoints -> {
+        val holder = ObservableHolder<TouchPoint>()
+        holder.setDisposable(
+            holder.getObservable().buffer(MOVE_BUFFER_MS, TimeUnit.MILLISECONDS)
+                .subscribe(Consumer { touchPoints: MutableList<TouchPoint>? ->
                     if (eraseContext.isFinishing()) {
-                        return;
+                        return@Consumer
                     }
-                    TouchPointList pointList = new TouchPointList();
-                    for (TouchPoint touchPoint : touchPoints) {
-                        pointList.add(new TouchPoint(touchPoint));
+                    val points = touchPoints ?: return@Consumer
+                    val pointList = TouchPointList()
+                    for (touchPoint in points) {
+                        pointList.add(TouchPoint(touchPoint))
                     }
-                    onErasing(pointList, eraseContext);
-                }));
-        return holder;
-    }
-
-    public void onErasing(@NonNull TouchPointList pointList, @Nullable EraseContext eraseContext) {
-        if (eraseContext == null || eraseContext.isFinishing()) {
-            return;
-        }
-        EraseArgs eraseArgs = createEraseArgs(pointList, eraseContext);
-        int eraseType = penBundle.getCurrentEraseType();
-        switch (eraseType) {
-            case EraseTypes.ERASER_MOVE:
-                submit(pm -> performOverlayErasing(eraseContext, eraseArgs), null);
-                return;
-            case EraseTypes.ERASER_AREA:
-                submit(pm -> beginAreaErasePreview(eraseArgs), null);
-                return;
-            default:
-                submit(pm -> performStrokeErasing(eraseArgs), null);
-                break;
-        }
-    }
-
-    public void finish(@Nullable EraseContext eraseContext, @Nullable Runnable onFinished) {
-        final int eraseType = penBundle.getCurrentEraseType();
-        if (eraseContext != null) {
-            eraseContext.setFinishing(true);
-        }
-        penManager.createObservable()
-                .map(pm -> {
-                    performFinish(eraseType, eraseContext);
-                    return pm;
+                    onErasing(pointList, eraseContext)
                 })
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(pm -> {
-                    lifecycleCallbacks.resumePenAfterErase();
-                    if (onFinished != null) {
-                        onFinished.run();
-                    }
-                }, Throwable::printStackTrace);
+        )
+        return holder
     }
 
-    private void performFinish(int eraseType, @Nullable EraseContext eraseContext) throws Exception {
-        switch (eraseType) {
-            case EraseTypes.ERASER_MOVE:
-                performOverlayFinish(eraseContext);
-                break;
-            case EraseTypes.ERASER_AREA:
-                performAreaFinish(eraseContext);
-                break;
-            default:
-                performStrokeFinish();
-                break;
+    fun onErasing(pointList: TouchPointList, eraseContext: EraseContext?) {
+        if (eraseContext == null || eraseContext.isFinishing()) {
+            return
+        }
+        val eraseArgs = createEraseArgs(pointList, eraseContext)
+        val eraseType = penBundle.getCurrentEraseType()
+        when (eraseType) {
+            EraseTypes.ERASER_MOVE -> {
+                submit(PenTask { pm: PenManager? ->
+                    performOverlayErasing(
+                        eraseContext, eraseArgs
+                    )
+                }, null)
+                return
+            }
+
+            EraseTypes.ERASER_AREA -> {
+                submit(PenTask { pm: PenManager? -> beginAreaErasePreview(eraseArgs) }, null)
+                return
+            }
+
+            else -> submit(PenTask { pm: PenManager? -> performStrokeErasing(eraseArgs) }, null)
         }
     }
 
-    private void applyEraseBegin() {
-        int eraseType = penBundle.getCurrentEraseType();
-        if (EraseTypes.isMoveOrStrokeErase(eraseType)
-                && EraserTrackHelper.useAppTrack(penBundle, eraseType)) {
-            penManager.prepareAppTrackEraseBegin();
+    fun finish(eraseContext: EraseContext?, onFinished: Runnable?) {
+        val eraseType = penBundle.getCurrentEraseType()
+        eraseContext?.setFinishing(true)
+        penManager.createObservable().map<PenManager?>(Function { pm: PenManager? ->
+            performFinish(eraseType, eraseContext)
+            pm
+        }).observeOn(AndroidSchedulers.mainThread()).subscribe(Consumer { _: PenManager? ->
+            lifecycleCallbacks.resumePenAfterErase()
+            onFinished?.run()
+        }, Consumer { error: Throwable? -> error?.printStackTrace() })
+    }
+
+    @Throws(Exception::class)
+    private fun performFinish(eraseType: Int, eraseContext: EraseContext?) {
+        when (eraseType) {
+            EraseTypes.ERASER_MOVE -> performOverlayFinish(eraseContext)
+            EraseTypes.ERASER_AREA -> performAreaFinish(eraseContext)
+            else -> performStrokeFinish()
+        }
+    }
+
+    private fun applyEraseBegin() {
+        val eraseType = penBundle.getCurrentEraseType()
+        if (EraseTypes.isMoveOrStrokeErase(eraseType) && EraserTrackHelper.useAppTrack(
+                penBundle, eraseType
+            )
+        ) {
+            penManager.prepareAppTrackEraseBegin()
         }
         if (eraseType == EraseTypes.ERASER_AREA) {
-            penManager.applyAreaErasePreviewParams();
+            penManager.applyAreaErasePreviewParams()
         } else if (EraseTypes.isMoveOrStrokeErase(eraseType)) {
-            penManager.applyStrokeMoveErasePreviewParams();
+            penManager.applyStrokeMoveErasePreviewParams()
         }
         if (shouldResumeRawDrawing(eraseType)) {
-            penManager.getEventBus().post(PenEvent.resumeRawDrawingImmediately());
+            penManager.getEventBus().post(PenEvent.resumeRawDrawingImmediately())
         }
     }
 
-    private boolean shouldResumeRawDrawing(int eraseType) {
+    private fun shouldResumeRawDrawing(eraseType: Int): Boolean {
         if (!penBundle.isEraseTool()) {
-            return false;
+            return false
         }
-        return eraseType == EraseTypes.ERASER_AREA
-                || EraserTrackHelper.useSfTrack(penBundle, eraseType);
+        return eraseType == EraseTypes.ERASER_AREA || EraserTrackHelper.useSfTrack(
+            penBundle, eraseType
+        )
     }
 
-    private void beginAreaErasePreview(@NonNull EraseArgs eraseArgs) {
-        penManager.activeRenderMode(InteractiveMode.SCRIBBLE_ERASE);
-        penManager.getRenderContext().eraseArgs = eraseArgs;
+    private fun beginAreaErasePreview(eraseArgs: EraseArgs) {
+        penManager.activeRenderMode(InteractiveMode.SCRIBBLE_ERASE)
+        penManager.getRenderContext().eraseArgs = eraseArgs
     }
 
-    private void performOverlayErasing(@NonNull EraseContext eraseContext, @NonNull EraseArgs eraseArgs) {
+    private fun performOverlayErasing(eraseContext: EraseContext, eraseArgs: EraseArgs) {
         if (eraseContext.isFinishing()) {
-            return;
+            return
         }
-        int eraseType = penBundle.getCurrentEraseType();
+        val eraseType = penBundle.getCurrentEraseType()
         if (EraserTrackHelper.useSfTrack(penBundle, eraseType)) {
-            splitShapesForOverlayErase(eraseContext, eraseArgs);
-            return;
+            splitShapesForOverlayErase(eraseContext, eraseArgs)
+            return
         }
-        penManager.activeRenderMode(InteractiveMode.SCRIBBLE_ERASE);
-        penManager.getRenderContext().eraseArgs = eraseArgs;
-        splitShapesForOverlayErase(eraseContext, eraseArgs);
-        penManager.renderToScreen();
+        penManager.activeRenderMode(InteractiveMode.SCRIBBLE_ERASE)
+        penManager.getRenderContext().eraseArgs = eraseArgs
+        splitShapesForOverlayErase(eraseContext, eraseArgs)
+        penManager.renderToScreen()
     }
 
-    private void splitShapesForOverlayErase(@NonNull EraseContext eraseContext, @NonNull EraseArgs eraseArgs) {
-        TouchPointList trackPoints = eraseArgs.eraseTrackPoints;
+    private fun splitShapesForOverlayErase(eraseContext: EraseContext, eraseArgs: EraseArgs) {
+        val trackPoints = eraseArgs.eraseTrackPoints
         if (trackPoints == null || trackPoints.isEmpty()) {
-            return;
+            return
         }
-        RectF eraseRect = ShapeUtils.getBoundingRect(trackPoints);
+        val eraseRect = ShapeUtils.getBoundingRect(trackPoints)
         if (eraseRect == null) {
-            return;
+            return
         }
-        RectUtils.expand(eraseRect, eraseArgs.drawRadius);
+        RectUtils.expand(eraseRect, eraseArgs.drawRadius)
 
-        List<Shape> drawShape = penManager.getDrawShape();
-        List<Shape> candidates = new ArrayList<>(drawShape);
-        List<Shape> removed = new ArrayList<>();
-        List<Shape> segments = new ArrayList<>();
+        val drawShape = penManager.getDrawShape()
+        val candidates: MutableList<Shape> = ArrayList<Shape>(drawShape)
+        val removed: MutableList<Shape> = ArrayList()
+        val segments: MutableList<Shape> = ArrayList()
 
-        for (Shape shape : candidates) {
-            if (shape.getBoundingRect() == null) {
-                continue;
-            }
-            RectF shapeRect = new RectF(shape.getBoundingRect());
-            RectUtils.expand(shapeRect, shape.getRenderStrokeWidth() / 2f);
+        for (shape in candidates) {
+            val bounds = shape.getBoundingRect() ?: continue
+            val shapeRect = RectF(bounds)
+            RectUtils.expand(shapeRect, shape.getRenderStrokeWidth() / 2f)
             if (!RectUtils.intersects(eraseRect, shapeRect)) {
-                continue;
+                continue
             }
-            List<TouchPoint> hitPoints = new ArrayList<>();
-            for (TouchPoint erasePoint : trackPoints.getPoints()) {
+            val hitPoints: MutableList<TouchPoint> = ArrayList()
+            for (erasePoint in trackPoints.getPoints()) {
                 if (removed.contains(shape)) {
-                    break;
+                    break
                 }
                 if (!shape.fastHitTest(erasePoint.x, erasePoint.y, eraseArgs.drawRadius)) {
-                    continue;
+                    continue
                 }
                 if (!shape.hitTest(erasePoint.x, erasePoint.y, eraseArgs.drawRadius)) {
-                    continue;
+                    continue
                 }
-                hitPoints.add(erasePoint);
+                hitPoints.add(erasePoint)
             }
             if (hitPoints.isEmpty()) {
-                continue;
+                continue
             }
-            EraseBean eraseBean = new EraseBean()
-                    .setErasePoints(hitPoints)
-                    .setEraseRadius(eraseArgs.drawRadius);
-            SplitShapeResult result = ShapeSplitter.split(shape, eraseBean);
-            if (!result.getSplitShapes().isEmpty()) {
-                markRemoved(drawShape, removed, shape);
-                segments.addAll(result.getSplitShapes());
+            val eraseBean =
+                EraseBean().setErasePoints(hitPoints).setEraseRadius(eraseArgs.drawRadius)
+            val result = ShapeSplitter.split(shape, eraseBean)
+            if (result.getSplitShapes().isNotEmpty()) {
+                markRemoved(drawShape, removed, shape)
+                segments.addAll(result.getSplitShapes().filterNotNull())
             } else if (result.isShapeErased()) {
-                markRemoved(drawShape, removed, shape);
+                markRemoved(drawShape, removed, shape)
             }
         }
 
-        drawShape.removeAll(removed);
-        drawShape.addAll(segments);
-        eraseContext.addSplitShapes(removed);
-        eraseContext.unionEraseRect(eraseRect);
+        drawShape.removeAll(removed.toSet())
+        drawShape.addAll(segments)
+        eraseContext.addSplitShapes(ArrayList(removed))
+        eraseContext.unionEraseRect(eraseRect)
     }
 
-    private void performStrokeErasing(@NonNull EraseArgs eraseArgs) {
-        int eraseType = penBundle.getCurrentEraseType();
-        List<Shape> removedShapeList = new ArrayList<>();
-        removeShapesByTouchPointList(eraseArgs.eraseTrackPoints, eraseArgs.drawRadius, removedShapeList);
+    private fun performStrokeErasing(eraseArgs: EraseArgs) {
+        val eraseType = penBundle.getCurrentEraseType()
+        val removedShapeList: MutableList<Shape> = ArrayList<Shape>()
+        removeShapesByTouchPointList(
+            eraseArgs.eraseTrackPoints, eraseArgs.drawRadius, removedShapeList
+        )
         if (EraserTrackHelper.useSfTrack(penBundle, eraseType)) {
-            return;
+            return
         }
         if (EraserTrackHelper.useAppTrack(penBundle, eraseType)) {
-            penManager.activeRenderMode(InteractiveMode.SCRIBBLE_ERASE);
-            penManager.getRenderContext().eraseArgs = eraseArgs;
-            penManager.renderToScreen();
-            return;
+            penManager.activeRenderMode(InteractiveMode.SCRIBBLE_ERASE)
+            penManager.getRenderContext().eraseArgs = eraseArgs
+            penManager.renderToScreen()
+            return
         }
-        penManager.activeRenderMode(InteractiveMode.SCRIBBLE_ERASE);
-        penManager.renderToBitmap(removedShapeList);
-        penManager.renderToScreen();
+        penManager.activeRenderMode(InteractiveMode.SCRIBBLE_ERASE)
+        penManager.renderToBitmap(removedShapeList)
+        penManager.renderToScreen()
     }
 
-    private void removeShapesByTouchPointList(final TouchPointList touchPointList,
-                                              final float radius,
-                                              List<Shape> removedShapeList) {
+    private fun removeShapesByTouchPointList(
+        touchPointList: TouchPointList?,
+        radius: Float,
+        removedShapeList: MutableList<Shape>
+    ) {
         if (touchPointList == null) {
-            return;
+            return
         }
-        List<Shape> shapeList = penManager.getDrawShape();
-        int shapeSize = shapeList.size();
-        RectF eraseRect = ShapeUtils.getBoundingRect(touchPointList);
-        if (eraseRect == null) {
-            return;
-        }
-        RectUtils.expand(eraseRect, radius);
+        val shapeList = penManager.getDrawShape()
+        val shapeSize = shapeList.size
+        val eraseRect = ShapeUtils.getBoundingRect(touchPointList) ?: return
+        RectUtils.expand(eraseRect, radius)
 
-        ArrayList<Shape> hitShapes = new ArrayList<>();
-        for (int i = shapeSize - 1; i >= 0; i--) {
-            Shape shape = shapeList.get(i);
+        val hitShapes = ArrayList<Shape>()
+        for (i in shapeSize - 1 downTo 0) {
+            val shape = shapeList.get(i)
             if (shape.getBoundingRect() == null) {
-                continue;
+                continue
             }
-            RectF shapeRect = new RectF(shape.getBoundingRect());
-            RectUtils.expand(shapeRect, shape.getRenderStrokeWidth() / 2f);
+            val shapeRect = RectF(shape.getBoundingRect())
+            RectUtils.expand(shapeRect, shape.getRenderStrokeWidth() / 2f)
             if (RectUtils.intersects(eraseRect, shapeRect)) {
-                hitShapes.add(shape);
+                hitShapes.add(shape)
             }
         }
-        for (Shape shape : hitShapes) {
+        for (shape in hitShapes) {
             if (hitTestAndRemoveShape(shape, touchPointList, radius)) {
-                removedShapeList.add(shape);
-                shapeList.remove(shape);
+                removedShapeList.add(shape)
+                shapeList.remove(shape)
             }
         }
     }
 
-    private boolean hitTestAndRemoveShape(Shape shape, final TouchPointList touchPointList, final float radius) {
+    private fun hitTestAndRemoveShape(
+        shape: Shape,
+        touchPointList: TouchPointList,
+        radius: Float
+    ): Boolean {
         if (shape.hitTestPoints(touchPointList, radius)) {
-            shape.setTransparent(true);
-            return true;
+            shape.setTransparent(true)
+            return true
         }
-        return false;
+        return false
     }
 
-    private void performOverlayFinish(@Nullable EraseContext eraseContext) throws Exception {
-        TouchPointList wholeTrack = eraseContext != null ? eraseContext.getWholeEraseTrackPoints() : null;
-        float eraseWidth = penBundle.getEraseWidth(EraseTypes.ERASER_MOVE);
+    @Throws(Exception::class)
+    private fun performOverlayFinish(eraseContext: EraseContext?) {
+        val wholeTrack = if (eraseContext != null) eraseContext.getWholeEraseTrackPoints() else null
+        val eraseWidth = penBundle.getEraseWidth(EraseTypes.ERASER_MOVE)
         EraseRedrawUtils.finishEraseAndRefresh(
-                penManager, eraseContext, wholeTrack, eraseWidth, EraseTypes.ERASER_MOVE);
+            penManager, eraseContext, wholeTrack, eraseWidth, EraseTypes.ERASER_MOVE
+        )
     }
 
-    private void performAreaFinish(@Nullable EraseContext eraseContext) throws Exception {
+    @Throws(Exception::class)
+    private fun performAreaFinish(eraseContext: EraseContext?) {
         if (eraseContext == null) {
             EraseRedrawUtils.finishEraseAndRefresh(
-                    penManager, null, null, 0f, EraseTypes.ERASER_AREA);
-            return;
+                penManager, null, null, 0f, EraseTypes.ERASER_AREA
+            )
+            return
         }
-        TouchPointList wholeTrack = eraseContext.getWholeEraseTrackPoints();
-        if (wholeTrack == null || wholeTrack.size() < 2) {
-            float pad = penBundle.getEraseWidth(EraseTypes.ERASER_AREA);
+        val wholeTrack = eraseContext.getWholeEraseTrackPoints()
+        if (wholeTrack.size() < 2) {
+            val pad = penBundle.getEraseWidth(EraseTypes.ERASER_AREA)
             EraseRedrawUtils.finishEraseAndRefresh(
-                    penManager, eraseContext, wholeTrack, pad, EraseTypes.ERASER_AREA);
-            return;
+                penManager, eraseContext, wholeTrack, pad, EraseTypes.ERASER_AREA
+            )
+            return
         }
-        AreaEraseShape areaShape = ShapeUtils.createAreaEraseShape(wholeTrack);
-        RectF areaRect = areaShape.getBoundingRect() != null
-                ? new RectF(areaShape.getBoundingRect()) : null;
-        List<Shape> shapeList = penManager.getDrawShape();
-        List<Shape> removed = new ArrayList<>();
-        List<Shape> segments = new ArrayList<>();
+        val areaShape = ShapeUtils.createAreaEraseShape(wholeTrack)
+        val areaRect = if (areaShape.getBoundingRect() != null) RectF(areaShape.getBoundingRect())
+        else null
+        val shapeList = penManager.getDrawShape()
+        val removed: MutableList<Shape> = ArrayList()
+        val segments: MutableList<Shape> = ArrayList()
 
-        for (Shape shape : new ArrayList<>(shapeList)) {
-            if (shape.getBoundingRect() == null || areaShape.getBoundingRect() == null) {
-                continue;
+        for (shape in ArrayList(shapeList)) {
+            val shapeBounds = shape.getBoundingRect()
+            val areaBounds = areaShape.getBoundingRect()
+            if (shapeBounds == null || areaBounds == null) {
+                continue
             }
-            if (!RectF.intersects(areaShape.getBoundingRect(), shape.getBoundingRect())) {
-                continue;
+            if (!RectF.intersects(areaBounds, shapeBounds)) {
+                continue
             }
-            EraseBean eraseBean = new EraseBean().setEraseShape(areaShape);
-            SplitShapeResult result = ShapeSplitter.split(shape, eraseBean);
-            if (!result.getSplitShapes().isEmpty()) {
-                markRemoved(shapeList, removed, shape);
-                segments.addAll(result.getSplitShapes());
+            val eraseBean = EraseBean().setEraseShape(areaShape)
+            val result = ShapeSplitter.split(shape, eraseBean)
+            if (result.getSplitShapes().isNotEmpty()) {
+                markRemoved(shapeList, removed, shape)
+                segments.addAll(result.getSplitShapes().filterNotNull())
             } else if (result.isShapeErased()) {
-                markRemoved(shapeList, removed, shape);
+                markRemoved(shapeList, removed, shape)
             }
         }
-        shapeList.removeAll(removed);
-        shapeList.addAll(segments);
-        areaShape.recycle();
+        shapeList.removeAll(removed.toSet())
+        shapeList.addAll(segments)
+        areaShape.recycle()
         if (areaRect != null) {
-            eraseContext.unionEraseRect(areaRect);
+            eraseContext.unionEraseRect(areaRect)
         }
-        eraseContext.addSplitShapes(removed);
-        float pad = penBundle.getEraseWidth(EraseTypes.ERASER_AREA);
+        eraseContext.addSplitShapes(ArrayList(removed))
+        val pad = penBundle.getEraseWidth(EraseTypes.ERASER_AREA)
         EraseRedrawUtils.finishEraseAndRefresh(
-                penManager, eraseContext, wholeTrack, pad, EraseTypes.ERASER_AREA);
+            penManager, eraseContext, wholeTrack, pad, EraseTypes.ERASER_AREA
+        )
     }
 
-    private void performStrokeFinish() {
-        penManager.activeRenderMode(InteractiveMode.SCRIBBLE);
-        penManager.getRenderContext().eraseArgs = null;
-        penManager.setErasePathDrawing(false, EraseTypes.ERASER_STROKE);
-        penManager.getRenderContext().bitmap.eraseColor(Color.WHITE);
-        penManager.renderToBitmap(penManager.getDrawShape());
+    private fun performStrokeFinish() {
+        penManager.activeRenderMode(InteractiveMode.SCRIBBLE)
+        penManager.getRenderContext().eraseArgs = null
+        penManager.setErasePathDrawing(false, EraseTypes.ERASER_STROKE)
+        penManager.getRenderContext().bitmap?.eraseColor(Color.WHITE)
+        penManager.renderToBitmap(penManager.getDrawShape())
     }
 
-    private void markRemoved(List<Shape> drawShape, List<Shape> removed, Shape shape) {
+    private fun markRemoved(
+        drawShape: MutableList<Shape>,
+        removed: MutableList<Shape>,
+        shape: Shape
+    ) {
         if (!removed.contains(shape)) {
-            removed.add(shape);
+            removed.add(shape)
         }
-        drawShape.remove(shape);
+        drawShape.remove(shape)
     }
 
-    @NonNull
-    private EraseArgs createEraseArgs(@NonNull TouchPointList pointList,
-                                      @Nullable EraseContext eraseContext) {
-        int eraseType = penBundle.getCurrentEraseType();
-        float eraseWidth = penBundle.getEraseWidth(eraseType);
-        float drawRadius = eraseWidth / 2f;
-        boolean showCircle = EraserTrackHelper.useAppTrack(penBundle, eraseType);
-        TouchPointList wholeTrack = eraseContext != null
-                ? eraseContext.getWholeEraseTrackPoints() : pointList;
-        return new EraseArgs()
-                .setEraserWidth(eraseWidth)
-                .setEraseTrackPoints(pointList)
-                .setWholeEraseTrackPoints(wholeTrack)
-                .setDrawRadius(drawRadius)
-                .setShowEraseCircle(showCircle)
-                .setShowEraseLine(false);
+    private fun createEraseArgs(
+        pointList: TouchPointList,
+        eraseContext: EraseContext?
+    ): EraseArgs {
+        val eraseType = penBundle.getCurrentEraseType()
+        val eraseWidth = penBundle.getEraseWidth(eraseType)
+        val drawRadius = eraseWidth / 2f
+        val showCircle = EraserTrackHelper.useAppTrack(penBundle, eraseType)
+        val wholeTrack = if (eraseContext != null) eraseContext.getWholeEraseTrackPoints()
+        else pointList
+        return EraseArgs().setEraserWidth(eraseWidth).setEraseTrackPoints(pointList)
+            .setWholeEraseTrackPoints(wholeTrack).setDrawRadius(drawRadius)
+            .setShowEraseCircle(showCircle).setShowEraseLine(false)
     }
 
-    private void submit(@NonNull PenTask task, @Nullable Runnable onComplete) {
-        penManager.createObservable()
-                .map(pm -> {
-                    task.run(pm);
-                    return pm;
-                })
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(pm -> {
-                    if (onComplete != null) {
-                        onComplete.run();
-                    }
-                }, Throwable::printStackTrace);
+    private fun submit(task: PenTask, onComplete: Runnable?) {
+        penManager.createObservable().map<PenManager?>(Function { pm: PenManager? ->
+            task.run(pm)
+            pm
+        }).observeOn(AndroidSchedulers.mainThread()).subscribe(Consumer { _: PenManager? ->
+            onComplete?.run()
+        }, Consumer { error: Throwable? -> error?.printStackTrace() })
     }
 
-    private interface PenTask {
-        void run(PenManager penManager) throws Exception;
+    private fun interface PenTask {
+        @Throws(Exception::class)
+        fun run(penManager: PenManager?)
+    }
+
+    companion object {
+        private const val MOVE_BUFFER_MS: Long = 50
     }
 }

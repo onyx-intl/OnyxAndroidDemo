@@ -1,260 +1,260 @@
-package com.onyx.android.eink.pen.demo.scribble.ui;
+package com.onyx.android.eink.pen.demo.scribble.ui
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
-import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
-import android.util.Log;
-import android.view.SurfaceHolder;
-import android.view.View;
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Path
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
+import android.graphics.Rect
+import android.os.Bundle
+import android.util.Log
+import android.view.SurfaceHolder
+import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import com.onyx.android.eink.pen.demo.R
+import com.onyx.android.eink.pen.demo.databinding.ActivityScribbleMoveEraseStylusDemoBinding
+import com.onyx.android.sdk.api.device.epd.EpdController
+import com.onyx.android.sdk.data.note.TouchPoint
+import com.onyx.android.sdk.pen.RawInputCallback
+import com.onyx.android.sdk.pen.TouchHelper
+import com.onyx.android.sdk.pen.data.TouchPointList
 
-import androidx.databinding.DataBindingUtil;
+class ScribbleMoveEraserDemoActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityScribbleMoveEraseStylusDemoBinding
+    private lateinit var touchHelper: TouchHelper
 
-import com.onyx.android.eink.pen.demo.R;
-import com.onyx.android.eink.pen.demo.databinding.ActivityScribbleMoveEraseStylusDemoBinding;
-import com.onyx.android.sdk.api.device.epd.EpdController;
-import com.onyx.android.sdk.data.note.TouchPoint;
-import com.onyx.android.sdk.pen.RawInputCallback;
-import com.onyx.android.sdk.pen.TouchHelper;
-import com.onyx.android.sdk.pen.data.TouchPointList;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-
-public class ScribbleMoveEraserDemoActivity extends AppCompatActivity {
-
-    private static final String TAG = ScribbleMoveEraserDemoActivity.class.getSimpleName();
-
-    private ActivityScribbleMoveEraseStylusDemoBinding binding;
-    private TouchHelper touchHelper;
-
-    private List<TouchPoint> points = new ArrayList<>();
-    private SurfaceHolder.Callback surfaceCallback;
-    private Bitmap renderBitmap;
-    private Bitmap bkGroundBitmap;
-    private Canvas canvas;
-    private Paint renderPaint;
-    private Paint erasePaint;
-    private float renderStrokeWidth = 3f;
-    private float eraseStrokeWidth = 20f;
-    private RawInputCallback rawInputCallback;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_scribble_move_erase_stylus_demo);
-        binding.setActivityScribbleMoveErase(this);
-        initSurfaceView();
+    private val points: MutableList<TouchPoint?> = ArrayList<TouchPoint?>()
+    private var surfaceCallback: SurfaceHolder.Callback? = null
+    private var renderBitmap: Bitmap? = null
+    private var bkGroundBitmap: Bitmap? = null
+    private var canvas: Canvas? = null
+    private val renderPaint: Paint by lazy {
+        Paint().also { initPaint(it) }
     }
+    private var erasePaint: Paint? = null
+    private val renderStrokeWidth = 3f
+    private val eraseStrokeWidth = 20f
+    private val rawInputCallback: RawInputCallback by lazy {
+        object : RawInputCallback() {
+            override fun onBeginRawDrawing(
+                b: Boolean,
+                touchPoint: TouchPoint?
+            ) {
+            }
 
-    @Override
-    protected void onResume() {
-        touchHelper.setRawDrawingEnabled(true);
-        super.onResume();
-    }
+            override fun onEndRawDrawing(
+                b: Boolean,
+                touchPoint: TouchPoint?
+            ) {
+            }
 
-    @Override
-    protected void onPause() {
-        touchHelper.setRawDrawingEnabled(false);
-        super.onPause();
-    }
+            override fun onRawDrawingTouchPointMoveReceived(touchPoint: TouchPoint?) {
+            }
 
-    @Override
-    protected void onDestroy() {
-        touchHelper.closeRawDrawing();
-        super.onDestroy();
-    }
+            override fun onRawDrawingTouchPointListReceived(touchPointList: TouchPointList?) {
+                Log.e(
+                    TAG, "onRawDrawingTouchPointListReceived: "
+                )
+                val path = createPath(touchPointList) ?: return
+                renderBitmap(path)
+            }
 
-    private void initSurfaceView() {
-        touchHelper = TouchHelper.create(binding.surfaceview, getRawInputCallback());
-        if (surfaceCallback == null) {
-            surfaceCallback = new SurfaceHolder.Callback() {
-                @Override
-                public void surfaceCreated(SurfaceHolder holder) {
-                    Rect limit = new Rect();
-                    binding.surfaceview.getLocalVisibleRect(limit);
-                    bkGroundBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.scribble_back_ground_grid);
-                    renderBitmap = Bitmap.createBitmap(binding.surfaceview.getWidth(),
-                            binding.surfaceview.getHeight(),
-                            Bitmap.Config.ARGB_8888);
-                    renderBitmap.eraseColor(Color.TRANSPARENT);
-                    canvas = new Canvas(renderBitmap);
-                    drawBitmap();
-                    touchHelper.setLimitRect(limit, new ArrayList<Rect>())
-                            .setStrokeWidth(renderStrokeWidth)
-                            .openRawDrawing();
-                }
+            override fun onBeginRawErasing(
+                b: Boolean,
+                touchPoint: TouchPoint?
+            ) {
+                touchHelper.isRawDrawingRenderEnabled = false
+                drawBitmap()
+            }
 
-                @Override
-                public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-                }
+            override fun onEndRawErasing(
+                b: Boolean,
+                touchPoint: TouchPoint?
+            ) {
+                touchHelper.isRawDrawingRenderEnabled = true
+            }
 
-                @Override
-                public void surfaceDestroyed(SurfaceHolder holder) {
-                    holder.removeCallback(surfaceCallback);
-                    surfaceCallback = null;
-                }
-            };
-        }
-        binding.surfaceview.getHolder().addCallback(surfaceCallback);
-    }
-
-    public RawInputCallback getRawInputCallback() {
-        if (rawInputCallback == null) {
-            rawInputCallback = new RawInputCallback() {
-                @Override
-                public void onBeginRawDrawing(boolean b, TouchPoint touchPoint) {
-
-                }
-
-                @Override
-                public void onEndRawDrawing(boolean b, TouchPoint touchPoint) {
-
-                }
-
-                @Override
-                public void onRawDrawingTouchPointMoveReceived(TouchPoint touchPoint) {
-
-                }
-
-                @Override
-                public void onRawDrawingTouchPointListReceived(TouchPointList touchPointList) {
-                    Log.e(TAG, "onRawDrawingTouchPointListReceived: ");
-                    Path path = createPath(touchPointList);
-                    renderBitmap(path);
-                }
-
-                @Override
-                public void onBeginRawErasing(boolean b, TouchPoint touchPoint) {
-                    touchHelper.setRawDrawingRenderEnabled(false);
-                    drawBitmap();
-                }
-
-                @Override
-                public void onEndRawErasing(boolean b, TouchPoint touchPoint) {
-                    touchHelper.setRawDrawingRenderEnabled(true);
-                }
-
-                @Override
-                public void onRawErasingTouchPointMoveReceived(TouchPoint touchPoint) {
-                    Log.e(TAG, "onRawErasingTouchPointMoveReceived: ");
-                    points.add(touchPoint);
-                    if (points.size() >= 100) {
-                        List<TouchPoint> pointList = new ArrayList<>(points);
-                        points.clear();
-                        TouchPointList touchPointList = new TouchPointList();
-                        for (TouchPoint point : pointList) {
-                            touchPointList.add(point);
-                        }
-                        eraseBitmap(createPath(touchPointList));
-                        drawBitmap();
+            override fun onRawErasingTouchPointMoveReceived(touchPoint: TouchPoint?) {
+                Log.e(
+                    TAG, "onRawErasingTouchPointMoveReceived: "
+                )
+                points.add(touchPoint)
+                if (points.size >= 100) {
+                    val pointList: MutableList<TouchPoint?> = ArrayList<TouchPoint?>(
+                        points
+                    )
+                    points.clear()
+                    val touchPointList = TouchPointList()
+                    for (point in pointList) {
+                        touchPointList.add(point)
                     }
+                    val path = createPath(touchPointList) ?: return
+                    eraseBitmap(path)
+                    drawBitmap()
+                }
+            }
+
+            override fun onRawErasingTouchPointListReceived(touchPointList: TouchPointList?) {
+                val path = createPath(touchPointList) ?: return
+                eraseBitmap(path)
+            }
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = DataBindingUtil.setContentView(
+            this, R.layout.activity_scribble_move_erase_stylus_demo
+        )
+        binding.setActivityScribbleMoveErase(this)
+        initSurfaceView()
+    }
+
+    override fun onResume() {
+        touchHelper.setRawDrawingEnabled(true)
+        super.onResume()
+    }
+
+    override fun onPause() {
+        touchHelper.setRawDrawingEnabled(false)
+        super.onPause()
+    }
+
+    override fun onDestroy() {
+        touchHelper.closeRawDrawing()
+        super.onDestroy()
+    }
+
+    private fun initSurfaceView() {
+        val surfaceView = binding.surfaceview
+        touchHelper = TouchHelper.create(surfaceView, rawInputCallback)
+        var callback = surfaceCallback
+        if (callback == null) {
+            callback = object : SurfaceHolder.Callback {
+                override fun surfaceCreated(holder: SurfaceHolder) {
+                    val limit = Rect()
+                    surfaceView.getLocalVisibleRect(limit)
+                    bkGroundBitmap = BitmapFactory.decodeResource(
+                        getResources(), R.drawable.scribble_back_ground_grid
+                    )
+                    val newBitmap = Bitmap.createBitmap(
+                        surfaceView.width,
+                        surfaceView.height,
+                        Bitmap.Config.ARGB_8888
+                    )
+                    newBitmap.eraseColor(Color.TRANSPARENT)
+                    renderBitmap = newBitmap
+                    canvas = Canvas(newBitmap)
+                    drawBitmap()
+                    touchHelper.setLimitRect(limit, ArrayList<Rect?>())
+                        .setStrokeWidth(renderStrokeWidth).openRawDrawing()
                 }
 
-                @Override
-                public void onRawErasingTouchPointListReceived(TouchPointList touchPointList) {
-                    Path path = createPath(touchPointList);
-                    eraseBitmap(path);
+                override fun surfaceChanged(
+                    holder: SurfaceHolder,
+                    format: Int,
+                    width: Int,
+                    height: Int
+                ) {
                 }
-            };
+
+                override fun surfaceDestroyed(holder: SurfaceHolder) {
+                    holder.removeCallback(this)
+                    surfaceCallback = null
+                }
+            }
+            surfaceCallback = callback
         }
-        return rawInputCallback;
+        surfaceView.holder.addCallback(callback)
     }
 
-    private void initPaint(Paint paint) {
-        paint.setStrokeWidth(renderStrokeWidth);
-        paint.setColor(Color.BLACK);
-        paint.setAntiAlias(true);
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setDither(true);
-        paint.setStrokeCap(Paint.Cap.ROUND);
-        paint.setStrokeJoin(Paint.Join.ROUND);
-        paint.setStrokeMiter(4.0f);
+    private fun initPaint(paint: Paint) {
+        paint.strokeWidth = renderStrokeWidth
+        paint.color = Color.BLACK
+        paint.isAntiAlias = true
+        paint.style = Paint.Style.STROKE
+        paint.isDither = true
+        paint.strokeCap = Paint.Cap.ROUND
+        paint.strokeJoin = Paint.Join.ROUND
+        paint.strokeMiter = 4.0f
     }
 
-    public void onPenClick(View view) {
-        touchHelper.setRawDrawingEnabled(true);
+    fun onPenClick(view: View?) {
+        touchHelper.setRawDrawingEnabled(true)
     }
 
-    public void onEraserClick(View view) {
-        touchHelper.setRawDrawingEnabled(false);
-        renderBitmap.eraseColor(Color.TRANSPARENT);
-        drawBitmap();
-        touchHelper.setRawDrawingEnabled(true);
+    fun onEraserClick(view: View?) {
+        touchHelper.setRawDrawingEnabled(false)
+        renderBitmap?.eraseColor(Color.TRANSPARENT)
+        drawBitmap()
+        touchHelper.setRawDrawingEnabled(true)
     }
 
-    public Paint getRenderPaint() {
-        if (renderPaint == null) {
-            renderPaint = new Paint();
-            initPaint(renderPaint);
+    fun getErasePaint(): Paint {
+        var paint = erasePaint
+        if (paint == null) {
+            paint = Paint()
+            initPaint(paint)
+            paint.strokeWidth = eraseStrokeWidth
+            paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
+            erasePaint = paint
         }
-        return renderPaint;
+        return paint
     }
 
-    public Paint getErasePaint() {
-        if (erasePaint == null) {
-            erasePaint = new Paint();
-            initPaint(erasePaint);
-            erasePaint.setStrokeWidth(eraseStrokeWidth);
-            erasePaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-        }
-        return erasePaint;
+    private fun renderBitmap(path: Path) {
+        val drawCanvas = canvas ?: return
+        drawCanvas.drawPath(path, renderPaint)
     }
 
-    private void renderBitmap(Path path) {
-        if (canvas == null) {
-            return;
-        }
-        canvas.drawPath(path, getRenderPaint());
+    private fun eraseBitmap(path: Path) {
+        val drawCanvas = canvas ?: return
+        drawCanvas.drawPath(path, getErasePaint())
     }
 
-    private void eraseBitmap(Path path) {
-        if (canvas == null) {
-            return;
+    private fun drawBitmap() {
+        val surfaceView = binding.surfaceview
+        if (surfaceView.holder == null) {
+            return
         }
-        canvas.drawPath(path, getErasePaint());
+        val canvas = surfaceView.holder.lockCanvas() ?: return
+        EpdController.enablePost(surfaceView, 1)
+        val paint = Paint()
+        paint.style = Paint.Style.FILL
+        paint.color = Color.WHITE
+        val rect = Rect(0, 0, surfaceView.width, surfaceView.height)
+        canvas.drawRect(rect, paint)
+        val background = bkGroundBitmap
+        val render = renderBitmap
+        if (background != null) {
+            canvas.drawBitmap(background, null, rect, paint)
+        }
+        if (render != null) {
+            canvas.drawBitmap(render, 0f, 0f, paint)
+        }
+        surfaceView.holder.unlockCanvasAndPost(canvas)
     }
 
-    private void drawBitmap() {
-        if (binding.surfaceview.getHolder() == null) {
-            return;
-        }
-        Canvas canvas = binding.surfaceview.getHolder().lockCanvas();
-        if (canvas == null) {
-            return;
-        }
-        EpdController.enablePost(binding.surfaceview, 1);
-        Paint paint = new Paint();
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(Color.WHITE);
-        Rect rect = new Rect(0, 0, binding.surfaceview.getWidth(), binding.surfaceview.getHeight());
-        canvas.drawRect(rect, paint);
-        canvas.drawBitmap(bkGroundBitmap, null, rect, paint);
-        canvas.drawBitmap(renderBitmap, 0, 0, paint);
-        binding.surfaceview.getHolder().unlockCanvasAndPost(canvas);
-    }
-
-    public Path createPath(final TouchPointList pointList) {
+    fun createPath(pointList: TouchPointList?): Path? {
         if (pointList == null || pointList.size() <= 0) {
-            return null;
+            return null
         }
-        final Iterator<TouchPoint> iterator = pointList.iterator();
-        TouchPoint touchPoint = iterator.next();
-        Path path = new Path();
-        path.moveTo(touchPoint.getX(), touchPoint.getY());
+        val iterator = pointList.iterator()
+        var touchPoint = iterator.next()
+        val path = Path()
+        path.moveTo(touchPoint.x, touchPoint.y)
         while (iterator.hasNext()) {
-            touchPoint = iterator.next();
-            path.lineTo(touchPoint.getX(), touchPoint.getY());
+            touchPoint = iterator.next()
+            path.lineTo(touchPoint.x, touchPoint.y)
         }
-        return path;
+        return path
+    }
+
+    companion object {
+        private val TAG: String = ScribbleMoveEraserDemoActivity::class.java.simpleName
     }
 }

@@ -1,78 +1,77 @@
-package com.onyx.android.eink.pen.demo.action;
+package com.onyx.android.eink.pen.demo.action
 
-import com.onyx.android.eink.pen.demo.PenBundle;
-import com.onyx.android.eink.pen.demo.PenManager;
-import com.onyx.android.eink.pen.demo.event.PenEvent;
-import com.onyx.android.eink.pen.demo.request.RendererToScreenRequest;
-import com.onyx.android.sdk.rx.RxBaseAction;
-import com.onyx.android.sdk.utils.EventBusUtils;
+import com.onyx.android.eink.pen.demo.PenBundle
+import com.onyx.android.eink.pen.demo.PenManager
+import com.onyx.android.eink.pen.demo.event.PenEvent
+import com.onyx.android.eink.pen.demo.request.RendererToScreenRequest
+import com.onyx.android.sdk.rx.RxBaseAction
+import com.onyx.android.sdk.utils.EventBusUtils
+import io.reactivex.Observable
+import io.reactivex.Scheduler
+import io.reactivex.functions.Function
+import java.util.concurrent.TimeUnit
+import kotlin.concurrent.Volatile
 
-import java.util.concurrent.TimeUnit;
+class RefreshScreenAction : RxBaseAction<RefreshScreenAction>() {
+    @Volatile
+    private var pauseRawInputReader = true
 
-import io.reactivex.Observable;
-import io.reactivex.Scheduler;
+    @Volatile
+    private var resumeRawDrawing = true
+    private var delayResumePenTimeMs: Int = PenEvent.DELAY_ENABLE_RAW_DRAWING_MILLS
+    private var delayRefreshTime = 0
 
-public class RefreshScreenAction extends RxBaseAction<RefreshScreenAction> {
-    private volatile boolean pauseRawInputReader = true;
-    private volatile boolean resumeRawDrawing = true;
-    private int delayResumePenTimeMs = PenEvent.DELAY_ENABLE_RAW_DRAWING_MILLS;
-    private int delayRefreshTime;
-
-    public RefreshScreenAction() {
+    fun setDelayResumePenTimeMs(delayResumePenTimeMs: Int): RefreshScreenAction {
+        this.delayResumePenTimeMs = delayResumePenTimeMs
+        return this
     }
 
-    public RefreshScreenAction setDelayResumePenTimeMs(int delayResumePenTimeMs) {
-        this.delayResumePenTimeMs = delayResumePenTimeMs;
-        return this;
+    fun setDelayRefreshTime(delayRefreshTime: Int): RefreshScreenAction {
+        this.delayRefreshTime = delayRefreshTime
+        return this
     }
 
-    public RefreshScreenAction setDelayRefreshTime(int delayRefreshTime) {
-        this.delayRefreshTime = delayRefreshTime;
-        return this;
+    override fun create(): Observable<RefreshScreenAction> {
+        return penManager.createObservable()
+            .flatMap { delayObservable }
+            .map { refresh() }
     }
 
-    @Override
-    protected Observable<RefreshScreenAction> create() {
-        return getPenManager().createObservable()
-                .flatMap(o -> getDelayObservable())
-                .map(o -> refresh());
+    fun setResumeRawDrawing(resumeRawDrawing: Boolean): RefreshScreenAction {
+        this.resumeRawDrawing = resumeRawDrawing
+        return this
     }
 
-    public RefreshScreenAction setResumeRawDrawing(boolean resumeRawDrawing) {
-        this.resumeRawDrawing = resumeRawDrawing;
-        return this;
-    }
-
-    private RefreshScreenAction refresh() throws Exception {
-        new RendererToScreenRequest(getPenManager())
-                .setPauseRawInputReader(pauseRawInputReader)
-                .execute();
+    @Throws(Exception::class)
+    private fun refresh(): RefreshScreenAction {
+        RendererToScreenRequest(penManager).setPauseRawInputReader(pauseRawInputReader)
+            .execute()
         if (resumeRawDrawing) {
-            EventBusUtils.safelyPostEvent(getPenManager().getEventBus(), PenEvent.resumeRawDrawing(delayResumePenTimeMs));
+            EventBusUtils.safelyPostEvent(
+                penManager.getEventBus(),
+                PenEvent.resumeRawDrawing(delayResumePenTimeMs)
+            )
         }
-        return this;
+        return this
     }
 
-    private Observable<RefreshScreenAction> getDelayObservable() {
-        Observable<RefreshScreenAction> observable =
-                Observable.just(this)
-                .observeOn(getScheduler());
-        if (delayRefreshTime == 0 ) {
-            return observable;
+    private val delayObservable: Observable<RefreshScreenAction>
+        get() {
+            val observable = Observable.just(this).observeOn(scheduler)
+            if (delayRefreshTime == 0) {
+                return observable
+            }
+            return observable.delay(
+                delayRefreshTime.toLong(), TimeUnit.MILLISECONDS
+            )
         }
-        return observable.delay(delayRefreshTime, TimeUnit.MILLISECONDS);
-    }
 
-    public PenBundle getDataBundle() {
-        return PenBundle.getInstance();
-    }
+    val dataBundle: PenBundle
+        get() = PenBundle.getInstance()
 
-    public PenManager getPenManager() {
-        return getDataBundle().getPenManager();
-    }
+    val penManager: PenManager
+        get() = dataBundle.getPenManager()
 
-    public Scheduler getScheduler() {
-        return getPenManager().getObserveOn();
-    }
-
+    val scheduler: Scheduler
+        get() = penManager.getObserveOn()
 }

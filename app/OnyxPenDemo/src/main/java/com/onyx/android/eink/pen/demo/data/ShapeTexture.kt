@@ -1,53 +1,38 @@
-package com.onyx.android.eink.pen.demo.data;
+package com.onyx.android.eink.pen.demo.data
 
-import com.onyx.android.eink.pen.demo.R;
-import com.onyx.android.sdk.data.note.PenTexture;
+import com.onyx.android.eink.pen.demo.R
+import com.onyx.android.sdk.data.note.PenTexture
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+enum class ShapeTexture(
+    private val shapeType: Int,
+    private val texture: Int,
+    private val textureTextResId: Int
+) {
+    CHARCOAL_V1(
+        ShapeFactory.SHAPE_CHARCOAL_SCRIBBLE, PenTexture.CHARCOAL_SHAPE_V1, R.string.texture_1
+    ),
+    CHARCOAL_V2(
+        ShapeFactory.SHAPE_CHARCOAL_SCRIBBLE, PenTexture.CHARCOAL_SHAPE_V2, R.string.texture_2
+    );
 
-public enum ShapeTexture {
+    fun getShapeType(): Int = shapeType
 
-    CHARCOAL_V1(ShapeFactory.SHAPE_CHARCOAL_SCRIBBLE, PenTexture.CHARCOAL_SHAPE_V1, R.string.texture_1),
-    CHARCOAL_V2(ShapeFactory.SHAPE_CHARCOAL_SCRIBBLE, PenTexture.CHARCOAL_SHAPE_V2, R.string.texture_2);
+    fun getTexture(): Int = texture
 
-    private int shapeType;
-    private int texture;
-    private int textureTextResId;
+    fun getTextureTextResId(): Int = textureTextResId
 
-    ShapeTexture(int shapeType, int texture, int textureTextResId) {
-        this.shapeType = shapeType;
-        this.texture = texture;
-        this.textureTextResId = textureTextResId;
-    }
-
-    public int getShapeType() {
-        return shapeType;
-    }
-
-    public int getTexture() {
-        return texture;
-    }
-
-    public int getTextureTextResId() {
-        return textureTextResId;
-    }
-
-    public static List<ShapeTexture> getShapeTextures(int shapeType) {
-        ShapeTexture[] textures = ShapeTexture.values();
-        return Arrays.stream(textures)
-                .filter(o -> o.getShapeType() == shapeType)
-                .collect(Collectors.toList());
-    }
-
-    public static ShapeTexture find(int texture) {
-        ShapeTexture[] values = ShapeTexture.values();
-        for (ShapeTexture shapeTexture : values) {
-            if (texture == shapeTexture.texture) {
-                return shapeTexture;
-            }
+    companion object {
+        fun getShapeTextures(shapeType: Int): MutableList<ShapeTexture> {
+            return entries.filter { it.getShapeType() == shapeType }.toMutableList()
         }
-        return CHARCOAL_V1;
+
+        fun find(texture: Int): ShapeTexture {
+            for (shapeTexture in entries) {
+                if (texture == shapeTexture.getTexture()) {
+                    return shapeTexture
+                }
+            }
+            return CHARCOAL_V1
+        }
     }
 }

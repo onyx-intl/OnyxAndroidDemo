@@ -1,410 +1,348 @@
-package com.onyx.android.eink.pen.demo;
+package com.onyx.android.eink.pen.demo
 
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Point;
-import android.graphics.Rect;
-import android.graphics.RectF;
-import android.view.SurfaceView;
-import android.view.View;
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Point
+import android.graphics.Rect
+import android.graphics.RectF
+import android.util.Log
+import android.view.SurfaceView
+import android.view.View
+import androidx.annotation.WorkerThread
+import com.onyx.android.eink.pen.demo.data.InteractiveMode
+import com.onyx.android.eink.pen.demo.data.ShapeFactory
+import com.onyx.android.eink.pen.demo.erase.data.EraseTypes
+import com.onyx.android.eink.pen.demo.erase.util.EraserTrackHelper
+import com.onyx.android.eink.pen.demo.helper.RendererHelper
+import com.onyx.android.eink.pen.demo.shape.Shape
+import com.onyx.android.eink.pen.demo.util.PenInfoUtils
+import com.onyx.android.sdk.api.device.epd.EpdController
+import com.onyx.android.sdk.api.device.epd.UpdateMode
+import com.onyx.android.sdk.data.PenConstant
+import com.onyx.android.sdk.device.Device
+import com.onyx.android.sdk.pen.RawInputCallback
+import com.onyx.android.sdk.pen.TouchHelper
+import com.onyx.android.sdk.pen.style.StrokeStyle
+import com.onyx.android.sdk.rx.RxScheduler
+import com.onyx.android.sdk.utils.BitmapUtils
+import com.onyx.android.sdk.utils.Debug
+import com.onyx.android.sdk.utils.ResManager
+import com.onyx.android.sdk.utils.ViewUtils
+import io.reactivex.Observable
+import io.reactivex.Scheduler
+import org.greenrobot.eventbus.EventBus
 
-import androidx.annotation.NonNull;
-import androidx.annotation.WorkerThread;
+class PenManager(private val eventBus: EventBus) {
+    private var rxScheduler: RxScheduler? = null
+    private var rendererHelper: RendererHelper? = null
+    private var surfaceView: SurfaceView? = null
+    private var touchHelper: TouchHelper? = null
 
-import com.onyx.android.eink.pen.demo.data.InteractiveMode;
-import com.onyx.android.eink.pen.demo.data.ShapeFactory;
-import com.onyx.android.eink.pen.demo.erase.data.EraseTypes;
-import com.onyx.android.eink.pen.demo.erase.util.EraserTrackHelper;
-import com.onyx.android.eink.pen.demo.helper.RendererHelper;
-import com.onyx.android.eink.pen.demo.shape.Shape;
-import com.onyx.android.eink.pen.demo.util.PenInfoUtils;
-import com.onyx.android.sdk.api.device.epd.EpdController;
-import com.onyx.android.sdk.api.device.epd.UpdateMode;
-import com.onyx.android.sdk.data.PenConstant;
-import com.onyx.android.sdk.device.Device;
-import com.onyx.android.sdk.pen.RawInputCallback;
-import com.onyx.android.sdk.pen.TouchHelper;
-import com.onyx.android.sdk.pen.style.StrokeStyle;
-import com.onyx.android.sdk.rx.RxScheduler;
-import com.onyx.android.sdk.utils.BitmapUtils;
-import com.onyx.android.sdk.utils.Debug;
-import com.onyx.android.sdk.utils.ResManager;
-import com.onyx.android.sdk.utils.ViewUtils;
+    fun getEventBus(): EventBus = eventBus
 
-import org.greenrobot.eventbus.EventBus;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import io.reactivex.Observable;
-import io.reactivex.Scheduler;
-
-public class PenManager {
-    private static final float PARTIAL_REFRESH_MAX_AREA_RATIO = 0.6f;
-    private static final Float ERASE_PEN_OPACITY = 0.5F;
-    private static final Float ERASE_PEN_BLACK_OPACITY = 0.1F;
-
-    private EventBus eventBus;
-    private RxScheduler rxScheduler;
-    private RendererHelper rendererHelper;
-
-    private SurfaceView surfaceView;
-    private TouchHelper touchHelper;
-    private boolean hostSurfaceAttached;
-    private boolean rawSessionNeedsRestart;
-
-    private InteractiveMode currentMode = InteractiveMode.SCRIBBLE;
-
-    private List<Shape> drawShape = new ArrayList<>();
-
-    public PenManager(EventBus eventBus) {
-        this.eventBus = eventBus;
+    fun getRendererHelper(): RendererHelper {
+        val existing = rendererHelper
+        if (existing != null) {
+            return existing
+        }
+        return RendererHelper().also { rendererHelper = it }
     }
 
-    public void destroy() {
-        drawShape.clear();
-        getRenderContext().eraseArgs = null;
-        getRenderContext().recycleBitmap();
-        if (touchHelper != null) {
-            touchHelper.closeRawDrawing();
-            touchHelper = null;
+    private fun getRxScheduler(): RxScheduler {
+        val existing = rxScheduler
+        if (existing != null) {
+            return existing
         }
-        surfaceView = null;
-        hostSurfaceAttached = false;
-        rawSessionNeedsRestart = false;
-        currentMode = InteractiveMode.SCRIBBLE;
+        return RxScheduler.sharedSingleThreadManager().also { rxScheduler = it }
+    }
+
+    fun getSurfaceView(): SurfaceView? = surfaceView
+
+    fun setSurfaceView(surfaceView: SurfaceView?) {
+        this.surfaceView = surfaceView
+    }
+
+    fun getTouchHelper(): TouchHelper? = touchHelper
+    private var hostSurfaceAttached = false
+    private var rawSessionNeedsRestart = false
+
+    @get:WorkerThread
+    private var currentMode: InteractiveMode = InteractiveMode.SCRIBBLE
+
+    @WorkerThread
+    fun getCurrentMode(): InteractiveMode = currentMode
+
+    private val drawShapes: MutableList<Shape> = ArrayList()
+
+    fun getDrawShape(): MutableList<Shape> = drawShapes
+
+    fun destroy() {
+        getDrawShape().clear()
+        getRenderContext().eraseArgs = null
+        getRenderContext().recycleBitmap()
+        touchHelper?.closeRawDrawing()
+        touchHelper = null
+        surfaceView = null
+        hostSurfaceAttached = false
+        rawSessionNeedsRestart = false
+        currentMode = InteractiveMode.SCRIBBLE
     }
 
     @WorkerThread
-    public void clearDrawShapes() {
-        drawShape.clear();
-        getRenderContext().eraseArgs = null;
-        if (getRenderContext().bitmap != null) {
-            activeRenderMode(InteractiveMode.SCRIBBLE);
-            getRenderContext().bitmap.eraseColor(Color.WHITE);
+    fun clearDrawShapes() {
+        getDrawShape().clear()
+        getRenderContext().eraseArgs = null
+        val clearBitmap = getRenderContext().bitmap
+        if (clearBitmap != null) {
+            activeRenderMode(InteractiveMode.SCRIBBLE)
+            clearBitmap.eraseColor(Color.WHITE)
         }
     }
 
     @WorkerThread
-    public void releaseRawSession() {
-        rawSessionNeedsRestart = true;
-        hostSurfaceAttached = false;
-        if (touchHelper != null) {
-            touchHelper.closeRawDrawing();
-        }
+    fun releaseRawSession() {
+        rawSessionNeedsRestart = true
+        hostSurfaceAttached = false
+        touchHelper?.closeRawDrawing()
     }
 
-    public boolean needsRawSessionRestart() {
-        return rawSessionNeedsRestart;
+    fun needsRawSessionRestart(): Boolean {
+        return rawSessionNeedsRestart
     }
 
-    public void attachHostView(@NonNull SurfaceView view, View floatMenuLayout, boolean hostViewFocused, RawInputCallback callback) {
-        if (view.getWidth() == 0 || view.getHeight() == 0) {
-            throw new IllegalStateException("can not start when view width or height is 0");
-        }
-        boolean preserveBitmap = surfaceView != null
-                && surfaceView == view
-                && BitmapUtils.isValid(getRenderContext().bitmap);
+    fun attachHostView(
+        view: SurfaceView,
+        floatMenuLayout: View,
+        hostViewFocused: Boolean,
+        callback: RawInputCallback?
+    ) {
+        check(!(view.width == 0 || view.height == 0)) { "can not start when view width or height is 0" }
+        val preserveBitmap = surfaceView != null && surfaceView === view && BitmapUtils.isValid(
+            getRenderContext().bitmap
+        )
         if (hostSurfaceAttached && preserveBitmap && isHostSurfaceValid(view)) {
-            Debug.i(getClass(), "not attach for note view not changed");
-            return;
+            Debug.i(javaClass, "not attach for note view not changed")
+            return
         }
-        surfaceView = view;
+        surfaceView = view
         if (!preserveBitmap) {
-            getRenderContext().bitmap = createBitmap();
-            bindCanvasToBitmap();
+            getRenderContext().bitmap = createBitmap()
+            bindCanvasToBitmap()
         }
-        if (touchHelper == null) {
-            touchHelper = TouchHelper.create(view, callback);
-            touchHelper.setPostInputEvent(true);
+        var helper = touchHelper
+        if (helper == null) {
+            helper = TouchHelper.create(view, callback)
+            touchHelper = helper
+            helper.setPostInputEvent(true)
         } else {
-            touchHelper.bindHostView(view, callback);
+            helper.bindHostView(view, callback)
         }
-        Rect limitRect = ViewUtils.localVisibleRect(getSurfaceView());
-        Rect funcMenuExcludeRect = ViewUtils.relativelyParentRect(floatMenuLayout);
-        List<Rect> excludeRectList = new ArrayList<>();
-        excludeRectList.add(funcMenuExcludeRect);
-        touchHelper.setLimitRect(limitRect, excludeRectList);
+        val limitRect = ViewUtils.localVisibleRect(view)
+        val funcMenuExcludeRect = ViewUtils.relativelyParentRect(floatMenuLayout)
+        val excludeRectList: MutableList<Rect?> = ArrayList()
+        excludeRectList.add(funcMenuExcludeRect)
+        helper.setLimitRect(limitRect, excludeRectList)
 
-        touchHelper.openRawDrawing();
-        hostSurfaceAttached = true;
-        rawSessionNeedsRestart = false;
+        helper.openRawDrawing()
+        hostSurfaceAttached = true
+        rawSessionNeedsRestart = false
         if (hostViewFocused) {
-            touchHelper.forceSetRawDrawingEnabled(false);
+            helper.forceSetRawDrawingEnabled(false)
         }
         if (!preserveBitmap) {
-            restoreDrawShapesToBitmap();
+            restoreDrawShapesToBitmap()
         }
     }
 
-    private static boolean isHostSurfaceValid(SurfaceView view) {
-        if (view == null) {
-            return false;
-        }
-        try {
-            return view.getHolder().getSurface().isValid();
-        } catch (Exception e) {
-            return false;
-        }
+    fun setViewPoint(renderView: View) {
+        val rect = ViewUtils.globalVisibleRect(renderView)
+        getRenderContext().viewPoint = Point(rect.left, rect.top)
     }
 
-    public void setViewPoint(View renderView) {
-        Rect rect = ViewUtils.globalVisibleRect(renderView);
-        getRenderContext().viewPoint = new Point(rect.left, rect.top);
+    fun getViewRect(): Rect {
+        val rect = Rect()
+        val view = surfaceView ?: return rect
+        view.getLocalVisibleRect(rect)
+        return rect
     }
 
-    public void setSurfaceView(SurfaceView surfaceView) {
-        this.surfaceView = surfaceView;
+    fun createBitmap(): Bitmap? {
+        val surface = surfaceView ?: return null
+        val limitRect = Rect()
+        surface.getLocalVisibleRect(limitRect)
+        val bitmap =
+            Bitmap.createBitmap(limitRect.width(), limitRect.height(), Bitmap.Config.ARGB_8888)
+        bitmap.eraseColor(Color.WHITE)
+        return bitmap
     }
 
-    public TouchHelper getTouchHelper() {
-        return touchHelper;
-    }
-
-    public SurfaceView getSurfaceView() {
-        return surfaceView;
-    }
-
-    public Rect getViewRect() {
-        Rect rect = new Rect();
-        if (surfaceView == null) {
-            return rect;
-        }
-        getSurfaceView().getLocalVisibleRect(rect);
-        return rect;
-    }
-
-    public Bitmap createBitmap() {
-        if (getSurfaceView() == null) {
-            return null;
-        }
-        Rect limitRect = new Rect();
-        getSurfaceView().getLocalVisibleRect(limitRect);
-        Bitmap bitmap = Bitmap.createBitmap(limitRect.width(), limitRect.height(), Bitmap.Config.ARGB_8888);
-        bitmap.eraseColor(Color.WHITE);
-        return bitmap;
-    }
-
-    public Canvas getCanvas() {
-        Canvas canvas = getRenderContext().canvas;
+    fun getCanvas(): Canvas? {
+        val canvas = getRenderContext().canvas
         if (canvas == null) {
-            bindCanvasToBitmap();
-            return getRenderContext().canvas;
+            bindCanvasToBitmap()
+            return getRenderContext().canvas
         }
-        return canvas;
+        return canvas
     }
 
-    private void bindCanvasToBitmap() {
-        Bitmap bitmap = getRenderContext().bitmap;
+    private fun bindCanvasToBitmap() {
+        val bitmap = getRenderContext().bitmap
         if (bitmap == null) {
-            getRenderContext().canvas = null;
-            return;
+            getRenderContext().canvas = null
+            return
         }
-        getRenderContext().canvas = new Canvas(bitmap);
+        getRenderContext().canvas = Canvas(bitmap)
     }
 
     @WorkerThread
-    public void restoreDrawShapesToBitmap() {
-        if (drawShape.isEmpty() || getRenderContext().bitmap == null) {
-            return;
+    fun restoreDrawShapesToBitmap() {
+        if (getDrawShape().isEmpty() || getRenderContext().bitmap == null) {
+            return
         }
-        activeRenderMode(InteractiveMode.SCRIBBLE);
-        renderToBitmap(new ArrayList<>(drawShape));
+        activeRenderMode(InteractiveMode.SCRIBBLE)
+        renderToBitmap(ArrayList(getDrawShape()))
     }
 
-    public EventBus getEventBus() {
-        return eventBus;
+    fun createObservable(): Observable<PenManager> {
+        return Observable.just(this).observeOn(getObserveOn())
     }
 
-    public RendererHelper getRendererHelper() {
-        if (rendererHelper == null) {
-            rendererHelper = new RendererHelper();
-        }
-        return rendererHelper;
-    }
+    fun getObserveOn(): Scheduler = getRxScheduler().observeOn
 
-    public Observable<PenManager> createObservable() {
-        return Observable.just(this)
-                .observeOn(getObserveOn());
-    }
+    @WorkerThread
+    fun getLimitNoteRect(): Rect = getViewRect()
 
-    public Scheduler getObserveOn() {
-        return getRxScheduler().getObserveOn();
-    }
-
-    private RxScheduler getRxScheduler() {
-        if (rxScheduler == null) {
-            rxScheduler = RxScheduler.sharedSingleThreadManager();
-        }
-        return rxScheduler;
-    }
-
-    public List<Shape> getDrawShape() {
-        return drawShape;
+    @WorkerThread
+    fun setDrawLimitRect(limitRectList: MutableList<Rect>?) {
+        val helper = touchHelper ?: return
+        helper.setLimitRect(limitRectList)
     }
 
     @WorkerThread
-    public Rect getLimitNoteRect() {
-        return getViewRect();
+    fun setDrawExcludeRect(excludeRectList: MutableList<Rect>?) {
+        val helper = touchHelper ?: return
+        helper.setExcludeRect(excludeRectList)
     }
 
     @WorkerThread
-    public void setDrawLimitRect(List<Rect> limitRectList) {
-        if (getTouchHelper() == null) {
-            return;
-        }
-        getTouchHelper().setLimitRect(limitRectList);
-    }
-
-    @WorkerThread
-    public void setDrawExcludeRect(List<Rect> excludeRectList) {
-        if (getTouchHelper() == null) {
-            return;
-        }
-        getTouchHelper().setExcludeRect(excludeRectList);
-    }
-
-    @WorkerThread
-    public void setStrokeWidth(float penWidth) {
-        if (getTouchHelper() == null) {
-            return;
-        }
+    fun setStrokeWidth(penWidth: Float) {
+        val helper = touchHelper ?: return
         // Convert mm to px for TouchHelper
-        float penWidthPx = mmToPx(penWidth);
-        getTouchHelper().setStrokeWidth(penWidthPx);
+        val penWidthPx = mmToPx(penWidth)
+        helper.setStrokeWidth(penWidthPx)
     }
 
-    private static final float MM_OF_ONE_INCH = 25.4f;
-
-    private float mmToPx(float mm) {
-        return mm * ResManager.getAppContext().getResources().getDisplayMetrics().densityDpi / MM_OF_ONE_INCH;
-    }
-
-    @WorkerThread
-    public void setStrokeStyle(int style) {
-        if (getTouchHelper() == null) {
-            return;
-        }
-        getTouchHelper().setStrokeStyle(style);
+    private fun mmToPx(mm: Float): Float {
+        return mm * ResManager.getAppContext().resources
+            .displayMetrics.densityDpi / MM_OF_ONE_INCH
     }
 
     @WorkerThread
-    public void setStrokeColor(int color) {
-        if (getTouchHelper() == null) {
-            return;
-        }
-        getTouchHelper().setStrokeColor(color);
+    fun setStrokeStyle(style: Int) {
+        val helper = touchHelper ?: return
+        helper.setStrokeStyle(style)
     }
 
     @WorkerThread
-    public void setPenUpRefreshTimeMs(int time) {
-        if (getTouchHelper() == null) {
-            return;
-        }
-        getTouchHelper().setPenUpRefreshTimeMs(time);
+    fun setStrokeColor(color: Int) {
+        val helper = touchHelper ?: return
+        helper.setStrokeColor(color)
     }
 
     @WorkerThread
-    public void setRawDrawingEnabled(final boolean enable) {
-        if (getTouchHelper() == null) {
-            return;
-        }
-        getTouchHelper().setRawDrawingEnabled(enable);
-        android.util.Log.e("zzzzwb", "setRawDrawingEnabled:  enable = " + enable);
+    fun setPenUpRefreshTimeMs(time: Int) {
+        val helper = touchHelper ?: return
+        helper.setPenUpRefreshTimeMs(time)
     }
 
     @WorkerThread
-    public void setRawDrawingRenderEnabled(final boolean enable) {
-        if (getTouchHelper() == null) {
-            return;
-        }
-        getTouchHelper().setRawDrawingRenderEnabled(enable);
-        android.util.Log.e("zzzzwb", "setRawDrawingRenderEnabled:  enable = " + enable);
+    fun setRawDrawingEnabled(enable: Boolean) {
+        val helper = touchHelper ?: return
+        helper.setRawDrawingEnabled(enable)
+        Log.e("zzzzwb", "setRawDrawingEnabled:  enable = $enable")
     }
 
     @WorkerThread
-    public void setEraserRawDrawingEnabled(boolean enabled, int eraserStrokeStyle) {
-        if (getTouchHelper() == null) {
-            return;
-        }
-        getTouchHelper().setEraserRawDrawingEnabled(enabled, eraserStrokeStyle);
+    fun setEraserRawDrawingEnabled(enabled: Boolean, eraserStrokeStyle: Int) {
+        val helper = touchHelper ?: return
+        helper.setEraserRawDrawingEnabled(enabled, eraserStrokeStyle)
     }
 
     @WorkerThread
-    public void setErasePathDrawing(boolean drawing, int eraseType) {
-        setEraserRawDrawingEnabled(drawing, EraserTrackHelper.eraserStrokeStyle(eraseType));
+    fun setErasePathDrawing(drawing: Boolean, eraseType: Int) {
+        setEraserRawDrawingEnabled(drawing, EraserTrackHelper.eraserStrokeStyle(eraseType))
     }
 
     @WorkerThread
-    public void prepareAppTrackEraseBegin() {
+    fun prepareAppTrackEraseBegin() {
         if (!isRawDrawingRenderEnabled()) {
-            return;
+            return
         }
-        activeRenderMode(InteractiveMode.SCRIBBLE);
-        getRenderContext().eraseArgs = null;
-        renderToScreen();
+        activeRenderMode(InteractiveMode.SCRIBBLE)
+        getRenderContext().eraseArgs = null
+        renderToScreen()
     }
 
     @WorkerThread
-    public void applyAreaErasePreviewParams() {
-        PenBundle penBundle = PenBundle.getInstance();
+    fun applyAreaErasePreviewParams() {
+        val penBundle: PenBundle = PenBundle.getInstance()
         if (EraserTrackHelper.useSfTrack(penBundle, EraseTypes.ERASER_AREA)) {
-            applySfAreaTouchHelperParams();
-            warmDashDeviceParameters(penBundle);
-            applyCapEraseStrokeConfig(penBundle);
-            forceRawDrawingEnabled();
+            applySfAreaTouchHelperParams()
+            warmDashDeviceParameters(penBundle)
+            applyCapEraseStrokeConfig(penBundle)
+            forceRawDrawingEnabled()
         } else {
-            applyLegacyEraseTouchHelperParams();
-            warmDashDeviceParameters(penBundle);
-            setRawInputReaderEnable(true);
+            applyLegacyEraseTouchHelperParams()
+            warmDashDeviceParameters(penBundle)
+            setRawInputReaderEnable(true)
         }
     }
 
     @WorkerThread
-    public void applyStrokeMoveErasePreviewParams() {
-        PenBundle penBundle = PenBundle.getInstance();
-        applyEraseTouchHelperParams(penBundle);
-        warmDashDeviceParameters(penBundle);
-        applyCapEraseStrokeConfig(penBundle);
+    fun applyStrokeMoveErasePreviewParams() {
+        val penBundle: PenBundle = PenBundle.getInstance()
+        applyEraseTouchHelperParams(penBundle)
+        warmDashDeviceParameters(penBundle)
+        applyCapEraseStrokeConfig(penBundle)
         if (EraserTrackHelper.shouldForceRawDrawing(penBundle, penBundle.getCurrentEraseType())) {
-            forceRawDrawingEnabled();
+            forceRawDrawingEnabled()
         }
     }
 
     @WorkerThread
-    public void applyErasePenParams() {
-        activeRenderMode(InteractiveMode.SCRIBBLE);
-        PenBundle penBundle = PenBundle.getInstance();
+    fun applyErasePenParams() {
+        activeRenderMode(InteractiveMode.SCRIBBLE)
+        val penBundle: PenBundle = PenBundle.getInstance()
         if (!penBundle.isEraseTool()) {
-            applyBrushTouchHelperParams(penBundle);
-            warmDashDeviceParameters(penBundle);
-            applyCapEraseStrokeConfig(penBundle);
-            return;
+            applyBrushTouchHelperParams(penBundle)
+            warmDashDeviceParameters(penBundle)
+            applyCapEraseStrokeConfig(penBundle)
+            return
         }
-        applyEraseTouchHelperParams(penBundle);
-        warmDashDeviceParameters(penBundle);
-        applyEraseResumeAttrs(penBundle);
+        applyEraseTouchHelperParams(penBundle)
+        warmDashDeviceParameters(penBundle)
+        applyEraseResumeAttrs(penBundle)
         if (EraserTrackHelper.shouldForceRawDrawing(penBundle, penBundle.getCurrentEraseType())) {
-            forceRawDrawingEnabled();
+            forceRawDrawingEnabled()
         }
     }
 
     @WorkerThread
-    public void applyCurrentPenState() {
-        if (getTouchHelper() == null) {
-            return;
+    fun applyCurrentPenState() {
+        val helper = touchHelper ?: return
+        if (!helper.isRawDrawingCreated) {
+            helper.restartRawDrawing()
         }
-        if (!getTouchHelper().isRawDrawingCreated()) {
-            getTouchHelper().restartRawDrawing();
-        }
-        setRawDrawingEnabled(true);
-        applyErasePenParams();
-        setRawInputReaderEnable(true);
-        PenBundle penBundle = PenBundle.getInstance();
-        if (!penBundle.isEraseTool()
-                || EraserTrackHelper.shouldForceRawDrawing(penBundle, penBundle.getCurrentEraseType())) {
-            forceRawDrawingEnabled();
+        setRawDrawingEnabled(true)
+        applyErasePenParams()
+        setRawInputReaderEnable(true)
+        val penBundle: PenBundle = PenBundle.getInstance()
+        if (!penBundle.isEraseTool() || EraserTrackHelper.shouldForceRawDrawing(
+                penBundle, penBundle.getCurrentEraseType()
+            )
+        ) {
+            forceRawDrawingEnabled()
         }
     }
 
@@ -412,225 +350,245 @@ public class PenManager {
      * Tool brush/erase switch: keep shape bitmap, apply current pen attrs, then blit to screen.
      */
     @WorkerThread
-    public void applyToolSwitchWithRefresh() {
-        setRawDrawingRenderEnabled(false);
-        getRenderContext().eraseArgs = null;
-        activeRenderMode(InteractiveMode.SCRIBBLE);
-        redrawAllShapesToBitmap();
-        applyErasePenParams();
-        renderToScreen();
+    fun applyToolSwitchWithRefresh() {
+        setRawDrawingRenderEnabled(false)
+        getRenderContext().eraseArgs = null
+        activeRenderMode(InteractiveMode.SCRIBBLE)
+        redrawAllShapesToBitmap()
+        applyErasePenParams()
+        renderToScreen()
     }
 
     @WorkerThread
-    public void redrawAllShapesToBitmap() {
-        if (getRenderContext().bitmap == null) {
-            return;
-        }
-        activeRenderMode(InteractiveMode.SCRIBBLE);
-        getRenderContext().bitmap.eraseColor(Color.WHITE);
-        if (!drawShape.isEmpty()) {
-            renderToBitmap(new ArrayList<>(drawShape));
+    fun redrawAllShapesToBitmap() {
+        val redrawBitmap = getRenderContext().bitmap ?: return
+        activeRenderMode(InteractiveMode.SCRIBBLE)
+        redrawBitmap.eraseColor(Color.WHITE)
+        if (!getDrawShape().isEmpty()) {
+            renderToBitmap(ArrayList(getDrawShape()))
         }
     }
 
     @WorkerThread
-    public void refreshPartial(@NonNull RectF refreshRect) throws Exception {
-        RendererHelper.RenderContext context = getRenderContext();
-        Bitmap bitmap = context.bitmap;
-        if (bitmap != null && shouldUseFullRefresh(refreshRect, bitmap.getWidth(), bitmap.getHeight())) {
-            context.clipRect = null;
-            activeRenderMode(InteractiveMode.SCRIBBLE);
-            renderToScreen();
-            return;
+    @Throws(Exception::class)
+    fun refreshPartial(refreshRect: RectF) {
+        val context = getRenderContext()
+        val bitmap = context.bitmap
+        if (bitmap != null && shouldUseFullRefresh(
+                refreshRect, bitmap.width, bitmap.height
+            )
+        ) {
+            context.clipRect = null
+            activeRenderMode(InteractiveMode.SCRIBBLE)
+            renderToScreen()
+            return
         }
         try {
-            EpdController.setViewDefaultUpdateMode(getSurfaceView(), UpdateMode.HAND_WRITING_REPAINT_MODE);
-            context.clipRect = refreshRect;
-            activeRenderMode(InteractiveMode.SCRIBBLE_PARTIAL_REFRESH);
-            renderToScreen();
+            EpdController.setViewDefaultUpdateMode(
+                this.surfaceView, UpdateMode.HAND_WRITING_REPAINT_MODE
+            )
+            context.clipRect = refreshRect
+            activeRenderMode(InteractiveMode.SCRIBBLE_PARTIAL_REFRESH)
+            renderToScreen()
         } finally {
-            context.clipRect = null;
-            EpdController.resetViewUpdateMode(getSurfaceView());
+            context.clipRect = null
+            EpdController.resetViewUpdateMode(this.surfaceView)
         }
     }
 
-    private static boolean shouldUseFullRefresh(RectF refreshRect, int bitmapW, int bitmapH) {
-        if (bitmapW <= 0 || bitmapH <= 0) {
-            return true;
-        }
-        RectF clipped = new RectF(refreshRect);
-        clipped.intersect(0, 0, bitmapW, bitmapH);
-        if (clipped.isEmpty()) {
-            return true;
-        }
-        float bitmapArea = bitmapW * (float) bitmapH;
-        return (clipped.width() * clipped.height()) / bitmapArea >= PARTIAL_REFRESH_MAX_AREA_RATIO;
+    private fun applySfAreaTouchHelperParams() {
+        setBrushRawDrawingEnabled(true)
+        setRawDrawingEnabled(true)
+        setStrokeStyle(TouchHelper.STROKE_STYLE_DASH)
+        setStrokeWidthPx(PenConstant.DASH_STROKE_WIDTH)
+        setStrokeColor(Color.BLACK)
+        setRawDrawingRenderEnabled(true)
     }
 
-    private void applySfAreaTouchHelperParams() {
-        setBrushRawDrawingEnabled(true);
-        setRawDrawingEnabled(true);
-        setStrokeStyle(TouchHelper.STROKE_STYLE_DASH);
-        setStrokeWidthPx(PenConstant.DASH_STROKE_WIDTH);
-        setStrokeColor(Color.BLACK);
-        setRawDrawingRenderEnabled(true);
-    }
-
-    private void applyEraseTouchHelperParams(PenBundle penBundle) {
-        int eraseType = penBundle.getCurrentEraseType();
+    private fun applyEraseTouchHelperParams(penBundle: PenBundle) {
+        val eraseType = penBundle.getCurrentEraseType()
         if (!EraserTrackHelper.useSfTrack(penBundle, eraseType)) {
-            applyLegacyEraseTouchHelperParams();
-            return;
+            applyLegacyEraseTouchHelperParams()
+            return
         }
         if (eraseType == EraseTypes.ERASER_AREA) {
-            applySfAreaTouchHelperParams();
+            applySfAreaTouchHelperParams()
         } else {
-            applySfMoveStrokeTouchHelperParams(penBundle);
+            applySfMoveStrokeTouchHelperParams(penBundle)
         }
     }
 
-    private void applySfMoveStrokeTouchHelperParams(PenBundle penBundle) {
-        int eraseType = penBundle.getCurrentEraseType();
-        float eraseWidth = penBundle.getEraseWidth(eraseType);
-        setBrushRawDrawingEnabled(true);
-        setRawDrawingEnabled(true);
-        setStrokeStyle(StrokeStyle.SOFT_ERASER);
-        setStrokeWidthPx(eraseWidth);
-        setStrokeColor(Color.BLACK);
-        setRawDrawingRenderEnabled(true);
-        setRawInputReaderEnable(true);
-        setEraserRawDrawingEnabled(true, StrokeStyle.SOFT_ERASER);
+    private fun applySfMoveStrokeTouchHelperParams(penBundle: PenBundle) {
+        val eraseType = penBundle.getCurrentEraseType()
+        val eraseWidth = penBundle.getEraseWidth(eraseType)
+        setBrushRawDrawingEnabled(true)
+        setRawDrawingEnabled(true)
+        setStrokeStyle(StrokeStyle.SOFT_ERASER)
+        setStrokeWidthPx(eraseWidth)
+        setStrokeColor(Color.BLACK)
+        setRawDrawingRenderEnabled(true)
+        setRawInputReaderEnable(true)
+        setEraserRawDrawingEnabled(true, StrokeStyle.SOFT_ERASER)
     }
 
-    private void applyLegacyEraseTouchHelperParams() {
-        setEraserRawDrawingEnabled(false, StrokeStyle.SOFT_ERASER);
-        setBrushRawDrawingEnabled(false);
-        setRawDrawingRenderEnabled(false);
-        setRawInputReaderEnable(true);
+    private fun applyLegacyEraseTouchHelperParams() {
+        setEraserRawDrawingEnabled(false, StrokeStyle.SOFT_ERASER)
+        setBrushRawDrawingEnabled(false)
+        setRawDrawingRenderEnabled(false)
+        setRawInputReaderEnable(true)
     }
 
-    private void applyBrushTouchHelperParams(PenBundle penBundle) {
-        setBrushRawDrawingEnabled(true);
-        int shapeType = penBundle.getCurrentShapeType();
-        int strokeStyle = ShapeFactory.getStrokeStyle(shapeType, penBundle.getCurrentTexture());
-        setStrokeStyle(strokeStyle);
-        setStrokeWidth(penBundle.getCurrentStrokeWidth());
-        setStrokeColor(penBundle.getCurrentStrokeColor());
-        applyStrokeParameters(shapeType, strokeStyle);
-        setRawDrawingRenderEnabled(true);
-        setRawInputReaderEnable(true);
+    private fun applyBrushTouchHelperParams(penBundle: PenBundle) {
+        setBrushRawDrawingEnabled(true)
+        val shapeType = penBundle.getCurrentShapeType()
+        val strokeStyle = ShapeFactory.getStrokeStyle(shapeType, penBundle.getCurrentTexture())
+        setStrokeStyle(strokeStyle)
+        setStrokeWidth(penBundle.getCurrentStrokeWidth())
+        setStrokeColor(penBundle.getCurrentStrokeColor())
+        applyStrokeParameters(shapeType, strokeStyle)
+        setRawDrawingRenderEnabled(true)
+        setRawInputReaderEnable(true)
     }
 
-    public void applyStrokeParameters(int shapeType, int strokeStyle) {
-        float[] merged = PenInfoUtils.mergeStrokeParameters(
-                shapeType, Device.currentDevice().getStrokeParameters(strokeStyle));
+    fun applyStrokeParameters(shapeType: Int, strokeStyle: Int) {
+        val merged = PenInfoUtils.mergeStrokeParameters(
+            shapeType, Device.currentDevice().getStrokeParameters(strokeStyle)
+        )
         if (merged == null) {
-            return;
+            return
         }
-        Device.currentDevice().setStrokeParameters(strokeStyle, merged);
+        Device.currentDevice().setStrokeParameters(strokeStyle, merged)
     }
 
-    private void applyCapEraseStrokeConfig(PenBundle penBundle) {
-        int eraseType = penBundle.getCurrentEraseType();
-        // While brush is selected, SF track still arms side-button Soft Eraser.
+    private fun applyCapEraseStrokeConfig(penBundle: PenBundle) {
+        val eraseType =
+            penBundle.getCurrentEraseType() // While brush is selected, SF track still arms side-button Soft Eraser.
         setEraserRawDrawingEnabled(
-                EraserTrackHelper.useSfTrack(penBundle, eraseType),
-                EraserTrackHelper.eraserStrokeStyle(eraseType));
+            EraserTrackHelper.useSfTrack(penBundle, eraseType),
+            EraserTrackHelper.eraserStrokeStyle(eraseType)
+        )
     }
 
-    private void applyEraseResumeAttrs(PenBundle penBundle) {
-        int eraseType = penBundle.getCurrentEraseType();
-        boolean sfTrack = EraserTrackHelper.useSfTrack(penBundle, eraseType);
-        setErasePathDrawing(sfTrack, eraseType);
+    private fun applyEraseResumeAttrs(penBundle: PenBundle) {
+        val eraseType = penBundle.getCurrentEraseType()
+        val sfTrack = EraserTrackHelper.useSfTrack(penBundle, eraseType)
+        setErasePathDrawing(sfTrack, eraseType)
         if (!sfTrack) {
-            setBrushRawDrawingEnabled(false);
+            setBrushRawDrawingEnabled(false)
         }
     }
 
     @WorkerThread
-    public void setBrushRawDrawingEnabled(boolean enabled) {
-        if (getTouchHelper() == null) {
-            return;
-        }
-        getTouchHelper().setBrushRawDrawingEnabled(enabled);
+    fun setBrushRawDrawingEnabled(enabled: Boolean) {
+        val helper = touchHelper ?: return
+        helper.setBrushRawDrawingEnabled(enabled)
     }
 
-    private void warmDashDeviceParameters(PenBundle penBundle) {
+    private fun warmDashDeviceParameters(penBundle: PenBundle) {
         Device.currentDevice().setStrokeParameters(
-                TouchHelper.STROKE_STYLE_DASH, new float[]{PenConstant.DASH_STROKE_WIDTH});
-        int eraseType = penBundle.getCurrentEraseType();
-        float eraseWidth = penBundle.getEraseWidth(
-                EraseTypes.isMoveOrStrokeErase(eraseType) ? eraseType : EraseTypes.ERASER_MOVE);
-        Device.currentDevice().setStrokeParameters(StrokeStyle.SOFT_ERASER,
-                new float[]{eraseWidth, ERASE_PEN_OPACITY, ERASE_PEN_BLACK_OPACITY});
+            TouchHelper.STROKE_STYLE_DASH, floatArrayOf(PenConstant.DASH_STROKE_WIDTH)
+        )
+        val eraseType = penBundle.getCurrentEraseType()
+        val eraseWidth = penBundle.getEraseWidth(
+            if (EraseTypes.isMoveOrStrokeErase(eraseType)) eraseType else EraseTypes.ERASER_MOVE
+        )
+        Device.currentDevice().setStrokeParameters(
+            StrokeStyle.SOFT_ERASER,
+            floatArrayOf(eraseWidth, ERASE_PEN_OPACITY, ERASE_PEN_BLACK_OPACITY)
+        )
     }
 
-    private void setStrokeWidthPx(float strokeWidthPx) {
-        if (getTouchHelper() == null) {
-            return;
+    private fun setStrokeWidthPx(strokeWidthPx: Float) {
+        val helper = touchHelper ?: return
+        helper.setStrokeWidth(strokeWidthPx)
+    }
+
+    private fun forceRawDrawingEnabled() {
+        val helper = touchHelper ?: return
+        helper.forceSetRawDrawingEnabled(true)
+    }
+
+    @WorkerThread
+    fun setRawInputReaderEnable(enable: Boolean) {
+        val helper = touchHelper ?: return
+        helper.setRawInputReaderEnable(enable)
+        Log.e("zzzzwb", "setRawInputReaderEnable:  enable = $enable")
+    }
+
+    @WorkerThread
+    fun isRawDrawingInputEnabled(): Boolean {
+        return touchHelper?.isRawDrawingInputEnabled == true
+    }
+
+    @WorkerThread
+    fun isRawDrawingRenderEnabled(): Boolean {
+        return touchHelper?.isRawDrawingRenderEnabled == true
+    }
+
+    @WorkerThread
+    fun setRawDrawingRenderEnabled(enable: Boolean) {
+        val helper = touchHelper ?: return
+        helper.isRawDrawingRenderEnabled = enable
+        Log.e("zzzzwb", "setRawDrawingRenderEnabled:  enable = $enable")
+    }
+
+    @WorkerThread
+    fun activeRenderMode(mode: InteractiveMode) {
+        if (currentMode == mode) {
+            return
         }
-        getTouchHelper().setStrokeWidth(strokeWidthPx);
+        getRendererHelper().getRenderer(currentMode)?.onDeactivate(surfaceView)
+        currentMode = mode
+        getRendererHelper().getRenderer(currentMode)?.onActive(surfaceView)
     }
 
-    private void forceRawDrawingEnabled() {
-        if (getTouchHelper() == null) {
-            return;
+    @WorkerThread
+    fun getRenderContext(): RendererHelper.RenderContext = getRendererHelper().getRenderContext()
+
+    @WorkerThread
+    fun renderToScreen() {
+        getRendererHelper().renderToScreen(currentMode, this.surfaceView, getRenderContext())
+    }
+
+    @WorkerThread
+    fun renderToBitmap() {
+        getRendererHelper().renderToBitmap(currentMode, this.surfaceView, getRenderContext())
+    }
+
+    @WorkerThread
+    fun renderToBitmap(shapes: MutableList<Shape>?) {
+        getRendererHelper().renderToBitmap(currentMode, shapes)
+    }
+
+    companion object {
+        private const val PARTIAL_REFRESH_MAX_AREA_RATIO = 0.6f
+        private const val ERASE_PEN_OPACITY = 0.5f
+        private const val ERASE_PEN_BLACK_OPACITY = 0.1f
+
+        private fun isHostSurfaceValid(view: SurfaceView?): Boolean {
+            if (view == null) {
+                return false
+            }
+            try {
+                return view.holder.surface.isValid
+            } catch (e: Exception) {
+                return false
+            }
         }
-        getTouchHelper().forceSetRawDrawingEnabled(true);
-    }
 
-    @WorkerThread
-    public void setRawInputReaderEnable(boolean enable) {
-        if (getTouchHelper() == null) {
-            return;
+        private const val MM_OF_ONE_INCH = 25.4f
+
+        private fun shouldUseFullRefresh(refreshRect: RectF?, bitmapW: Int, bitmapH: Int): Boolean {
+            if (bitmapW <= 0 || bitmapH <= 0) {
+                return true
+            }
+            val clipped = RectF(refreshRect)
+            clipped.intersect(0f, 0f, bitmapW.toFloat(), bitmapH.toFloat())
+            if (clipped.isEmpty) {
+                return true
+            }
+            val bitmapArea = bitmapW * bitmapH.toFloat()
+            return (clipped.width() * clipped.height()) / bitmapArea >= PARTIAL_REFRESH_MAX_AREA_RATIO
         }
-        getTouchHelper().setRawInputReaderEnable(enable);
-        android.util.Log.e("zzzzwb", "setRawInputReaderEnable:  enable = " + enable);
     }
-
-    @WorkerThread
-    public boolean isRawDrawingInputEnabled() {
-        return getTouchHelper() != null && getTouchHelper().isRawDrawingInputEnabled();
-    }
-
-    @WorkerThread
-    public boolean isRawDrawingRenderEnabled() {
-        return getTouchHelper() != null && getTouchHelper().isRawDrawingRenderEnabled();
-    }
-
-    @WorkerThread
-    public void activeRenderMode(InteractiveMode mode) {
-        if (currentMode.equals(mode)) {
-            return;
-        }
-        getRendererHelper().getRenderer(currentMode).onDeactivate(surfaceView);
-        this.currentMode = mode;
-        getRendererHelper().getRenderer(currentMode).onActive(surfaceView);
-    }
-
-    @WorkerThread
-    public InteractiveMode getCurrentMode() {
-        return currentMode;
-    }
-
-    @WorkerThread
-    public RendererHelper.RenderContext getRenderContext() {
-        return getRendererHelper().getRenderContext();
-    }
-
-    @WorkerThread
-    public void renderToScreen() {
-        getRendererHelper().renderToScreen(getCurrentMode(), getSurfaceView(), getRenderContext());
-    }
-
-    @WorkerThread
-    public void renderToBitmap() {
-        getRendererHelper().renderToBitmap(getCurrentMode(), getSurfaceView(), getRenderContext());
-    }
-
-    @WorkerThread
-    public void renderToBitmap(List<Shape> shapes) {
-        getRendererHelper().renderToBitmap(getCurrentMode(), shapes);
-    }
-
 }

@@ -1,239 +1,226 @@
-package com.onyx.android.eink.pen.demo.shape;
+package com.onyx.android.eink.pen.demo.shape
 
-import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.RectF;
+import android.graphics.Matrix
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
+import android.graphics.RectF
+import com.onyx.android.eink.pen.demo.helper.RendererHelper
+import com.onyx.android.sdk.pen.PenUtils
+import com.onyx.android.sdk.pen.data.TouchPointList
+import com.onyx.android.sdk.utils.ResManager
+import kotlin.math.sqrt
 
-import com.onyx.android.eink.pen.demo.helper.RendererHelper;
-import com.onyx.android.sdk.data.note.TouchPoint;
-import com.onyx.android.sdk.pen.PenUtils;
-import com.onyx.android.sdk.pen.data.TouchPointList;
-import com.onyx.android.sdk.utils.ResManager;
+open class Shape {
+    private var shapeTypeField: Int = 0
+    private var textureField: Int = 0
+    private var strokeColorField: Int = 0
+    private var strokeWidthField: Float = 0f
+    private var transparentField: Boolean = false
 
-import java.util.List;
+    @JvmField
+    var touchPointList: TouchPointList? = null
 
-public class Shape {
-    // 1 inch = 25.4 mm (SI unit definition). Used in mmToPx() to convert
-    // millimetre stroke widths to pixel-based rendering units.
-    private static final float MM_OF_ONE_INCH = 25.4f;
+    private var boundingRect: RectF? = null
+    private var originRect: RectF? = null
 
-    protected int shapeType;
-    protected int texture;
-    protected int strokeColor;
-    protected float strokeWidth;
-    protected boolean transparent;
+    constructor()
 
-    public TouchPointList touchPointList;
-
-    protected RectF boundingRect;
-    protected RectF originRect;
-
-    public Shape() {
+    constructor(touchPointList: TouchPointList?) {
+        this.touchPointList = touchPointList
     }
 
-    public Shape(TouchPointList touchPointList) {
-        this.touchPointList = touchPointList;
+    fun setTransparent(transparent: Boolean) {
+        this.transparentField = transparent
     }
 
-    public void setTransparent(boolean transparent) {
-        this.transparent = transparent;
+    fun isTransparent(): Boolean = transparentField
+
+    fun setShapeType(shapeType: Int): Shape {
+        this.shapeTypeField = shapeType
+        return this
     }
 
-    public boolean isTransparent() {
-        return transparent;
+    fun setTexture(texture: Int): Shape {
+        this.textureField = texture
+        return this
     }
 
-    public Shape setShapeType(int shapeType) {
-        this.shapeType = shapeType;
-        return this;
+    fun setStrokeColor(strokeColor: Int): Shape {
+        this.strokeColorField = strokeColor
+        return this
     }
 
-    public Shape setTexture(int texture) {
-        this.texture = texture;
-        return this;
+    fun setStrokeWidth(strokeWidth: Float): Shape {
+        this.strokeWidthField = strokeWidth
+        return this
     }
 
-    public Shape setStrokeColor(int strokeColor) {
-        this.strokeColor = strokeColor;
-        return this;
+    fun setTouchPointList(touchPointList: TouchPointList?): Shape {
+        this.touchPointList = touchPointList
+        return this
     }
 
-    public Shape setStrokeWidth(float strokeWidth) {
-        this.strokeWidth = strokeWidth;
-        return this;
+    fun getBoundingRect(): RectF? = boundingRect
+
+    fun getShapeType(): Int = shapeTypeField
+
+    fun getTexture(): Int = textureField
+
+    fun getTouchPointList(): TouchPointList? = touchPointList
+
+    fun setBoundingRect(boundingRect: RectF?) {
+        this.boundingRect = boundingRect
     }
 
-    public Shape setTouchPointList(TouchPointList touchPointList) {
-        this.touchPointList = touchPointList;
-        return this;
+    fun getOriginRect(): RectF? = originRect
+
+    fun setOriginRect(originRect: RectF?) {
+        this.originRect = originRect
     }
 
-    public RectF getBoundingRect() {
-        return boundingRect;
-    }
+    fun getStrokeColor(): Int = strokeColorField
 
-    public int getShapeType() {
-        return shapeType;
-    }
+    fun getStrokeWidth(): Float = strokeWidthField
 
-    public int getTexture() {
-        return texture;
-    }
-
-    public TouchPointList getTouchPointList() {
-        return touchPointList;
-    }
-
-    public void setBoundingRect(RectF boundingRect) {
-        this.boundingRect = boundingRect;
-    }
-
-    public RectF getOriginRect() {
-        return originRect;
-    }
-
-    public void setOriginRect(RectF originRect) {
-        this.originRect = originRect;
-    }
-
-    public int getStrokeColor() {
-        return strokeColor;
-    }
-
-    public float getStrokeWidth() {
-        return strokeWidth;
-    }
-
-    public void updateShapeRect() {
-        List<TouchPoint> list = touchPointList.getPoints();
-        for(TouchPoint touchPoint: list) {
+    fun updateShapeRect() {
+        val list = touchPointList?.points ?: return
+        for (touchPoint in list) {
             if (touchPoint == null) {
-                continue;
+                continue
             }
-            if (originRect == null) {
-                originRect = new RectF(touchPoint.x, touchPoint.y, touchPoint.x, touchPoint.y);
+            val rect = originRect
+            if (rect == null) {
+                originRect = RectF(touchPoint.x, touchPoint.y, touchPoint.x, touchPoint.y)
             } else {
-                originRect.union(touchPoint.x, touchPoint.y);
+                rect.union(touchPoint.x, touchPoint.y)
             }
         }
-        boundingRect = new RectF(originRect);
+        boundingRect = if (originRect != null) RectF(originRect) else null
     }
 
-    public void render(final RendererHelper.RenderContext renderContext) {
+    open fun render(renderContext: RendererHelper.RenderContext) {
     }
 
-    public void applyStrokeStyle(RendererHelper.RenderContext renderContext) {
-        Paint paint = renderContext.paint;
-        paint.setStrokeWidth(getRenderStrokeWidth());
-        paint.setColor(strokeColor);
-        paint.setAntiAlias(true);
-        paint.setDither(true);
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeCap(Paint.Cap.ROUND);
-        paint.setStrokeJoin(Paint.Join.ROUND);
-        paint.setStrokeMiter(4.0f);
-        paint.setPathEffect(null);
+    fun applyStrokeStyle(renderContext: RendererHelper.RenderContext) {
+        val paint = renderContext.paint
+        paint.strokeWidth = getRenderStrokeWidth()
+        paint.color = strokeColorField
+        paint.isAntiAlias = true
+        paint.isDither = true
+        paint.style = Paint.Style.STROKE
+        paint.strokeCap = Paint.Cap.ROUND
+        paint.strokeJoin = Paint.Join.ROUND
+        paint.strokeMiter = 4.0f
+        paint.pathEffect = null
         if (isTransparent()) {
-            paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+            paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
         } else {
-            paint.setXfermode(null);
+            paint.xfermode = null
         }
     }
 
-    public float getRenderStrokeWidth() {
-        float renderStrokeWidth = getBaseRenderStrokeWidth();
-        return isTransparent() ? (renderStrokeWidth + PenUtils.ERASE_EXTRA_STROKE_WIDTH) : renderStrokeWidth;
+    fun getRenderStrokeWidth(): Float {
+        val renderStrokeWidth = getBaseRenderStrokeWidth()
+        return if (isTransparent()) {
+            renderStrokeWidth + PenUtils.ERASE_EXTRA_STROKE_WIDTH
+        } else {
+            renderStrokeWidth
+        }
     }
 
-    protected float getBaseRenderStrokeWidth() {
-        return mmToPx(getStrokeWidth());
+    protected fun getBaseRenderStrokeWidth(): Float = mmToPx(getStrokeWidth())
+
+    protected fun mmToPx(mm: Float): Float {
+        return mm * ResManager.getAppContext().resources.displayMetrics.densityDpi / MM_OF_ONE_INCH
     }
 
-    protected float mmToPx(float mm) {
-        return mm * ResManager.getAppContext().getResources().getDisplayMetrics().densityDpi
-                / MM_OF_ONE_INCH;
-    }
-
-    public boolean hitTestPoints(TouchPointList pointList, float radius) {
-        for (TouchPoint touchPoint : pointList.getPoints()) {
-            if (hitTest(touchPoint.getX(), touchPoint.getY(), radius)) {
-                return true;
+    fun hitTestPoints(pointList: TouchPointList, radius: Float): Boolean {
+        for (touchPoint in pointList.points) {
+            if (hitTest(touchPoint.x, touchPoint.y, radius)) {
+                return true
             }
         }
-        return false;
+        return false
     }
 
-    public boolean fastHitTest(float x, float y, float radius) {
-        if (boundingRect == null) {
-            return false;
-        }
-        RectF hitRect = new RectF(boundingRect);
-        hitRect.inset(-radius, -radius);
-        return hitRect.contains(x, y);
+    fun fastHitTest(x: Float, y: Float, radius: Float): Boolean {
+        val bounds = boundingRect ?: return false
+        val hitRect = RectF(bounds)
+        hitRect.inset(-radius, -radius)
+        return hitRect.contains(x, y)
     }
 
-    public boolean hitTest(float x, float y, float radius) {
-        final float limit = radius;
-        boolean hit = false;
-        int first, second;
-        float[] point = new float[]{x, y};
-        Matrix invertMatrix = new Matrix();
-        invertMatrix.mapPoints(point);
-        final List<TouchPoint> points = touchPointList.getPoints();
-        for (int i = 0; i < points.size() - 1; ++i) {
-            first = i;
-            second = i + 1;
-
-            boolean isIntersect = hitTest(points.get(first).getX(),
-                    points.get(first).getY(),
-                    points.get(second).getX(),
-                    points.get(second).getY(),
-                    point[0], point[1], limit);
+    fun hitTest(x: Float, y: Float, radius: Float): Boolean {
+        val limit = radius
+        var hit = false
+        val point = floatArrayOf(x, y)
+        val invertMatrix = Matrix()
+        invertMatrix.mapPoints(point)
+        val points = touchPointList?.points ?: return false
+        for (i in 0 until points.size - 1) {
+            val first = points[i] ?: continue
+            val second = points[i + 1] ?: continue
+            val isIntersect = hitTest(
+                first.x,
+                first.y,
+                second.x,
+                second.y,
+                point[0],
+                point[1],
+                limit
+            )
             if (isIntersect) {
-                hit = true;
-                break;
+                hit = true
+                break
             }
         }
-        return hit;
+        return hit
     }
 
-    private boolean hitTest(final float x1, final float y1, final float x2,
-                                  final float y2, final float x, final float y, float limit) {
-        float value = distance(x1, y1, x2, y2, x, y);
-        return value <= limit;
+    private fun hitTest(
+        x1: Float, y1: Float, x2: Float,
+        y2: Float, x: Float, y: Float, limit: Float
+    ): Boolean {
+        val value = distance(x1, y1, x2, y2, x, y)
+        return value <= limit
     }
 
-    private float distance(float x1, float y1, float x2, float y2, float x, float y) {
-        float A = x - x1;
-        float B = y - y1;
-        float C = x2 - x1;
-        float D = y2 - y1;
+    private fun distance(x1: Float, y1: Float, x2: Float, y2: Float, x: Float, y: Float): Float {
+        val A = x - x1
+        val B = y - y1
+        val C = x2 - x1
+        val D = y2 - y1
 
-        float dot = A * C + B * D;
-        float lenSq = C * C + D * D;
-        float param = -1.0f;
-        if (lenSq!= 0) {
-            param = dot / lenSq;
+        val dot = A * C + B * D
+        val lenSq = C * C + D * D
+        var param = -1.0f
+        if (lenSq != 0f) {
+            param = dot / lenSq
         }
 
-        float xx, yy;
+        val xx: Float
+        val yy: Float
 
         if (param < 0) {
-            xx = x1;
-            yy = y1;
+            xx = x1
+            yy = y1
         } else if (param > 1) {
-            xx = x2;
-            yy = y2;
+            xx = x2
+            yy = y2
         } else {
-            xx = x1 + param * C;
-            yy = y1 + param * D;
+            xx = x1 + param * C
+            yy = y1 + param * D
         }
 
-        float dx = x - xx;
-        float dy = y - yy;
-        return (float) Math.sqrt(dx * dx + dy * dy);
+        val dx = x - xx
+        val dy = y - yy
+        return sqrt((dx * dx + dy * dy).toDouble()).toFloat()
     }
 
+    companion object {
+        // 1 inch = 25.4 mm (SI unit definition). Used in mmToPx() to convert
+        // millimetre stroke widths to pixel-based rendering units.
+        private const val MM_OF_ONE_INCH = 25.4f
+    }
 }

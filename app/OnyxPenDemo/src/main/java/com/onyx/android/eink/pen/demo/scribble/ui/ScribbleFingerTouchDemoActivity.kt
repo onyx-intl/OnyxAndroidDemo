@@ -1,396 +1,378 @@
-package com.onyx.android.eink.pen.demo.scribble.ui;
+package com.onyx.android.eink.pen.demo.scribble.ui
 
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.PointF;
-import android.graphics.Rect;
-import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
-import android.util.Log;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
-import android.view.View;
-import android.widget.RadioButton;
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Path
+import android.graphics.PointF
+import android.graphics.Rect
+import android.os.Bundle
+import android.util.Log
+import android.view.SurfaceHolder
+import android.view.SurfaceView
+import android.view.View
+import android.view.View.OnLayoutChangeListener
+import android.widget.RadioButton
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import com.onyx.android.eink.pen.demo.R
+import com.onyx.android.eink.pen.demo.databinding.ActivityFingerTouchHelperDemoBinding
+import com.onyx.android.eink.pen.demo.scribble.broadcast.GlobalDeviceReceiver
+import com.onyx.android.eink.pen.demo.scribble.broadcast.GlobalDeviceReceiver.SystemNotificationPanelChangeListener
+import com.onyx.android.eink.pen.demo.scribble.broadcast.GlobalDeviceReceiver.SystemScreenOnListener
+import com.onyx.android.eink.pen.demo.scribble.request.RendererToScreenRequest
+import com.onyx.android.eink.pen.demo.scribble.util.TouchUtils
+import com.onyx.android.sdk.api.device.epd.EpdController
+import com.onyx.android.sdk.data.note.TouchPoint
+import com.onyx.android.sdk.pen.EpdPenManager
+import com.onyx.android.sdk.pen.NeoPenConfig
+import com.onyx.android.sdk.pen.NeoPenUtils
+import com.onyx.android.sdk.pen.PenUtils
+import com.onyx.android.sdk.pen.RawInputCallback
+import com.onyx.android.sdk.pen.TouchHelper
+import com.onyx.android.sdk.pen.data.TouchPointList
+import com.onyx.android.sdk.rx.RxManager
 
-import androidx.databinding.DataBindingUtil;
+class ScribbleFingerTouchDemoActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityFingerTouchHelperDemoBinding
 
-import com.onyx.android.eink.pen.demo.R;
-import com.onyx.android.eink.pen.demo.databinding.ActivityFingerTouchHelperDemoBinding;
-import com.onyx.android.eink.pen.demo.scribble.broadcast.GlobalDeviceReceiver;
-import com.onyx.android.eink.pen.demo.scribble.request.RendererToScreenRequest;
-import com.onyx.android.eink.pen.demo.scribble.util.TouchUtils;
-import com.onyx.android.sdk.api.device.epd.EpdController;
-import com.onyx.android.sdk.data.note.TouchPoint;
-import com.onyx.android.sdk.pen.EpdPenManager;
-import com.onyx.android.sdk.pen.NeoPenConfig;
-import com.onyx.android.sdk.pen.NeoPenUtils;
-import com.onyx.android.sdk.pen.PenUtils;
-import com.onyx.android.sdk.pen.RawInputCallback;
-import com.onyx.android.sdk.pen.TouchHelper;
-import com.onyx.android.sdk.pen.data.TouchPointList;
-import com.onyx.android.sdk.rx.RxManager;
-
-import java.util.ArrayList;
-import java.util.List;
-
-
-public class ScribbleFingerTouchDemoActivity extends AppCompatActivity {
-
-    private static final String TAG = ScribbleFingerTouchDemoActivity.class.getSimpleName();
-    /**
-     * skip point count
-     */
-    private static final int INTERVAL = 10;
-
-    private ActivityFingerTouchHelperDemoBinding binding;
-
-    private GlobalDeviceReceiver deviceReceiver = new GlobalDeviceReceiver();
-    private RxManager rxManager;
-
-    private TouchHelper touchHelper;
-
-    private Paint paint = new Paint();
-    private TouchPoint startPoint;
-    private int countRec = 0;
-
-    private Bitmap bitmap;
-    private Canvas canvas;
-
-    private final float STROKE_WIDTH = 6.0f;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_finger_touch_helper_demo);
-        deviceReceiver.enable(this, true);
-        binding.setActivity(this);
-
-        initPaint();
-        initSurfaceView();
-        initReceiver();
+    private val deviceReceiver = GlobalDeviceReceiver()
+    private val rxManager: RxManager by lazy {
+        RxManager.Builder.sharedSingleThreadManager()
     }
 
-    @Override
-    protected void onResume() {
-        touchHelper.setRawDrawingEnabled(true);
-        super.onResume();
+    private lateinit var touchHelper: TouchHelper
+
+    private val paint = Paint()
+    private var startPoint: TouchPoint? = null
+    private var countRec = 0
+
+    private var bitmap: Bitmap? = null
+    private var canvas: Canvas? = null
+
+    private val STROKE_WIDTH = 6.0f
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = DataBindingUtil.setContentView(
+            this, R.layout.activity_finger_touch_helper_demo
+        )
+        deviceReceiver.enable(this, true)
+        binding.setActivity(this)
+
+        initPaint()
+        initSurfaceView()
+        initReceiver()
     }
 
-    @Override
-    protected void onPause() {
-        touchHelper.setRawDrawingEnabled(false);
-        super.onPause();
+    override fun onResume() {
+        touchHelper.setRawDrawingEnabled(true)
+        super.onResume()
     }
 
-    @Override
-    protected void onDestroy() {
-        touchHelper.closeRawDrawing();
-        if (bitmap != null) {
-            bitmap.recycle();
-            bitmap = null;
-        }
-        deviceReceiver.enable(this, false);
-        super.onDestroy();
+    override fun onPause() {
+        touchHelper.setRawDrawingEnabled(false)
+        super.onPause()
     }
 
-    public RxManager getRxManager() {
-        if (rxManager == null) {
-            rxManager = RxManager.Builder.sharedSingleThreadManager();
-        }
-        return rxManager;
+    override fun onDestroy() {
+        touchHelper.closeRawDrawing()
+        bitmap?.recycle()
+        bitmap = null
+        deviceReceiver.enable(this, false)
+        super.onDestroy()
     }
 
-    public void renderToScreen(SurfaceView surfaceView, Bitmap bitmap) {
-        getRxManager().enqueue(new RendererToScreenRequest(surfaceView, bitmap), null);
+    fun renderToScreen(surfaceView: SurfaceView?, bitmap: Bitmap?) {
+        rxManager.enqueue<RendererToScreenRequest?>(
+            RendererToScreenRequest(
+                surfaceView, bitmap
+            ), null
+        )
     }
 
-    private void initPaint() {
-        paint.setAntiAlias(true);
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setColor(Color.BLACK);
-        paint.setStrokeWidth(STROKE_WIDTH);
+    private fun initPaint() {
+        paint.isAntiAlias = true
+        paint.style = Paint.Style.STROKE
+        paint.color = Color.BLACK
+        paint.strokeWidth = STROKE_WIDTH
     }
 
-    private void initSurfaceView() {
-        touchHelper = TouchHelper.create(getHostView(), false, callback);
-        getHostView().addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            @Override
-            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int
-                    oldRight, int oldBottom) {
+    private fun initSurfaceView() {
+        val host = hostView
+        touchHelper = TouchHelper.create(host, false, callback)
+        host.addOnLayoutChangeListener(object : OnLayoutChangeListener {
+            override fun onLayoutChange(
+                v: View?,
+                left: Int,
+                top: Int,
+                right: Int,
+                bottom: Int,
+                oldLeft: Int,
+                oldTop: Int,
+                oldRight: Int,
+                oldBottom: Int
+            ) {
                 if (cleanSurfaceView()) {
-                    getHostView().removeOnLayoutChangeListener(this);
+                    host.removeOnLayoutChangeListener(this)
                 }
-                List<Rect> exclude = new ArrayList<>();
-                exclude.add(getRelativeRect(getHostView(), binding.buttonEraser));
-                exclude.add(getRelativeRect(getHostView(), binding.buttonPen));
-                exclude.add(getRelativeRect(getHostView(), binding.cbRender));
-                exclude.add(getRelativeRect(getHostView(), binding.rbPencil));
-                exclude.add(getRelativeRect(getHostView(), binding.cbEnableFinger));
+                val exclude: MutableList<Rect?> = ArrayList<Rect?>()
+                exclude.add(getRelativeRect(host, binding.buttonEraser))
+                exclude.add(getRelativeRect(host, binding.buttonPen))
+                exclude.add(getRelativeRect(host, binding.cbRender))
+                exclude.add(getRelativeRect(host, binding.rbPencil))
+                exclude.add(getRelativeRect(host, binding.cbEnableFinger))
 
-                Rect limit = new Rect();
-                getHostView().getLocalVisibleRect(limit);
-                touchHelper.setStrokeWidth(STROKE_WIDTH)
-                        .setLimitRect(limit, exclude)
-                        .openRawDrawing();
-                touchHelper.setStrokeStyle(TouchHelper.STROKE_STYLE_MARKER);
-                binding.rbMarker.setChecked(true);
-                getHostView().addOnLayoutChangeListener(this);
+                val limit = Rect()
+                host.getLocalVisibleRect(limit)
+                touchHelper.setStrokeWidth(STROKE_WIDTH).setLimitRect(limit, exclude)
+                    .openRawDrawing()
+                touchHelper.setStrokeStyle(TouchHelper.STROKE_STYLE_MARKER)
+                binding.rbMarker.isChecked = true
+                host.addOnLayoutChangeListener(this)
             }
-        });
+        })
 
-        final SurfaceHolder.Callback surfaceCallback = new SurfaceHolder.Callback() {
-            @Override
-            public void surfaceCreated(SurfaceHolder holder) {
-                cleanSurfaceView();
+        val surfaceCallback: SurfaceHolder.Callback = object : SurfaceHolder.Callback {
+            override fun surfaceCreated(holder: SurfaceHolder) {
+                cleanSurfaceView()
             }
 
-            @Override
-            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+            override fun surfaceChanged(
+                holder: SurfaceHolder,
+                format: Int,
+                width: Int,
+                height: Int
+            ) {
             }
 
-            @Override
-            public void surfaceDestroyed(SurfaceHolder holder) {
-                holder.removeCallback(this);
+            override fun surfaceDestroyed(holder: SurfaceHolder) {
+                holder.removeCallback(this)
             }
-        };
-        getHostView().getHolder().addCallback(surfaceCallback);
+        }
+        host.holder.addCallback(surfaceCallback)
     }
 
-    private void initReceiver() {
-        deviceReceiver.setSystemNotificationPanelChangeListener(new GlobalDeviceReceiver.SystemNotificationPanelChangeListener() {
-            @Override
-            public void onNotificationPanelChanged(boolean open) {
-                touchHelper.setRawDrawingEnabled(!open);
-                renderToScreen(getHostView(), bitmap);
+    private fun initReceiver() {
+        deviceReceiver.setSystemNotificationPanelChangeListener(object :
+            SystemNotificationPanelChangeListener {
+            override fun onNotificationPanelChanged(open: Boolean) {
+                touchHelper.setRawDrawingEnabled(!open)
+                renderToScreen(hostView, bitmap)
             }
-        }).setSystemScreenOnListener(new GlobalDeviceReceiver.SystemScreenOnListener() {
-            @Override
-            public void onScreenOn() {
-                renderToScreen(getHostView(), bitmap);
+        }).setSystemScreenOnListener(object : SystemScreenOnListener {
+            override fun onScreenOn() {
+                renderToScreen(hostView, bitmap)
             }
-        });
+        })
     }
 
-    public void onPenClick() {
-        resumeDrawing();
-        onRenderEnableClick();
+    fun onPenClick() {
+        resumeDrawing()
+        onRenderEnableClick()
     }
 
-    public void onEraserClick() {
-        pauseDrawing();
-        if (bitmap != null) {
-            bitmap.recycle();
-            bitmap = null;
-        }
-        cleanSurfaceView();
+    fun onEraserClick() {
+        pauseDrawing()
+        bitmap?.recycle()
+        bitmap = null
+        cleanSurfaceView()
     }
 
-    public void resumeDrawing() {
-        touchHelper.setRawDrawingEnabled(true);
-        EpdController.setScreenHandWritingPenState(getHostView(), EpdPenManager.PEN_DRAWING);
+    fun resumeDrawing() {
+        touchHelper.setRawDrawingEnabled(true)
+        EpdController.setScreenHandWritingPenState(hostView, EpdPenManager.PEN_DRAWING)
     }
 
-    public void pauseDrawing() {
-        touchHelper.setRawDrawingEnabled(false);
-        EpdController.setScreenHandWritingPenState(getHostView(), EpdPenManager.PEN_PAUSE);
+    fun pauseDrawing() {
+        touchHelper.setRawDrawingEnabled(false)
+        EpdController.setScreenHandWritingPenState(hostView, EpdPenManager.PEN_PAUSE)
     }
 
-    private SurfaceView getHostView() {
-        return binding.surfaceview;
+    private val hostView: SurfaceView
+        get() = binding.surfaceview
+
+    fun onRenderEnableClick() {
+        val checked = binding.cbRender.isChecked
+        touchHelper.isRawDrawingRenderEnabled = checked
+        EpdController.setScreenHandWritingPenState(
+            hostView, if (checked) EpdPenManager.PEN_DRAWING else EpdPenManager.PEN_PAUSE
+        )
+        bitmap?.recycle()
+        bitmap = null
+        Log.d(TAG, "onRenderEnableClick setRawDrawingRenderEnabled =  $checked")
     }
 
-    public void onRenderEnableClick() {
-        boolean checked = binding.cbRender.isChecked();
-        touchHelper.setRawDrawingRenderEnabled(checked);
-        EpdController.setScreenHandWritingPenState(getHostView(), checked ? EpdPenManager.PEN_DRAWING : EpdPenManager.PEN_PAUSE);
-        if (bitmap != null) {
-            bitmap.recycle();
-            bitmap = null;
-        }
-        Log.d(TAG, "onRenderEnableClick setRawDrawingRenderEnabled =  " + checked);
-    }
-
-    public void onRadioButtonClicked(View radioButton) {
-
-        boolean checked = ((RadioButton) radioButton).isChecked();
-        Log.d(TAG, radioButton.toString());
-        switch (radioButton.getId()) {
-            case R.id.rb_marker:
-                if (checked) {
-                    touchHelper.setStrokeStyle(TouchHelper.STROKE_STYLE_MARKER);
-                    Log.d(TAG, "STROKE_STYLE_MARKER");
-                }
-                break;
-            case R.id.rb_pencil:
-                if (checked) {
-                    touchHelper.setStrokeStyle(TouchHelper.STROKE_STYLE_PENCIL);
-                    Log.d(TAG, "STROKE_STYLE_PENCIL");
-                }
-                break;
-        }
-        // refresh ui
-        onEraserClick();
-        onPenClick();
-    }
-
-    public void enableFingerTouch(View view, boolean checked) {
-        if (touchHelper == null) {
-            return;
-        }
-        touchHelper.setRawDrawingEnabled(false);
-        touchHelper.setRawDrawingEnabled(true);
-        touchHelper.enableFingerTouch(checked);
-    }
-
-    public Rect getRelativeRect(final View parentView, final View childView) {
-        int[] parent = new int[2];
-        int[] child = new int[2];
-        parentView.getLocationOnScreen(parent);
-        childView.getLocationOnScreen(child);
-        Rect rect = new Rect();
-        childView.getLocalVisibleRect(rect);
-        rect.offset(child[0] - parent[0], child[1] - parent[1]);
-        return rect;
-    }
-
-    private boolean cleanSurfaceView() {
-        if (getHostView().getHolder() == null) {
-            return false;
-        }
-        Canvas canvas = getHostView().getHolder().lockCanvas();
-        if (canvas == null) {
-            return false;
-        }
-        canvas.drawColor(Color.WHITE);
-        getHostView().getHolder().unlockCanvasAndPost(canvas);
-        return true;
-    }
-
-    private void drawRect(TouchPoint endPoint) {
-        Canvas canvas = getHostView().getHolder().lockCanvas();
-        if (canvas == null) {
-            return;
-        }
-
-        if (startPoint == null || endPoint == null) {
-            getHostView().getHolder().unlockCanvasAndPost(canvas);
-            return;
-        }
-
-        canvas.drawColor(Color.WHITE);
-        canvas.drawRect(startPoint.getX(), startPoint.getY(), endPoint.getX(), endPoint.getY(), paint);
-        Log.d(TAG, "drawRect ");
-        getHostView().getHolder().unlockCanvasAndPost(canvas);
-    }
-
-    private RawInputCallback callback = new RawInputCallback() {
-
-        @Override
-        public void onBeginRawDrawing(boolean b, TouchPoint touchPoint) {
-            Log.d(TAG, "onBeginRawDrawing");
-            startPoint = touchPoint;
-            Log.d(TAG, touchPoint.getX() + ", " + touchPoint.getY());
-            countRec = 0;
-            TouchUtils.disableFingerTouch(getApplicationContext());
-        }
-
-        @Override
-        public void onEndRawDrawing(boolean b, TouchPoint touchPoint) {
-            Log.d(TAG, "onEndRawDrawing###");
-            if (!binding.cbRender.isChecked()) {
-                drawRect(touchPoint);
+    fun onRadioButtonClicked(radioButton: View) {
+        val checked = (radioButton as RadioButton).isChecked
+        Log.d(TAG, radioButton.toString())
+        when (radioButton.id) {
+            R.id.rb_marker -> if (checked) {
+                touchHelper.setStrokeStyle(TouchHelper.STROKE_STYLE_MARKER)
+                Log.d(TAG, "STROKE_STYLE_MARKER")
             }
-            Log.d(TAG, touchPoint.getX() + ", " + touchPoint.getY());
-            TouchUtils.enableFingerTouch(getApplicationContext());
-        }
 
-        @Override
-        public void onRawDrawingTouchPointMoveReceived(TouchPoint touchPoint) {
-            Log.d(TAG, "onRawDrawingTouchPointMoveReceived");
-            Log.d(TAG, touchPoint.getX() + ", " + touchPoint.getY());
-            countRec++;
-            countRec = countRec % INTERVAL;
-            Log.d(TAG, "countRec = " + countRec);
-        }
-
-        @Override
-        public void onRawDrawingTouchPointListReceived(TouchPointList touchPointList) {
-            Log.d(TAG, "onRawDrawingTouchPointListReceived");
-            drawScribbleToBitmap(touchPointList.getPoints());
-        }
-
-        @Override
-        public void onBeginRawErasing(boolean b, TouchPoint touchPoint) {
-            Log.d(TAG, "onBeginRawErasing");
-        }
-
-        @Override
-        public void onEndRawErasing(boolean b, TouchPoint touchPoint) {
-            Log.d(TAG, "onEndRawErasing");
-        }
-
-        @Override
-        public void onRawErasingTouchPointMoveReceived(TouchPoint touchPoint) {
-            Log.d(TAG, "onRawErasingTouchPointMoveReceived");
-        }
-
-        @Override
-        public void onRawErasingTouchPointListReceived(TouchPointList touchPointList) {
-            Log.d(TAG, "onRawErasingTouchPointListReceived");
-        }
-    };
-
-    private void drawScribbleToBitmap(List<TouchPoint> list) {
-        if (!binding.cbRender.isChecked()) {
-            return;
-        }
-        if (bitmap == null) {
-            bitmap = Bitmap.createBitmap(getHostView().getWidth(), getHostView().getHeight(), Bitmap.Config.ARGB_8888);
-            canvas = new Canvas(bitmap);
-        }
-
-        if (binding.rbMarker.isChecked()) {
-            float maxPressure = EpdController.getMaxTouchPressure();
-            List<TouchPoint> markerPoints = NeoPenUtils.computeStrokePoints(
-                    NeoPenConfig.NEOPEN_PEN_TYPE_MARKER, list, STROKE_WIDTH, maxPressure);
-            PenUtils.drawStrokeByPointSize(canvas, paint, markerPoints, false);
-        }
-
-        if (binding.rbPencil.isChecked()) {
-            Path path = new Path();
-            PointF prePoint = new PointF(list.get(0).x, list.get(0).y);
-            path.moveTo(prePoint.x, prePoint.y);
-            for (TouchPoint point : list) {
-                path.quadTo(prePoint.x, prePoint.y, point.x, point.y);
-                prePoint.x = point.x;
-                prePoint.y = point.y;
+            R.id.rb_pencil -> if (checked) {
+                touchHelper.setStrokeStyle(TouchHelper.STROKE_STYLE_PENCIL)
+                Log.d(TAG, "STROKE_STYLE_PENCIL")
             }
-            canvas.drawPath(path, paint);
+        } // refresh ui
+        onEraserClick()
+        onPenClick()
+    }
+
+    fun enableFingerTouch(view: View?, checked: Boolean) {
+        touchHelper.setRawDrawingEnabled(false)
+        touchHelper.setRawDrawingEnabled(true)
+        touchHelper.enableFingerTouch(checked)
+    }
+
+    fun getRelativeRect(parentView: View, childView: View): Rect {
+        val parent = IntArray(2)
+        val child = IntArray(2)
+        parentView.getLocationOnScreen(parent)
+        childView.getLocationOnScreen(child)
+        val rect = Rect()
+        childView.getLocalVisibleRect(rect)
+        rect.offset(child[0] - parent[0], child[1] - parent[1])
+        return rect
+    }
+
+    private fun cleanSurfaceView(): Boolean {
+        val host = hostView
+        if (host.holder == null) {
+            return false
+        }
+        val canvas = host.holder.lockCanvas() ?: return false
+        canvas.drawColor(Color.WHITE)
+        host.holder.unlockCanvasAndPost(canvas)
+        return true
+    }
+
+    private fun drawRect(endPoint: TouchPoint?) {
+        val host = hostView
+        val canvas = host.holder.lockCanvas() ?: return
+
+        val start = startPoint
+        if (start == null || endPoint == null) {
+            host.holder.unlockCanvasAndPost(canvas)
+            return
+        }
+
+        canvas.drawColor(Color.WHITE)
+        canvas.drawRect(start.x, start.y, endPoint.x, endPoint.y, paint)
+        Log.d(TAG, "drawRect ")
+        host.holder.unlockCanvasAndPost(canvas)
+    }
+
+    private val callback: RawInputCallback = object : RawInputCallback() {
+        override fun onBeginRawDrawing(b: Boolean, touchPoint: TouchPoint) {
+            Log.d(TAG, "onBeginRawDrawing")
+            startPoint = touchPoint
+            Log.d(TAG, touchPoint.x.toString() + ", " + touchPoint.y)
+            countRec = 0
+            TouchUtils.disableFingerTouch(applicationContext)
+        }
+
+        override fun onEndRawDrawing(b: Boolean, touchPoint: TouchPoint) {
+            Log.d(TAG, "onEndRawDrawing###")
+            if (!binding.cbRender.isChecked) {
+                drawRect(touchPoint)
+            }
+            Log.d(TAG, touchPoint.x.toString() + ", " + touchPoint.y)
+            TouchUtils.enableFingerTouch(applicationContext)
+        }
+
+        override fun onRawDrawingTouchPointMoveReceived(touchPoint: TouchPoint) {
+            Log.d(TAG, "onRawDrawingTouchPointMoveReceived")
+            Log.d(TAG, touchPoint.x.toString() + ", " + touchPoint.y)
+            countRec++
+            countRec %= INTERVAL
+            Log.d(TAG, "countRec = $countRec")
+        }
+
+        override fun onRawDrawingTouchPointListReceived(touchPointList: TouchPointList) {
+            Log.d(TAG, "onRawDrawingTouchPointListReceived")
+            drawScribbleToBitmap(touchPointList.points)
+        }
+
+        override fun onBeginRawErasing(b: Boolean, touchPoint: TouchPoint?) {
+            Log.d(TAG, "onBeginRawErasing")
+        }
+
+        override fun onEndRawErasing(b: Boolean, touchPoint: TouchPoint?) {
+            Log.d(TAG, "onEndRawErasing")
+        }
+
+        override fun onRawErasingTouchPointMoveReceived(touchPoint: TouchPoint?) {
+            Log.d(TAG, "onRawErasingTouchPointMoveReceived")
+        }
+
+        override fun onRawErasingTouchPointListReceived(touchPointList: TouchPointList?) {
+            Log.d(TAG, "onRawErasingTouchPointListReceived")
         }
     }
 
-    private void drawBitmapToSurface() {
-        if (!binding.cbRender.isChecked()) {
-            return;
+    private fun drawScribbleToBitmap(list: MutableList<TouchPoint>) {
+        if (!binding.cbRender.isChecked) {
+            return
         }
-        if (bitmap == null) {
-            return;
+        var drawCanvas = canvas
+        if (bitmap == null || drawCanvas == null) {
+            val host = hostView
+            val newBitmap = Bitmap.createBitmap(
+                host.width, host.height, Bitmap.Config.ARGB_8888
+            )
+            bitmap = newBitmap
+            drawCanvas = Canvas(newBitmap)
+            canvas = drawCanvas
         }
-        Canvas lockCanvas = getHostView().getHolder().lockCanvas();
-        if (lockCanvas == null) {
-            return;
+
+        if (binding.rbMarker.isChecked) {
+            val maxPressure = EpdController.getMaxTouchPressure()
+            val markerPoints = NeoPenUtils.computeStrokePoints(
+                NeoPenConfig.NEOPEN_PEN_TYPE_MARKER, list, STROKE_WIDTH, maxPressure
+            )
+            PenUtils.drawStrokeByPointSize(drawCanvas, paint, markerPoints, false)
         }
-        lockCanvas.drawColor(Color.WHITE);
-        lockCanvas.drawBitmap(bitmap, 0f, 0f, paint);
-        getHostView().getHolder().unlockCanvasAndPost(lockCanvas);
-        // refresh ui
-        touchHelper.setRawDrawingEnabled(false);
-        touchHelper.setRawDrawingEnabled(true);
-        if (!binding.cbRender.isChecked()) {
-            touchHelper.setRawDrawingRenderEnabled(false);
+
+        if (binding.rbPencil.isChecked) {
+            val path = Path()
+            val prePoint = PointF(list.get(0).x, list.get(0).y)
+            path.moveTo(prePoint.x, prePoint.y)
+            for (point in list) {
+                path.quadTo(prePoint.x, prePoint.y, point.x, point.y)
+                prePoint.x = point.x
+                prePoint.y = point.y
+            }
+            drawCanvas.drawPath(path, paint)
         }
+    }
+
+    private fun drawBitmapToSurface() {
+        if (!binding.cbRender.isChecked) {
+            return
+        }
+        val bmp = bitmap ?: return
+        val host = hostView
+        val lockCanvas = host.holder.lockCanvas() ?: return
+        lockCanvas.drawColor(Color.WHITE)
+        lockCanvas.drawBitmap(bmp, 0f, 0f, paint)
+        host.holder.unlockCanvasAndPost(lockCanvas) // refresh ui
+        touchHelper.setRawDrawingEnabled(false)
+        touchHelper.setRawDrawingEnabled(true)
+        if (!binding.cbRender.isChecked) {
+            touchHelper.isRawDrawingRenderEnabled = false
+        }
+    }
+
+    companion object {
+        private val TAG: String = ScribbleFingerTouchDemoActivity::class.java.simpleName
+
+        /**
+         * skip point count
+         */
+        private const val INTERVAL = 10
     }
 }

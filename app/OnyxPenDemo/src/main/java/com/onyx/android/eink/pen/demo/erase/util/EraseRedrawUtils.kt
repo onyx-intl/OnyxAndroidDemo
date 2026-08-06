@@ -1,181 +1,183 @@
-package com.onyx.android.eink.pen.demo.erase.util;
+package com.onyx.android.eink.pen.demo.erase.util
 
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.RectF;
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.RectF
+import com.onyx.android.eink.pen.demo.PenBundle
+import com.onyx.android.eink.pen.demo.PenManager
+import com.onyx.android.eink.pen.demo.data.InteractiveMode
+import com.onyx.android.eink.pen.demo.erase.bean.EraseContext
+import com.onyx.android.eink.pen.demo.erase.data.EraseTypes
+import com.onyx.android.eink.pen.demo.shape.Shape
+import com.onyx.android.eink.pen.demo.util.ShapeUtils
+import com.onyx.android.sdk.pen.data.TouchPointList
+import com.onyx.android.sdk.utils.RectUtils
+import kotlin.math.max
 
-import com.onyx.android.eink.pen.demo.PenBundle;
-import com.onyx.android.eink.pen.demo.PenManager;
-import com.onyx.android.eink.pen.demo.data.InteractiveMode;
-import com.onyx.android.eink.pen.demo.erase.bean.EraseContext;
-import com.onyx.android.eink.pen.demo.erase.data.EraseTypes;
-import com.onyx.android.eink.pen.demo.shape.Shape;
-import com.onyx.android.eink.pen.demo.util.ShapeUtils;
-import com.onyx.android.sdk.pen.data.TouchPointList;
-import com.onyx.android.sdk.utils.RectUtils;
+object EraseRedrawUtils {
+    private const val DIRTY_RECT_EXTRA_PADDING_PX = 8f
 
-import java.util.ArrayList;
-import java.util.List;
+    @Throws(Exception::class)
+    fun finishEraseAndRefresh(
+        penManager: PenManager,
+        eraseContext: EraseContext?,
+        wholeTrack: TouchPointList?,
+        eraseWidth: Float,
+        eraseType: Int
+    ) {
+        penManager.activeRenderMode(InteractiveMode.SCRIBBLE)
+        penManager.getRenderContext().eraseArgs = null
+        penManager.setErasePathDrawing(false, eraseType)
 
-public final class EraseRedrawUtils {
-
-    private static final float DIRTY_RECT_EXTRA_PADDING_PX = 8f;
-
-    private EraseRedrawUtils() {
-    }
-
-    public static void finishEraseAndRefresh(PenManager penManager,
-                                             EraseContext eraseContext,
-                                             TouchPointList wholeTrack,
-                                             float eraseWidth,
-                                             int eraseType) throws Exception {
-        penManager.activeRenderMode(InteractiveMode.SCRIBBLE);
-        penManager.getRenderContext().eraseArgs = null;
-        penManager.setErasePathDrawing(false, eraseType);
-
-        RectF refreshRect = null;
+        var refreshRect: RectF? = null
         if (hasEraseWork(eraseContext, wholeTrack)) {
-            refreshRect = finishEraseRedraw(penManager, eraseContext, wholeTrack, eraseWidth);
+            refreshRect = finishEraseRedraw(penManager, eraseContext, wholeTrack, eraseWidth)
         }
         if (refreshRect == null && eraseType == EraseTypes.ERASER_AREA) {
             refreshRect = clipRectToBitmap(
-                    penManager, buildEraseDirtyRect(eraseContext, wholeTrack, eraseWidth));
+                penManager, buildEraseDirtyRect(eraseContext, wholeTrack, eraseWidth)
+            )
         }
 
-        boolean sfAreaTrack = eraseType == EraseTypes.ERASER_AREA
-                && EraserTrackHelper.useSfTrack(PenBundle.getInstance(), eraseType);
+        val sfAreaTrack = eraseType == EraseTypes.ERASER_AREA && EraserTrackHelper.useSfTrack(
+            PenBundle.getInstance(), eraseType
+        )
         if (sfAreaTrack) {
-            penManager.setRawDrawingRenderEnabled(false);
+            penManager.setRawDrawingRenderEnabled(false)
         }
         if (refreshRect != null) {
-            penManager.refreshPartial(refreshRect);
+            penManager.refreshPartial(refreshRect)
         } else if (sfAreaTrack) {
-            penManager.renderToScreen();
+            penManager.renderToScreen()
         }
     }
 
-    public static RectF finishEraseRedraw(PenManager penManager,
-                                          EraseContext eraseContext,
-                                          TouchPointList wholeTrack,
-                                          float eraseWidth) {
+    fun finishEraseRedraw(
+        penManager: PenManager?,
+        eraseContext: EraseContext?,
+        wholeTrack: TouchPointList?,
+        eraseWidth: Float
+    ): RectF? {
         if (penManager == null || penManager.getRenderContext().bitmap == null) {
-            return null;
+            return null
         }
-        RectF dirty = buildEraseDirtyRect(eraseContext, wholeTrack, eraseWidth);
-        if (dirty == null) {
-            return null;
-        }
+        val dirty = buildEraseDirtyRect(eraseContext, wholeTrack, eraseWidth) ?: return null
         if (eraseContext != null) {
-            for (Shape removed : eraseContext.getSplitShapes()) {
-                unionShapeBounds(dirty, removed);
+            for (removed in eraseContext.getSplitShapes()) {
+                unionShapeBounds(dirty, removed)
             }
         }
 
-        List<Shape> shapesInDirty = collectShapesIntersectingDirty(penManager.getDrawShape(), dirty);
-        int bitmapW = penManager.getRenderContext().bitmap.getWidth();
-        int bitmapH = penManager.getRenderContext().bitmap.getHeight();
-        RectF fillRect = new RectF(dirty);
-        fillRect.intersect(0, 0, bitmapW, bitmapH);
-        if (fillRect.isEmpty()) {
-            return null;
+        val shapesInDirty = collectShapesIntersectingDirty(penManager.getDrawShape(), dirty)
+        val bitmap = penManager.getRenderContext().bitmap ?: return null
+        val bitmapW = bitmap.width
+        val bitmapH = bitmap.height
+        val fillRect = RectF(dirty)
+        fillRect.intersect(0f, 0f, bitmapW.toFloat(), bitmapH.toFloat())
+        if (fillRect.isEmpty) {
+            return null
         }
 
-        Canvas canvas = penManager.getRenderContext().canvas;
-        Paint paint = new Paint();
-        paint.setColor(Color.WHITE);
-        paint.setStyle(Paint.Style.FILL);
-        paint.setAntiAlias(false);
-        canvas.drawRect(fillRect, paint);
+        val canvas = penManager.getRenderContext().canvas
+        val paint = Paint()
+        paint.color = Color.WHITE
+        paint.style = Paint.Style.FILL
+        paint.isAntiAlias = false
+        canvas?.drawRect(fillRect, paint)
 
-        if (!shapesInDirty.isEmpty()) {
-            penManager.activeRenderMode(InteractiveMode.SCRIBBLE);
-            penManager.renderToBitmap(shapesInDirty);
+        if (shapesInDirty.isNotEmpty()) {
+            penManager.activeRenderMode(InteractiveMode.SCRIBBLE)
+            penManager.renderToBitmap(ArrayList(shapesInDirty.filterNotNull()))
         }
 
-        RectF refreshRect = new RectF(fillRect);
-        for (Shape shape : shapesInDirty) {
-            unionShapeBounds(refreshRect, shape);
+        val refreshRect = RectF(fillRect)
+        for (shape in shapesInDirty) {
+            unionShapeBounds(refreshRect, shape)
         }
-        return clipRectToBitmap(penManager, refreshRect);
+        return clipRectToBitmap(penManager, refreshRect)
     }
 
-    public static RectF buildEraseDirtyRect(EraseContext eraseContext,
-                                            TouchPointList wholeTrack,
-                                            float eraseWidth) {
-        RectF dirty = eraseContext != null ? eraseContext.getEraseRect() : null;
+    fun buildEraseDirtyRect(
+        eraseContext: EraseContext?,
+        wholeTrack: TouchPointList?,
+        eraseWidth: Float
+    ): RectF? {
+        var dirty = eraseContext?.getEraseRect()
         if (dirty != null) {
-            dirty = new RectF(dirty);
+            dirty = RectF(dirty)
         }
         if (wholeTrack != null && !wholeTrack.isEmpty()) {
-            RectF trackRect = ShapeUtils.getBoundingRect(wholeTrack);
+            val trackRect = ShapeUtils.getBoundingRect(wholeTrack)
             if (trackRect != null) {
                 if (dirty == null) {
-                    dirty = new RectF(trackRect);
+                    dirty = RectF(trackRect)
                 } else {
-                    dirty.union(trackRect);
+                    dirty.union(trackRect)
                 }
             }
         }
         if (dirty == null || dirty.isEmpty()) {
-            return null;
+            return null
         }
-        float pad = Math.max(eraseWidth / 2f, 1f) + DIRTY_RECT_EXTRA_PADDING_PX;
-        RectUtils.expand(dirty, pad);
-        return dirty;
+        val pad = max(eraseWidth / 2f, 1f) + DIRTY_RECT_EXTRA_PADDING_PX
+        RectUtils.expand(dirty, pad)
+        return dirty
     }
 
-    private static List<Shape> collectShapesIntersectingDirty(List<Shape> drawShapes, RectF dirty) {
-        List<Shape> result = new ArrayList<>();
+    private fun collectShapesIntersectingDirty(
+        drawShapes: MutableList<Shape>?,
+        dirty: RectF?
+    ): MutableList<Shape?> {
+        val result: MutableList<Shape?> = ArrayList<Shape?>()
         if (drawShapes == null || dirty == null) {
-            return result;
+            return result
         }
-        for (Shape shape : drawShapes) {
+        for (shape in drawShapes) {
             if (intersectsDirty(shape, dirty)) {
-                result.add(shape);
+                result.add(shape)
             }
         }
-        return result;
+        return result
     }
 
-    private static boolean intersectsDirty(Shape shape, RectF dirty) {
+    private fun intersectsDirty(shape: Shape, dirty: RectF?): Boolean {
         if (shape.getBoundingRect() == null) {
-            return false;
+            return false
         }
-        RectF shapeRect = new RectF(shape.getBoundingRect());
-        RectUtils.expand(shapeRect, shape.getRenderStrokeWidth() / 2f);
-        return RectUtils.intersects(shapeRect, dirty);
+        val shapeRect = RectF(shape.getBoundingRect())
+        RectUtils.expand(shapeRect, shape.getRenderStrokeWidth() / 2f)
+        return RectUtils.intersects(shapeRect, dirty)
     }
 
-    private static void unionShapeBounds(RectF dirty, Shape shape) {
+    private fun unionShapeBounds(dirty: RectF?, shape: Shape?) {
         if (dirty == null || shape == null || shape.getBoundingRect() == null) {
-            return;
+            return
         }
-        dirty.union(shape.getBoundingRect());
-        RectUtils.expand(dirty, shape.getRenderStrokeWidth() / 2f);
+        val bounds = shape.getBoundingRect() ?: return
+        dirty.union(bounds)
+        RectUtils.expand(dirty, shape.getRenderStrokeWidth() / 2f)
     }
 
-    private static RectF clipRectToBitmap(PenManager penManager, RectF rect) {
-        if (penManager == null || rect == null || penManager.getRenderContext().bitmap == null) {
-            return null;
+    private fun clipRectToBitmap(penManager: PenManager?, rect: RectF?): RectF? {
+        if (penManager == null || rect == null) {
+            return null
         }
-        RectF clipped = new RectF(rect);
-        int bitmapW = penManager.getRenderContext().bitmap.getWidth();
-        int bitmapH = penManager.getRenderContext().bitmap.getHeight();
-        clipped.intersect(0, 0, bitmapW, bitmapH);
-        return clipped.isEmpty() ? null : clipped;
+        val bitmap = penManager.getRenderContext().bitmap ?: return null
+        val clipped = RectF(rect)
+        clipped.intersect(0f, 0f, bitmap.width.toFloat(), bitmap.height.toFloat())
+        return if (clipped.isEmpty) null else clipped
     }
 
-    public static boolean hasEraseWork(EraseContext eraseContext, TouchPointList wholeTrack) {
+    fun hasEraseWork(eraseContext: EraseContext?, wholeTrack: TouchPointList?): Boolean {
         if (eraseContext == null) {
-            return wholeTrack != null && !wholeTrack.isEmpty();
+            return wholeTrack != null && !wholeTrack.isEmpty()
         }
         if (eraseContext.getEraseRect() != null) {
-            return true;
+            return true
         }
         if (!eraseContext.getSplitShapes().isEmpty()) {
-            return true;
+            return true
         }
-        return wholeTrack != null && !wholeTrack.isEmpty();
+        return wholeTrack != null && !wholeTrack.isEmpty()
     }
 }

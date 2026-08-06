@@ -1,347 +1,321 @@
-package com.onyx.android.eink.pen.demo.ui.popup;
+package com.onyx.android.eink.pen.demo.ui.popup
 
-import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.SeekBar;
+import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.WindowManager
+import android.widget.SeekBar
+import android.widget.SeekBar.OnSeekBarChangeListener
+import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.onyx.android.eink.pen.demo.PenBundle
+import com.onyx.android.eink.pen.demo.R
+import com.onyx.android.eink.pen.demo.action.StrokeColorChangeAction
+import com.onyx.android.eink.pen.demo.action.StrokeStyleChangeAction
+import com.onyx.android.eink.pen.demo.action.StrokeWidthChangeAction
+import com.onyx.android.eink.pen.demo.data.ShapeTexture
+import com.onyx.android.eink.pen.demo.data.ShapeType
+import com.onyx.android.eink.pen.demo.data.StrokeColor
+import com.onyx.android.eink.pen.demo.databinding.LayoutPenSettingPopBinding
+import com.onyx.android.eink.pen.demo.databinding.LayoutPenSettingPopBrushItemBinding
+import com.onyx.android.eink.pen.demo.util.PenInfoUtils
+import com.onyx.android.sdk.utils.CollectionUtils
+import com.onyx.android.sdk.utils.ResManager
+import com.onyx.android.sdk.utils.ViewUtils
+import io.reactivex.functions.Consumer
+import java.util.Arrays
+import java.util.Locale
+import kotlin.math.floor
+import kotlin.math.max
+import kotlin.math.min
 
-import androidx.annotation.NonNull;
-import androidx.databinding.DataBindingUtil;
+class PenSettingPop(context: Context?) : BasePopup(context) {
+    private lateinit var binding: LayoutPenSettingPopBinding
+    private lateinit var strokeWidthValues: MutableList<Float?>
 
-import com.onyx.android.eink.pen.demo.PenBundle;
-import com.onyx.android.eink.pen.demo.R;
-import com.onyx.android.eink.pen.demo.action.StrokeColorChangeAction;
-import com.onyx.android.eink.pen.demo.action.StrokeStyleChangeAction;
-import com.onyx.android.eink.pen.demo.action.StrokeWidthChangeAction;
-import com.onyx.android.eink.pen.demo.data.ShapeTexture;
-import com.onyx.android.eink.pen.demo.data.ShapeType;
-import com.onyx.android.eink.pen.demo.data.StrokeColor;
-import com.onyx.android.eink.pen.demo.databinding.LayoutPenSettingPopBinding;
-import com.onyx.android.eink.pen.demo.databinding.LayoutPenSettingPopBrushItemBinding;
-import com.onyx.android.eink.pen.demo.util.PenInfoUtils;
-import com.onyx.android.sdk.utils.CollectionUtils;
-import com.onyx.android.sdk.utils.ResManager;
-import com.onyx.android.sdk.utils.ViewUtils;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-
-public class PenSettingPop extends BasePopup {
-    private LayoutPenSettingPopBinding binding;
-    private List<Float> strokeWidthValues;
-
-    public PenSettingPop(Context context) {
-        super(context);
-        initPopupWindow();
+    init {
+        initPopupWindow()
     }
 
-    @Override
-    public void showAsDropDown(View anchor, int xoff, int yoff, int gravity) {
-        super.showAsDropDown(anchor, xoff, yoff, gravity);
-        onShow();
+    override fun showAsDropDown(anchor: View?, xoff: Int, yoff: Int, gravity: Int) {
+        super.showAsDropDown(anchor, xoff, yoff, gravity)
+        onShow()
     }
 
-    private void onShow() {
-        updateStrokeWidth(getCurrentStrokeWidth(), true);
+    private fun onShow() {
+        updateStrokeWidth(this.currentStrokeWidth, true)
     }
 
-    private void initPopupWindow() {
-        binding = DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.layout_pen_setting_pop, null, false);
-        setContentView(binding.getRoot());
+    private fun initPopupWindow() {
+        binding = DataBindingUtil.inflate(
+            LayoutInflater.from(context), R.layout.layout_pen_setting_pop, null, false
+        )
+        contentView = binding.root
 
-        setWidth(ResManager.getDimens(R.dimen.pen_popup_size));
-        setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
-        setFocusable(true);
-        setOutsideTouchable(true);
-        GradientDrawable drawable = new GradientDrawable();
-        drawable.setColor(Color.WHITE);
-        drawable.setStroke(2, Color.BLACK);
-        setBackgroundDrawable(drawable);
+        width = ResManager.getDimens(R.dimen.pen_popup_size)
+        height = WindowManager.LayoutParams.WRAP_CONTENT
+        isFocusable = true
+        isOutsideTouchable = true
+        val drawable = GradientDrawable()
+        drawable.setColor(Color.WHITE)
+        drawable.setStroke(2, Color.BLACK)
+        setBackgroundDrawable(drawable)
 
-        initBrushList();
-        initColorList();
-        initTextureList();
-        initListener();
-        initSeekBar();
+        initBrushList()
+        initColorList()
+        initTextureList()
+        initListener()
+        initSeekBar()
     }
 
-    private void initListener() {
-        binding.minus.setOnClickListener(v -> {
-            float currentStrokeWidth = getCurrentStrokeWidth();
-            float width = getClickStrokeWidth(false, currentStrokeWidth);
-            updateStrokeWidth(width);
-        });
-        binding.plus.setOnClickListener(v -> {
-            float currentStrokeWidth = getCurrentStrokeWidth();
-            float width = getClickStrokeWidth(true, currentStrokeWidth);
-            updateStrokeWidth(width);
-        });
+    private fun initListener() {
+        binding.minus.setOnClickListener {
+            val currentStrokeWidth = this.currentStrokeWidth
+            val width = getClickStrokeWidth(false, currentStrokeWidth)
+            updateStrokeWidth(width)
+        }
+        binding.plus.setOnClickListener {
+            val currentStrokeWidth = this.currentStrokeWidth
+            val width = getClickStrokeWidth(true, currentStrokeWidth)
+            updateStrokeWidth(width)
+        }
     }
 
-    private void initSeekBar() {
-        initStrokeWidthValues();
-        binding.widthSeekBar.setMax(strokeWidthValues.size() - 1);
-        binding.widthSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+    private fun initSeekBar() {
+        initStrokeWidthValues()
+        binding.widthSeekBar.max = strokeWidthValues.size - 1
+        binding.widthSeekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
-                    updateStrokeWidth(strokeWidthValues.get(progress));
+                    val width = strokeWidthValues[progress]
+                        ?: throw NullPointerException("strokeWidthValues[$progress]")
+                    updateStrokeWidth(width)
                 }
             }
 
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
             }
 
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
             }
-        });
+        })
     }
 
-    private void initBrushList() {
-        BrushSettingAdapter brushSettingAdapter = new BrushSettingAdapter(Arrays.asList(ShapeType.values())
-                , ShapeType.find(getCurrentShapeType()));
-        binding.brushList.setLayoutManager(new GridLayoutManager(context, brushSettingAdapter.options.size()));
-        binding.brushList.setAdapter(brushSettingAdapter);
+    private fun initBrushList() {
+        val brushSettingAdapter = BrushSettingAdapter(
+            mutableListOf(*ShapeType.entries.toTypedArray()),
+            ShapeType.find(this.currentShapeType)
+        )
+        binding.brushList.setLayoutManager(
+            GridLayoutManager(
+                context, brushSettingAdapter.options.size
+            )
+        )
+        binding.brushList.setAdapter(brushSettingAdapter)
     }
 
-    private void initColorList() {
-        ColorSettingAdapter colorSettingAdapter = new ColorSettingAdapter(Arrays.asList(StrokeColor.values())
-                , StrokeColor.find(getCurrentStrokeColor()));
-        binding.colorList.setLayoutManager(new GridLayoutManager(context, colorSettingAdapter.options.size()));
-        binding.colorList.setAdapter(colorSettingAdapter);
+    private fun initColorList() {
+        val colorSettingAdapter = ColorSettingAdapter(
+            mutableListOf(*StrokeColor.entries.toTypedArray()),
+            StrokeColor.find(this.currentStrokeColor)
+        )
+        binding.colorList.setLayoutManager(
+            GridLayoutManager(
+                context, colorSettingAdapter.options.size
+            )
+        )
+        binding.colorList.setAdapter(colorSettingAdapter)
     }
 
-    private void initTextureList() {
-        List<ShapeTexture> textures = ShapeTexture.getShapeTextures(getCurrentShapeType());
-        boolean showTexture = CollectionUtils.isNonBlank(textures);
-        ViewUtils.setViewVisibleOrGone(binding.textureContainer, showTexture);
+    private fun initTextureList() {
+        val textures: MutableList<ShapeTexture> = ShapeTexture.getShapeTextures(
+            this.currentShapeType
+        )
+        val showTexture = CollectionUtils.isNonBlank(textures)
+        ViewUtils.setViewVisibleOrGone(binding.textureContainer, showTexture)
         if (showTexture) {
-            TextureSettingAdapter adapter = new TextureSettingAdapter(textures, ShapeTexture.find(getCurrentTexture()));
-            binding.textureList.setLayoutManager(new GridLayoutManager(context, adapter.options.size()));
-            binding.textureList.setAdapter(adapter);
+            val adapter = TextureSettingAdapter(
+                textures, ShapeTexture.find(
+                    this.currentTexture
+                )
+            )
+            binding.textureList.setLayoutManager(GridLayoutManager(context, adapter.options.size))
+            binding.textureList.setAdapter(adapter)
         }
     }
 
-    private void initStrokeWidthValues() {
-        strokeWidthValues = PenInfoUtils.getPenWidthRange(getCurrentShapeType());
+    private fun initStrokeWidthValues() {
+        strokeWidthValues = PenInfoUtils.getPenWidthRange(this.currentShapeType)
     }
 
-    private void updateStrokeWidth(final float width) {
-        updateStrokeWidth(width, false);
+    private fun updateStrokeWidth(width: Float) {
+        updateStrokeWidth(width, false)
     }
 
-    private void updateStrokeWidth(final float lineWidth, boolean justInitView) {
-        String lineWidthValue = Math.floor(lineWidth) == lineWidth ?
-                String.format(Locale.getDefault(), "%.0f", lineWidth) : String.valueOf(lineWidth);
-        binding.width.setText(lineWidthValue);
-        binding.widthSeekBar.setProgress(strokeWidthValues.indexOf(lineWidth));
+    private fun updateStrokeWidth(lineWidth: Float, justInitView: Boolean) {
+        val lineWidthValue = if (floor(lineWidth.toDouble()) == lineWidth.toDouble()) String.format(
+            Locale.getDefault(), "%.0f", lineWidth
+        ) else lineWidth.toString()
+        binding.width.text = lineWidthValue
+        binding.widthSeekBar.progress = strokeWidthValues.indexOf(lineWidth)
         if (!justInitView) {
-            updateStrokeWidthImpl(lineWidth);
+            updateStrokeWidthImpl(lineWidth)
         }
     }
 
-    private void updateStrokeWidthImpl(final float lineWidth) {
-        new StrokeWidthChangeAction(getCurrentShapeType(), lineWidth).execute();
+    private fun updateStrokeWidthImpl(lineWidth: Float) {
+        StrokeWidthChangeAction(this.currentShapeType, lineWidth).execute()
     }
 
-    private float getClickStrokeWidth(boolean plusClick, float currentStrokeWidth) {
-        int currentStrokeStyle = getCurrentShapeType();
-        float gap = PenInfoUtils.getStrokeWidthGap(currentStrokeStyle, plusClick, currentStrokeWidth);
+    private fun getClickStrokeWidth(plusClick: Boolean, currentStrokeWidth: Float): Float {
+        val currentStrokeStyle = this.currentShapeType
+        val gap = PenInfoUtils.getStrokeWidthGap(currentStrokeStyle, plusClick, currentStrokeWidth)
         if (plusClick) {
-            return Math.min(currentStrokeWidth + gap, PenInfoUtils.getMaxStrokeWidth(currentStrokeStyle));
+            return min(currentStrokeWidth + gap, PenInfoUtils.getMaxStrokeWidth(currentStrokeStyle))
         } else {
-            return Math.max(currentStrokeWidth - gap, PenInfoUtils.getMinStrokeWidth(currentStrokeStyle));
+            return max(currentStrokeWidth - gap, PenInfoUtils.getMinStrokeWidth(currentStrokeStyle))
         }
     }
 
-    private float getCurrentStrokeWidth() {
-        return getPenBundle().getCurrentStrokeWidth();
-    }
+    private val currentStrokeWidth: Float
+        get() = this.penBundle.getCurrentStrokeWidth()
 
-    private int getCurrentShapeType() {
-        return getPenBundle().getCurrentShapeType();
-    }
+    private val currentShapeType: Int
+        get() = this.penBundle.getCurrentShapeType()
 
-    private int getCurrentStrokeColor() {
-        return getPenBundle().getCurrentStrokeColor();
-    }
+    private val currentStrokeColor: Int
+        get() = this.penBundle.getCurrentStrokeColor()
 
-    private int getCurrentTexture() {
-        return getPenBundle().getCurrentTexture();
-    }
+    private val currentTexture: Int
+        get() = this.penBundle.getCurrentTexture()
 
-    private PenBundle getPenBundle() {
-        return PenBundle.getInstance();
-    }
+    private val penBundle: PenBundle
+        get() = PenBundle.getInstance()
 
-    public class BrushSettingAdapter extends RecyclerView.Adapter<BrushSettingAdapter.ViewHolder> {
-        private List<ShapeType> options;
-        private ShapeType selectedShapeType;
-
-        public BrushSettingAdapter(List<ShapeType> options, ShapeType selectedShapeType) {
-            this.options = options;
-            this.selectedShapeType = selectedShapeType;
+    inner class BrushSettingAdapter(
+        val options: MutableList<ShapeType>,
+        private var selectedShapeType: ShapeType
+    ) : RecyclerView.Adapter<BrushSettingAdapter.ViewHolder>() {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+            val view = LayoutInflater.from(parent.context).inflate(
+                R.layout.layout_pen_setting_pop_brush_item, parent, false
+            )
+            return ViewHolder(view)
         }
 
-        @NonNull
-        @Override
-        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_pen_setting_pop_brush_item
-                    , parent, false);
-            return new ViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            ShapeType shapeType = options.get(position);
-            holder.bindTo(shapeType, shapeType == selectedShapeType);
-            holder.itemView.setOnClickListener(v -> {
-                onBrushSettingImpl(shapeType);
-            });
-        }
-
-        @Override
-        public int getItemCount() {
-            return options.size();
-        }
-
-        private void onBrushSettingImpl(ShapeType shapeType) {
-            selectedShapeType = shapeType;
-            notifyDataSetChanged();
-            new StrokeStyleChangeAction(selectedShapeType.getValue(), getPenBundle().getCurrentTexture())
-                    .build()
-                    .subscribe(strokeStyleChangeAction -> {
-                        initSeekBar();
-                        initTextureList();
-                        updateStrokeWidth(getPenBundle().getPenLineWidth(shapeType.getValue()));
-                    });
-        }
-
-        public class ViewHolder extends RecyclerView.ViewHolder {
-            public final LayoutPenSettingPopBrushItemBinding binding;
-
-            public ViewHolder(View itemView) {
-                super(itemView);
-                binding = DataBindingUtil.bind(itemView);
-            }
-
-            public void bindTo(ShapeType shapeType, boolean selected) {
-                binding.title.setText(shapeType.getTextResId());
-                binding.icon.setImageResource(shapeType.getIconResId());
-                binding.radio.setChecked(selected);
-                binding.executePendingBindings();
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            val shapeType = options[position]
+            holder.bindTo(shapeType, shapeType == selectedShapeType)
+            holder.itemView.setOnClickListener {
+                onBrushSettingImpl(shapeType)
             }
         }
 
+        override fun getItemCount(): Int {
+            return options.size
+        }
+
+        private fun onBrushSettingImpl(shapeType: ShapeType) {
+            selectedShapeType = shapeType
+            notifyDataSetChanged()
+            StrokeStyleChangeAction(
+                selectedShapeType.getValue(), penBundle.getCurrentTexture()
+            ).build().subscribe(Consumer {
+                initSeekBar()
+                initTextureList()
+                updateStrokeWidth(penBundle.getPenLineWidth(shapeType.getValue()))
+            })
+        }
+
+        inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            private val binding: LayoutPenSettingPopBrushItemBinding =
+                requireNotNull(DataBindingUtil.bind(itemView))
+
+            fun bindTo(shapeType: ShapeType, selected: Boolean) {
+                binding.title.setText(shapeType.getTextResId())
+                binding.icon.setImageResource(shapeType.getIconResId())
+                binding.radio.isChecked = selected
+                binding.executePendingBindings()
+            }
+        }
     }
 
-    public class ColorSettingAdapter extends RecyclerView.Adapter<ColorSettingAdapter.ViewHolder> {
-        private List<StrokeColor> options;
-        private StrokeColor selectedStrokeColor;
-
-        public ColorSettingAdapter(List<StrokeColor> options, StrokeColor selectedStrokeColor) {
-            this.options = options;
-            this.selectedStrokeColor = selectedStrokeColor;
+    inner class ColorSettingAdapter(
+        val options: MutableList<StrokeColor>,
+        private var selectedStrokeColor: StrokeColor?
+    ) : RecyclerView.Adapter<ColorSettingAdapter.ViewHolder>() {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+            val view = LayoutInflater.from(parent.context).inflate(
+                R.layout.layout_pen_setting_pop_brush_item, parent, false
+            )
+            return ViewHolder(view)
         }
 
-        @NonNull
-        @Override
-        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_pen_setting_pop_brush_item
-                    , parent, false);
-            return new ViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            StrokeColor strokeColor = options.get(position);
-            holder.bindTo(strokeColor, strokeColor == selectedStrokeColor);
-            holder.itemView.setOnClickListener(v -> {
-                selectedStrokeColor = strokeColor;
-                new StrokeColorChangeAction(selectedStrokeColor.getValue()).execute();
-                notifyDataSetChanged();
-            });
-        }
-
-        @Override
-        public int getItemCount() {
-            return options.size();
-        }
-
-        public class ViewHolder extends RecyclerView.ViewHolder {
-            public final LayoutPenSettingPopBrushItemBinding binding;
-
-            public ViewHolder(View itemView) {
-                super(itemView);
-                binding = DataBindingUtil.bind(itemView);
-            }
-
-            public void bindTo(StrokeColor strokeStyle, boolean selected) {
-                binding.title.setText(strokeStyle.getTextResId());
-                binding.radio.setChecked(selected);
-                binding.executePendingBindings();
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            val strokeColor = options[position]
+            holder.bindTo(strokeColor, strokeColor == selectedStrokeColor)
+            holder.itemView.setOnClickListener {
+                selectedStrokeColor = strokeColor
+                StrokeColorChangeAction(strokeColor.getValue()).execute()
+                notifyDataSetChanged()
             }
         }
 
+        override fun getItemCount(): Int {
+            return options.size
+        }
+
+        inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            private val binding: LayoutPenSettingPopBrushItemBinding =
+                requireNotNull(DataBindingUtil.bind(itemView))
+
+            fun bindTo(strokeStyle: StrokeColor, selected: Boolean) {
+                binding.title.setText(strokeStyle.getTextResId())
+                binding.radio.isChecked = selected
+                binding.executePendingBindings()
+            }
+        }
     }
 
-    public class TextureSettingAdapter extends RecyclerView.Adapter<TextureSettingAdapter.ViewHolder> {
-        private List<ShapeTexture> options;
-        private ShapeTexture selectedShapeTexture;
-
-        public TextureSettingAdapter(List<ShapeTexture> options, ShapeTexture selectedShapeTexture) {
-            this.options = options;
-            this.selectedShapeTexture = selectedShapeTexture;
+    inner class TextureSettingAdapter(
+        val options: MutableList<ShapeTexture>,
+        private var selectedShapeTexture: ShapeTexture
+    ) : RecyclerView.Adapter<TextureSettingAdapter.ViewHolder>() {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+            val view = LayoutInflater.from(parent.context).inflate(
+                R.layout.layout_pen_setting_pop_brush_item, parent, false
+            )
+            return ViewHolder(view)
         }
 
-        @NonNull
-        @Override
-        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_pen_setting_pop_brush_item
-                    , parent, false);
-            return new ViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            ShapeTexture texture = options.get(position);
-            holder.bindTo(texture, texture == selectedShapeTexture);
-            holder.itemView.setOnClickListener(v -> {
-                selectedShapeTexture = texture;
-                new StrokeStyleChangeAction(getPenBundle().getCurrentShapeType(),
-                        selectedShapeTexture.getTexture()).execute();
-            });
-        }
-
-        @Override
-        public int getItemCount() {
-            return options.size();
-        }
-
-        public class ViewHolder extends RecyclerView.ViewHolder {
-            public final LayoutPenSettingPopBrushItemBinding binding;
-
-            public ViewHolder(View itemView) {
-                super(itemView);
-                binding = DataBindingUtil.bind(itemView);
-            }
-
-            public void bindTo(ShapeTexture texture, boolean selected) {
-                binding.title.setText(texture.getTextureTextResId());
-                binding.radio.setChecked(selected);
-                binding.executePendingBindings();
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            val texture = options[position]
+            holder.bindTo(texture, texture == selectedShapeTexture)
+            holder.itemView.setOnClickListener {
+                selectedShapeTexture = texture
+                StrokeStyleChangeAction(
+                    penBundle.getCurrentShapeType(), selectedShapeTexture.getTexture()
+                ).execute()
             }
         }
 
+        override fun getItemCount(): Int {
+            return options.size
+        }
+
+        inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            private val binding: LayoutPenSettingPopBrushItemBinding =
+                requireNotNull(DataBindingUtil.bind(itemView))
+
+            fun bindTo(texture: ShapeTexture, selected: Boolean) {
+                binding.title.setText(texture.getTextureTextResId())
+                binding.radio.isChecked = selected
+                binding.executePendingBindings()
+            }
+        }
     }
-
 }

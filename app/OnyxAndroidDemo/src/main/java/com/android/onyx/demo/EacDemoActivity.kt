@@ -1,296 +1,248 @@
-package com.android.onyx.demo;
+package com.android.onyx.demo
 
-import android.app.AlertDialog;
-import android.content.pm.ActivityInfo;
-import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
-import android.view.View;
-
-import androidx.databinding.DataBindingUtil;
-
-import com.android.onyx.demo.databinding.ActivityEacDemoBinding;
-import com.onyx.android.sdk.api.device.eac.SimpleEACManage;
-import com.onyx.android.sdk.rx.RxUtils;
-import com.onyx.android.sdk.utils.DeviceUtils;
-import com.onyx.android.sdk.utils.RotationUtils;
-import com.onyx.android.sdk.utils.RxTimerUtil;
-
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
-
-import io.reactivex.annotations.NonNull;
-import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
+import android.app.AlertDialog
+import android.content.pm.ActivityInfo
+import android.os.Bundle
+import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import com.android.onyx.demo.databinding.ActivityEacDemoBinding
+import com.onyx.android.sdk.api.device.eac.SimpleEACManage
+import com.onyx.android.sdk.rx.RxUtils
+import com.onyx.android.sdk.utils.DeviceUtils
+import com.onyx.android.sdk.utils.RotationUtils
+import com.onyx.android.sdk.utils.RxTimerUtil
+import io.reactivex.schedulers.Schedulers
+import java.util.concurrent.TimeUnit
 
 /**
  * App optimize entrance:long press app to select the optimization option or FloatingButton optimization option.
  */
+class EacDemoActivity : AppCompatActivity() {
+    private val rotationItemArray =
+        arrayOf("rotation 0", "rotation 90", "rotation 180", "rotation 270")
+    private lateinit var binding: ActivityEacDemoBinding
 
-public class EacDemoActivity extends AppCompatActivity {
-    private static final int UPDATE_EAC_STATUS_DELAY = 300;
-    private final String[] rotationItemArray = new String[]{"rotation 0", "rotation 90", "rotation 180", "rotation 270"};
-    private ActivityEacDemoBinding binding;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_eac_demo);
-        initView();
-        initData();
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_eac_demo)
+        initView()
+        initData()
     }
 
-    private void initView() {
-        binding.switchEacSupport.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            setSupportEAC(isChecked);
-        });
-        binding.switchEacEnable.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            setEACEnable(isChecked);
-        });
-        binding.switchRefreshConfigEnable.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            setEacRefreshConfigEnable(isChecked);
-        });
-        binding.switchFollowSystemRotationEnable.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            setEacFollowSystemRotation(isChecked);
-        });
+    private fun initView() {
+        binding.switchEacSupport.setOnCheckedChangeListener { _, isChecked ->
+            setSupportEAC(isChecked)
+        }
+        binding.switchEacEnable.setOnCheckedChangeListener { _, isChecked ->
+            setEACEnable(isChecked)
+        }
+        binding.switchRefreshConfigEnable.setOnCheckedChangeListener { _, isChecked ->
+            setEacRefreshConfigEnable(isChecked)
+        }
+        binding.switchFollowSystemRotationEnable.setOnCheckedChangeListener { _, isChecked ->
+            setEacFollowSystemRotation(isChecked)
+        }
     }
 
-    private void initData() {
-        updateAllStatus();
+    private fun initData() {
+        updateAllStatus()
     }
 
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.system_rotation:
-                systemRotation();
-                break;
-            case R.id.app_rotation:
-                appRotation();
-                break;
+    fun onClick(v: View) {
+        when (v.id) {
+            R.id.system_rotation -> systemRotation()
+            R.id.app_rotation -> appRotation()
         }
     }
 
     /**
      * This API is targeted at 3.2 and above.
      */
-    private void setEacRefreshConfigEnable(boolean isChecked) {
-        RxUtils.runInIO(() -> {
-            SimpleEACManage.getInstance().setEACRefreshConfigEnable(EacDemoActivity.this, isChecked);
-            updateAllStatusDelay();
-        });
+    private fun setEacRefreshConfigEnable(isChecked: Boolean) {
+        RxUtils.runInIO {
+            SimpleEACManage.getInstance().setEACRefreshConfigEnable(this, isChecked)
+            updateAllStatusDelay()
+        }
     }
 
     /**
      * This API is targeted at 3.3.1 and above.
      */
-    private void setEacFollowSystemRotation(boolean isChecked) {
-        RxUtils.runInIO(() -> {
-            SimpleEACManage.getInstance().setFollowSystemRotation(EacDemoActivity.this, isChecked);
-            updateAllStatusDelay();
-        });
+    private fun setEacFollowSystemRotation(isChecked: Boolean) {
+        RxUtils.runInIO {
+            SimpleEACManage.getInstance().setFollowSystemRotation(this, isChecked)
+            updateAllStatusDelay()
+        }
     }
 
     /**
      * If support EAC is turned off, the optimization setting will not be available.
      * Parameters Context use activity can realize EAC config Immediate effect.(version 3.1 and before not supported，take effect need reopen app)
      */
-    public void setSupportEAC(boolean support) {
-        RxUtils.runInIO(new Runnable() {
-            @Override
-            public void run() {
-                SimpleEACManage.getInstance().setSupportEAC(EacDemoActivity.this, support);
-                updateAllStatusDelay();
-            }
-        });
+    fun setSupportEAC(support: Boolean) {
+        RxUtils.runInIO {
+            SimpleEACManage.getInstance().setSupportEAC(this, support)
+            updateAllStatusDelay()
+        }
     }
 
-    public void setEACEnable(boolean enable) {
-        RxUtils.runInIO(new Runnable() {
-            @Override
-            public void run() {
-                SimpleEACManage.getInstance().setAppEACEnable(EacDemoActivity.this, enable);
-                updateAllStatusDelay();
-            }
-        });
+    fun setEACEnable(enable: Boolean) {
+        RxUtils.runInIO {
+            SimpleEACManage.getInstance().setAppEACEnable(this, enable)
+            updateAllStatusDelay()
+        }
     }
 
     /**
      * It`s app optimize switch status, not about with eac enable/disable.
      */
-    private void updateEACSwitchStatus() {
-        RxUtils.runWith(new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                return SimpleEACManage.getInstance().isAppEACEnabled(getPackageName());
-            }
-        }, new Consumer<Boolean>() {
-            @Override
-            public void accept(Boolean enable) throws Exception {
-                binding.eacEnableStatus.setText(getString(R.string.eac_enable_format, enable + ""));
-                binding.switchEacEnable.setChecked(enable);
-            }
-        }, Schedulers.io());
+    private fun updateEACSwitchStatus() {
+        RxUtils.runWith(
+            { SimpleEACManage.getInstance().isAppEACEnabled(packageName) },
+            { enable: Boolean? ->
+                val value = enable == true
+                binding.eacEnableStatus.text = getString(R.string.eac_enable_format, value.toString())
+                binding.switchEacEnable.isChecked = value
+            },
+            Schedulers.io()
+        )
     }
 
-    private void updateHookEpdcStatus() {
-        RxUtils.runWith(new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                return SimpleEACManage.getInstance().isHookEpdc(getPackageName());
-            }
-        }, new Consumer<Boolean>() {
-            @Override
-            public void accept(Boolean enable) throws Exception {
-                binding.hookEpdcStatus.setText(getString(R.string.hook_epdc_format, enable + ""));
-            }
-        }, Schedulers.io());
+    private fun updateHookEpdcStatus() {
+        RxUtils.runWith(
+            { SimpleEACManage.getInstance().isHookEpdc(packageName) },
+            { enable: Boolean? ->
+                binding.hookEpdcStatus.text =
+                    getString(R.string.hook_epdc_format, (enable == true).toString())
+            },
+            Schedulers.io()
+        )
     }
 
-    private void updateEACSupportStatus() {
-        RxUtils.runWith(new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                return SimpleEACManage.getInstance().isSupportEAC(getPackageName());
-            }
-        }, new Consumer<Boolean>() {
-            @Override
-            public void accept(Boolean support) throws Exception {
-                binding.eacSupportStatus.setText(getString(R.string.eac_support_format, support + ""));
-                binding.switchEacSupport.setChecked(support);
-            }
-        }, Schedulers.io());
+    private fun updateEACSupportStatus() {
+        RxUtils.runWith(
+            { SimpleEACManage.getInstance().isSupportEAC(packageName) },
+            { support: Boolean? ->
+                val value = support == true
+                binding.eacSupportStatus.text =
+                    getString(R.string.eac_support_format, value.toString())
+                binding.switchEacSupport.isChecked = value
+            },
+            Schedulers.io()
+        )
     }
 
-    private void updateRefreshConfigEnableStatus() {
-        RxUtils.runWith(() -> SimpleEACManage.getInstance().isEACRefreshConfigEnable(getPackageName()),
-                enable -> {
-                    binding.tvEacRefreshConfigEnable.setText(getString(R.string.eac_refresh_config_enable_format, enable + ""));
-                    binding.switchRefreshConfigEnable.setChecked(enable);
-                }, Schedulers.io());
+    private fun updateRefreshConfigEnableStatus() {
+        RxUtils.runWith(
+            { SimpleEACManage.getInstance().isEACRefreshConfigEnable(packageName) },
+            { enable: Boolean? ->
+                val value = enable == true
+                binding.tvEacRefreshConfigEnable.text =
+                    getString(R.string.eac_refresh_config_enable_format, value.toString())
+                binding.switchRefreshConfigEnable.isChecked = value
+            },
+            Schedulers.io()
+        )
     }
 
-    private void updateFollowSystemRotationStatus() {
-        RxUtils.runWith(() -> SimpleEACManage.getInstance().isFollowSystemRotation(getPackageName()),
-                enable -> {
-                    binding.tvEacFollowSystemRotationEnable.setText(getString(R.string.eac_follow_system_rotation_format, String.valueOf(enable)));
-                    binding.switchFollowSystemRotationEnable.setChecked(enable);
-                }, Schedulers.io());
+    private fun updateFollowSystemRotationStatus() {
+        RxUtils.runWith(
+            { SimpleEACManage.getInstance().isFollowSystemRotation(packageName) },
+            { enable: Boolean? ->
+                val value = enable == true
+                binding.tvEacFollowSystemRotationEnable.text =
+                    getString(R.string.eac_follow_system_rotation_format, value.toString())
+                binding.switchFollowSystemRotationEnable.isChecked = value
+            },
+            Schedulers.io()
+        )
     }
 
-    private void updateAllStatus() {
-        updateEACSupportStatus();
-        updateEACSwitchStatus();
-        updateHookEpdcStatus();
-        updateRefreshConfigEnableStatus();
-        updateFollowSystemRotationStatus();
+    private fun updateAllStatus() {
+        updateEACSupportStatus()
+        updateEACSwitchStatus()
+        updateHookEpdcStatus()
+        updateRefreshConfigEnableStatus()
+        updateFollowSystemRotationStatus()
     }
 
-    private void updateAllStatusDelay() {
-        RxTimerUtil.timer(UPDATE_EAC_STATUS_DELAY, TimeUnit.MILLISECONDS, new RxTimerUtil.TimerObserver() {
-            @Override
-            public void onNext(@NonNull Long aLong) {
-                updateAllStatus();
-            }
-        });
-    }
-
-    private void appRotation() {
-        new AlertDialog.Builder(this)
-                .setTitle("App Rotation")
-                .setItems(rotationItemArray, (dialog, which) -> {
-                    int orientation = getCurrentRotation();
-                    switch (which) {
-                        case 0:
-                            orientation = computeNewRotation(getCurrentRotation(), 0);
-                            break;
-                        case 1:
-                            orientation = computeNewRotation(getCurrentRotation(), 90);
-                            break;
-                        case 2:
-                            orientation = computeNewRotation(getCurrentRotation(), 180);
-                            break;
-                        case 3:
-                            orientation = computeNewRotation(getCurrentRotation(), 270);
-                            break;
-                    }
-                    dialog.dismiss();
-                    RotationUtils.setRequestedOrientation(EacDemoActivity.this,
-                            orientation, false, RotationUtils.ROTATE_BY_APP);
-                }).show();
-    }
-
-    private void systemRotation() {
-        new AlertDialog.Builder(this)
-                .setTitle("System Rotation")
-                .setItems(rotationItemArray, (dialog, which) -> {
-                    int orientation = getCurrentRotation();
-                    switch (which) {
-                        case 0:
-                            orientation = computeNewRotation(getCurrentRotation(), 0);
-                            break;
-                        case 1:
-                            orientation = computeNewRotation(getCurrentRotation(), 90);
-                            break;
-                        case 2:
-                            orientation = computeNewRotation(getCurrentRotation(), 180);
-                            break;
-                        case 3:
-                            orientation = computeNewRotation(getCurrentRotation(), 270);
-                            break;
-                    }
-                    dialog.dismiss();
-                    RotationUtils.setRequestedOrientation(EacDemoActivity.this,
-                            orientation, true, RotationUtils.ROTATE_BY_APP);
-                }).show();
-    }
-
-    private int getCurrentRotation() {
-        return DeviceUtils.getScreenOrientation(this);
-    }
-
-    private int computeNewRotation(int currentOrientation, int rotationOperation) {
-        switch (rotationOperation) {
-            case 0:
-                return currentOrientation;
-            case 90:
-                if (currentOrientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
-                    return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-                } else if (currentOrientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
-                    return ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
-                } else if (currentOrientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT) {
-                    return ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
-                } else if (currentOrientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE) {
-                    return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-                } else {
-                    return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+    private fun updateAllStatusDelay() {
+        RxTimerUtil.timer(
+            UPDATE_EAC_STATUS_DELAY.toLong(),
+            TimeUnit.MILLISECONDS,
+            object : RxTimerUtil.TimerObserver() {
+                override fun onNext(aLong: Long) {
+                    updateAllStatus()
                 }
-            case 270:
-                if (currentOrientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
-                    return ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
-                } else if (currentOrientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
-                    return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-                } else if (currentOrientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT) {
-                    return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-                } else if (currentOrientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE) {
-                    return ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
-                } else {
-                    return ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
-                }
-            case 180:
-                if (currentOrientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
-                    return ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
-                } else if (currentOrientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
-                    return ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
-                } else if (currentOrientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT) {
-                    return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-                } else if (currentOrientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE) {
-                    return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-                } else {
-                    return ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
-                }
-            default:
-                assert (false);
-                return currentOrientation;
+            }
+        )
+    }
+
+    private fun appRotation() {
+        AlertDialog.Builder(this).setTitle("App Rotation").setItems(rotationItemArray) { dialog, which ->
+            val orientation = computeNewRotation(currentRotation, which * 90)
+            dialog.dismiss()
+            RotationUtils.setRequestedOrientation(
+                this, orientation, false, RotationUtils.ROTATE_BY_APP
+            )
+        }.show()
+    }
+
+    private fun systemRotation() {
+        AlertDialog.Builder(this).setTitle("System Rotation").setItems(rotationItemArray) { dialog, which ->
+            val orientation = computeNewRotation(currentRotation, which * 90)
+            dialog.dismiss()
+            RotationUtils.setRequestedOrientation(
+                this, orientation, true, RotationUtils.ROTATE_BY_APP
+            )
+        }.show()
+    }
+
+    private val currentRotation: Int
+        get() = DeviceUtils.getScreenOrientation(this)
+
+    private fun computeNewRotation(currentOrientation: Int, rotationOperation: Int): Int {
+        return when (rotationOperation) {
+            0 -> currentOrientation
+            90 -> when (currentOrientation) {
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT ->
+                    ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE ->
+                    ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT
+                ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT ->
+                    ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
+                ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE ->
+                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                else -> ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            }
+            270 -> when (currentOrientation) {
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT ->
+                    ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
+                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE ->
+                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT ->
+                    ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE ->
+                    ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT
+                else -> ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
+            }
+            180 -> when (currentOrientation) {
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT ->
+                    ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT
+                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE ->
+                    ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
+                ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT ->
+                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE ->
+                    ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                else -> ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT
+            }
+            else -> currentOrientation
         }
     }
 
+    companion object {
+        private const val UPDATE_EAC_STATUS_DELAY = 300
+    }
 }

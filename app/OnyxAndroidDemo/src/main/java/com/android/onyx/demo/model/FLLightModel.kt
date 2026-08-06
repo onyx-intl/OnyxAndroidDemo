@@ -1,72 +1,61 @@
-package com.android.onyx.demo.model;
+package com.android.onyx.demo.model
 
-import android.content.Context;
-import android.database.ContentObserver;
-import android.util.Log;
-import android.view.View;
+import android.content.Context
+import android.database.ContentObserver
+import android.util.Log
+import android.view.View
+import androidx.databinding.ObservableInt
+import com.android.onyx.demo.databinding.ActivityFrontLightDemoBinding
+import com.onyx.android.sdk.api.device.brightness.BaseBrightnessProvider
+import com.onyx.android.sdk.api.device.brightness.BrightnessController
+import com.onyx.android.sdk.device.BaseDevice
+import com.onyx.android.sdk.utils.RxTimerUtil
 
-import androidx.databinding.ObservableInt;
+class FLLightModel(mContext: Context) : BaseLightModel(mContext) {
+    private var flProvider: BaseBrightnessProvider? = null
 
-import com.android.onyx.demo.databinding.ActivityFrontLightDemoBinding;
-import com.onyx.android.sdk.api.device.brightness.BaseBrightnessProvider;
-import com.onyx.android.sdk.api.device.brightness.BrightnessController;
-import com.onyx.android.sdk.device.BaseDevice;
-import com.onyx.android.sdk.utils.RxTimerUtil;
-
-public class FLLightModel extends BaseLightModel {
-    private static final String KEY_FL_BRIGHTNESS_STATE = "screen_brightness";
-    private static final String KEY_FL_BRIGHTNESS = "screen_cold_brightness";
-
-    private BaseBrightnessProvider flProvider;
-
-    public ObservableInt lightValue = new ObservableInt(){
-        @Override
-        public int get() {
-            if (flProvider == null) {
-                return 0;
-            }
-            return flProvider.getIndex();
-        }
-    };
-
-    public FLLightModel(Context mContext) {
-        super(mContext);
+    @JvmField
+    var lightValue: ObservableInt = object : ObservableInt() {
+        override fun get(): Int = flProvider?.index ?: 0
     }
 
-    @Override
-    public void updateLightValue() {
-        lightValue.notifyChange();
+    override fun updateLightValue() {
+        lightValue.notifyChange()
     }
 
-    @Override
-    public void initView(ActivityFrontLightDemoBinding binding) {
-        this.binding = binding;
-        binding.setFlLightModel(this);
-        binding.flContainer.setVisibility(View.VISIBLE);
-        flProvider = BrightnessController.getBrightnessProvider(mContext, BaseDevice.LIGHT_TYPE_FL);
-        initSeekBar(binding.flBrightnessSeek, flProvider);
+    override fun initView(binding: ActivityFrontLightDemoBinding) {
+        this.binding = binding
+        binding.flLightModel = this
+        binding.flContainer.visibility = View.VISIBLE
+        val provider =
+            BrightnessController.getBrightnessProvider(mContext, BaseDevice.LIGHT_TYPE_FL)
+        flProvider = provider
+        initSeekBar(binding.flBrightnessSeek, provider)
 
-        registerObserver(KEY_FL_BRIGHTNESS, new ContentObserver(null) {
-            @Override
-            public void onChange(boolean selfChange) {
-                lightValue.notifyChange();
+        registerObserver(KEY_FL_BRIGHTNESS, object : ContentObserver(null) {
+            override fun onChange(selfChange: Boolean) {
+                lightValue.notifyChange()
             }
-        });
-        registerObserver(KEY_FL_BRIGHTNESS_STATE, new ContentObserver(null) {
-            @Override
-            public void onChange(boolean selfChange) {
-                Log.i(TAG, "Cold brightness light on: " + flProvider.isLightOn());
+        })
+        registerObserver(KEY_FL_BRIGHTNESS_STATE, object : ContentObserver(null) {
+            override fun onChange(selfChange: Boolean) {
+                Log.i(TAG, "Cold brightness light on: " + (flProvider?.isLightOn ?: false))
             }
-        });
+        })
     }
 
-    public void toggleFLLight() {
-        flProvider.toggle();
-        delay(new RxTimerUtil.TimerObserver() {
-            @Override
-            public void onNext(Long aLong) {
-                updateLightValue();
+    fun toggleFLLight() {
+        val provider = flProvider ?: return
+        provider.toggle()
+        delay(object : RxTimerUtil.TimerObserver() {
+            override fun onNext(aLong: Long) {
+                updateLightValue()
             }
-        });
+        })
+    }
+
+    companion object {
+        private const val KEY_FL_BRIGHTNESS_STATE = "screen_brightness"
+        private const val KEY_FL_BRIGHTNESS = "screen_cold_brightness"
     }
 }

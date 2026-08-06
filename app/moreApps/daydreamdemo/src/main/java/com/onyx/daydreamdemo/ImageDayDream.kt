@@ -1,115 +1,109 @@
-package com.onyx.daydreamdemo;
+package com.onyx.daydreamdemo
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.service.dreams.DreamService;
-import android.text.TextUtils;
-import android.util.Size;
-import android.widget.ImageView;
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.service.dreams.DreamService
+import android.text.TextUtils
+import android.widget.ImageView
+import com.onyx.android.sdk.common.request.WakeLockHolder
+import com.onyx.daydreamdemo.utils.ScreenUtils
+import java.util.Random
 
-import com.onyx.android.sdk.common.request.WakeLockHolder;
-import com.onyx.daydreamdemo.utils.ScreenUtils;
+class ImageDayDream(private val service: DreamService) {
+    private val alarmManager: AlarmManager = service.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    private val pendingIntent: PendingIntent = PendingIntent.getBroadcast(
+        service, 0, Intent(ACTION_REFRESH), PendingIntent.FLAG_UPDATE_CURRENT
+    )
 
-import java.util.Random;
+    private var refreshReceiver: BroadcastReceiver? = null
 
-public class ImageDayDream {
-    private static final String ACTION_REFRESH = "com.onyx.daydreamdemo.action.refresh";
+    private val paint = Paint()
 
-    private DreamService service;
+    private val wakeLockHolder = WakeLockHolder()
 
-    private AlarmManager alarmManager;
-    private PendingIntent pendingIntent;
+    init {
 
-    private BroadcastReceiver refreshReceiver;
-
-    private Paint paint = new Paint();
-
-    private WakeLockHolder wakeLockHolder = new WakeLockHolder();
-
-    public ImageDayDream(DreamService service) {
-        this.service = service;
-
-        alarmManager = (AlarmManager)service.getSystemService(Context.ALARM_SERVICE);
-        pendingIntent = PendingIntent.getBroadcast(service, 0, new Intent(ACTION_REFRESH), PendingIntent.FLAG_UPDATE_CURRENT);
-
-        paint.setColor(Color.BLACK);
-        paint.setTextSize(50.0f);
+        paint.color = Color.BLACK
+        paint.textSize = 50.0f
     }
 
-    public int getContentViewId() {
-        return R.layout.layout_image_daydream;
+    val contentViewId: Int
+        get() = R.layout.layout_image_daydream
+
+    fun onDreamingStarted() {
+        registerRefreshBroadcast()
+        startBitmapAnimation()
     }
 
-    public void onDreamingStarted() {
-        registerRefreshBroadcast();
-        startBitmapAnimation();
+    fun onDreamingStopped() {
+        alarmManager.cancel(pendingIntent)
+        unregisterRefreshBroadcast()
     }
 
-    public void onDreamingStopped() {
-        alarmManager.cancel(pendingIntent);
-        unregisterRefreshBroadcast();
-    }
-
-    private void startBitmapAnimation() {
-        try {
-            // acquire wakelock from WakeLockHolder to prevent device from idle
-            wakeLockHolder.acquireWakeLock(service, WakeLockHolder.FULL_FLAGS, getClass().getSimpleName());
-            showNextBitmap();
+    private fun startBitmapAnimation() {
+        try { // acquire wakelock from WakeLockHolder to prevent device from idle
+            wakeLockHolder.acquireWakeLock(
+                service, WakeLockHolder.FULL_FLAGS, javaClass.simpleName
+            )
+            showNextBitmap()
 
             // use alarm manager to wake up device from idle/standby
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, 5 * 1000, pendingIntent);
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, (5 * 1000).toLong(), pendingIntent)
         } finally {
-            wakeLockHolder.releaseWakeLock();
+            wakeLockHolder.releaseWakeLock()
         }
     }
 
-    private void showNextBitmap() {
-        ImageView imageView = service.findViewById(R.id.imageView_screensaver);
+    private fun showNextBitmap() {
+        val imageView = service.findViewById<ImageView>(R.id.imageView_screensaver)
 
-        Size size = ScreenUtils.getScreenSize(service);
-        Bitmap bmp = Bitmap.createBitmap(size.getWidth(), size.getHeight(), Bitmap.Config.ARGB_8888);
-        bmp.eraseColor(Color.WHITE);
+        val size = ScreenUtils.getScreenSize(service)
+        val bmp = Bitmap.createBitmap(size.width, size.height, Bitmap.Config.ARGB_8888)
+        bmp.eraseColor(Color.WHITE)
 
-        String text = "Hello, Daydream!";
-        float textWidth = paint.measureText(text);
+        val text = "Hello, Daydream!"
+        val textWidth = paint.measureText(text)
 
-        Random random = new Random();
-        int x = random.nextInt(size.getWidth() - (int)textWidth);
-        int y = random.nextInt(size.getHeight() - (int)paint.getTextSize());
+        val random = Random()
+        val x = random.nextInt(size.width - textWidth.toInt())
+        val y = random.nextInt(size.height - paint.textSize.toInt())
 
-        Canvas canvas = new Canvas(bmp);
-        canvas.drawText(text, x, y, paint);
+        val canvas = Canvas(bmp)
+        canvas.drawText(text, x.toFloat(), y.toFloat(), paint)
 
-        imageView.setImageBitmap(bmp);
+        imageView.setImageBitmap(bmp)
     }
 
-    private void registerRefreshBroadcast() {
-        refreshReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-                if (TextUtils.isEmpty(action) || !action.equals(ACTION_REFRESH)) {
-                    return;
+    private fun registerRefreshBroadcast() {
+        refreshReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent) {
+                val action = intent.action
+                if (TextUtils.isEmpty(action) || action != ACTION_REFRESH) {
+                    return
                 }
 
-                startBitmapAnimation();
+                startBitmapAnimation()
             }
-        };
+        }
 
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(ACTION_REFRESH);
-        service.registerReceiver(refreshReceiver, intentFilter);
+        val intentFilter = IntentFilter()
+        intentFilter.addAction(ACTION_REFRESH)
+        service.registerReceiver(refreshReceiver, intentFilter)
     }
 
-    private void unregisterRefreshBroadcast() {
-        service.unregisterReceiver(refreshReceiver);
+    private fun unregisterRefreshBroadcast() {
+        service.unregisterReceiver(refreshReceiver)
+    }
+
+    companion object {
+        private const val ACTION_REFRESH = "com.onyx.daydreamdemo.action.refresh"
     }
 }

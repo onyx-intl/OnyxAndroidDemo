@@ -1,134 +1,122 @@
-package com.onyx.android.eink.pen.demo.render;
+package com.onyx.android.eink.pen.demo.render
 
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.Rect;
-import android.view.SurfaceView;
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Matrix
+import android.graphics.Paint
+import android.graphics.Path
+import android.view.SurfaceView
+import com.onyx.android.eink.pen.demo.helper.RendererHelper
+import com.onyx.android.eink.pen.demo.shape.Shape
+import com.onyx.android.eink.pen.demo.util.RendererUtils
+import com.onyx.android.sdk.pen.data.TouchPointList
 
-import com.onyx.android.eink.pen.demo.erase.bean.EraseArgs;
-import com.onyx.android.eink.pen.demo.helper.RendererHelper;
-import com.onyx.android.eink.pen.demo.shape.Shape;
-import com.onyx.android.eink.pen.demo.util.RendererUtils;
-import com.onyx.android.sdk.data.note.TouchPoint;
-import com.onyx.android.sdk.pen.data.TouchPointList;
-
-import java.util.Iterator;
-import java.util.List;
-
-public class EraseRenderer extends BaseRenderer {
-
-    public Path createPath(final TouchPointList pointList) {
+class EraseRenderer : BaseRenderer() {
+    fun createPath(pointList: TouchPointList?): Path? {
         if (pointList == null || pointList.size() <= 0) {
-            return null;
+            return null
         }
-        final Iterator<TouchPoint> iterator = pointList.getRenderPoints().iterator();
-        TouchPoint touchPoint = iterator.next();
-        final float lastDst[] = new float[2];
-        Path path = new Path();
-        path.moveTo(touchPoint.getX(), touchPoint.getY());
-        lastDst[0] = touchPoint.getX();
-        lastDst[1] = touchPoint.getY();
+        val iterator = pointList.getRenderPoints().iterator()
+        var touchPoint = iterator.next()
+        val lastDst = FloatArray(2)
+        val path = Path()
+        path.moveTo(touchPoint.x, touchPoint.y)
+        lastDst[0] = touchPoint.x
+        lastDst[1] = touchPoint.y
         while (iterator.hasNext()) {
-            touchPoint = iterator.next();
-            path.quadTo((lastDst[0] + touchPoint.getX()) / 2, (lastDst[1] + touchPoint.getY()) / 2,
-                    touchPoint.getX(), touchPoint.getY());
-            lastDst[0] = touchPoint.getX();
-            lastDst[1] = touchPoint.getY();
+            touchPoint = iterator.next()
+            path.quadTo(
+                (lastDst[0] + touchPoint.x) / 2,
+                (lastDst[1] + touchPoint.y) / 2,
+                touchPoint.x,
+                touchPoint.y
+            )
+            lastDst[0] = touchPoint.x
+            lastDst[1] = touchPoint.y
         }
-        path.transform(new Matrix());
-        return path;
+        path.transform(Matrix())
+        return path
     }
 
-    private void drawEraseCircle(Canvas canvas, RendererHelper.RenderContext renderContext) {
-        if (renderContext.eraseArgs == null || !renderContext.eraseArgs.showEraseCircle) {
-            return;
+    private fun drawEraseCircle(canvas: Canvas, renderContext: RendererHelper.RenderContext) {
+        val eraseArgs = renderContext.eraseArgs
+        if (eraseArgs == null || !eraseArgs.showEraseCircle) {
+            return
         }
-        EraseArgs eraseArgs = renderContext.eraseArgs;
-        TouchPoint erasePoint = eraseArgs.getErasePoint();
-        if (erasePoint == null) {
-            return;
-        }
-        float drawRadius = eraseArgs.drawRadius;
-        canvas.drawCircle(erasePoint.getX(), erasePoint.getY(), drawRadius, createPaint(Color.BLACK));
+        val erasePoint = eraseArgs.getErasePoint() ?: return
+        canvas.drawCircle(erasePoint.x, erasePoint.y, eraseArgs.drawRadius, createPaint(Color.BLACK))
     }
 
-    private Paint createPaint(int color) {
-        Paint paint = new Paint();
-        paint.setColor(color);
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setAntiAlias(true);
-        paint.setStrokeWidth(2.0f);
-        return paint;
+    private fun createPaint(color: Int): Paint {
+        val paint = Paint()
+        paint.color = color
+        paint.style = Paint.Style.STROKE
+        paint.isAntiAlias = true
+        paint.strokeWidth = 2.0f
+        return paint
     }
 
-    @Override
-    public void renderToBitmap(SurfaceView surfaceView, RendererHelper.RenderContext renderContext) {
-        if (renderContext.eraseArgs == null
-                || renderContext.eraseArgs.showEraseLine
-                || renderContext.eraseArgs.eraseTrackPoints == null) {
-            return;
+    override fun renderToBitmap(
+        surfaceView: SurfaceView?,
+        renderContext: RendererHelper.RenderContext?
+    ) {
+        val eraseArgs = renderContext?.eraseArgs
+        if (eraseArgs == null || eraseArgs.showEraseLine || eraseArgs.eraseTrackPoints == null) {
+            return
         }
-        TouchPointList pointList = renderContext.eraseArgs.eraseTrackPoints;
-        Path path = createPath(pointList);
-        if (path == null) {
-            return;
-        }
-        renderContext.canvas.drawPath(path, renderContext.paint);
+        val path = createPath(eraseArgs.eraseTrackPoints) ?: return
+        renderContext.canvas?.drawPath(path, renderContext.paint)
     }
 
-    @Override
-    public void renderToBitmap(List<Shape> shapes, RendererHelper.RenderContext renderContext) {
-        for (Shape shape : shapes) {
-            shape.render(renderContext);
+    override fun renderToBitmap(
+        shapes: MutableList<Shape>?,
+        renderContext: RendererHelper.RenderContext?
+    ) {
+        if (shapes == null || renderContext == null) {
+            return
+        }
+        for (shape in shapes) {
+            shape.render(renderContext)
         }
     }
 
-    private void drawEraseDashLine(Canvas canvas, RendererHelper.RenderContext renderContext) {
-        if (renderContext.eraseArgs == null || !renderContext.eraseArgs.showEraseLine) {
-            return;
+    private fun drawEraseDashLine(canvas: Canvas, renderContext: RendererHelper.RenderContext) {
+        val eraseArgs = renderContext.eraseArgs ?: return
+        if (!eraseArgs.showEraseLine) {
+            return
         }
-        TouchPointList pointList = renderContext.eraseArgs.wholeEraseTrackPoints;
+        var pointList = eraseArgs.wholeEraseTrackPoints
         if (pointList == null || pointList.isEmpty()) {
-            pointList = renderContext.eraseArgs.eraseTrackPoints;
+            pointList = eraseArgs.eraseTrackPoints
         }
         if (pointList == null || pointList.isEmpty()) {
-            return;
+            return
         }
-        Path path = createPath(pointList);
+        val path = createPath(pointList)
         if (path != null) {
-            canvas.drawPath(path, createPaint(Color.BLACK));
+            canvas.drawPath(path, createPaint(Color.BLACK))
         }
     }
 
-    @Override
-    public void renderToScreen(SurfaceView surfaceView,
-                               RendererHelper.RenderContext renderContext) {
-        if (surfaceView == null) {
-            return;
+    override fun renderToScreen(
+        surfaceView: SurfaceView?,
+        renderContext: RendererHelper.RenderContext?
+    ) {
+        if (surfaceView == null || renderContext == null) {
+            return
         }
-        Rect rect = RendererUtils.checkSurfaceView(surfaceView);
-        if (rect == null) {
-            return;
-        }
-        Canvas canvas = lockHardwareCanvas(surfaceView.getHolder(), null);
-        if (canvas == null) {
-            return;
-        }
+        val rect = RendererUtils.checkSurfaceView(surfaceView) ?: return
+        val canvas = lockHardwareCanvas(surfaceView.holder, null) ?: return
         try {
-            RendererUtils.renderBackground(canvas, rect);
-            drawRendererContent(renderContext.bitmap, canvas);
-            drawEraseDashLine(canvas, renderContext);
-            drawEraseCircle(canvas, renderContext);
-        } catch (Exception e) {
-            e.printStackTrace();
+            RendererUtils.renderBackground(canvas, rect)
+            drawRendererContent(renderContext.bitmap, canvas)
+            drawEraseDashLine(canvas, renderContext)
+            drawEraseCircle(canvas, renderContext)
+        } catch (e: Exception) {
+            e.printStackTrace()
         } finally {
-            beforeUnlockCanvas(surfaceView);
-            unlockCanvasAndPost(surfaceView, canvas);
+            beforeUnlockCanvas(surfaceView)
+            unlockCanvasAndPost(surfaceView, canvas)
         }
     }
-
 }

@@ -1,99 +1,93 @@
 /**
  * 
  */
-package com.android.onyx.demo.utils;
+package com.android.onyx.demo.utils
 
-import android.content.Context;
-
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.TypeReference;
-import com.android.onyx.demo.data.GObject;
-
-import java.io.BufferedReader;
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.List;
-import java.util.Map;
+import android.content.Context
+import com.alibaba.fastjson2.JSON
+import com.alibaba.fastjson2.TypeReference
+import com.android.onyx.demo.data.GObject
+import java.io.BufferedReader
+import java.io.Closeable
+import java.io.IOException
+import java.io.InputStream
+import java.io.InputStreamReader
 
 /**
  * @author dxw
- *
  */
-public class RawResourceUtil {
-    static final String DRAWABLE_RESOURCE_TYPE = "drawable";
-    static final String STRING_RESOURCE_TYPE = "string";
+object RawResourceUtil {
+    const val DRAWABLE_RESOURCE_TYPE: String = "drawable"
+    const val STRING_RESOURCE_TYPE: String = "string"
 
-    static public int getDrawableIdByName(Context context, final String resourceName) {
-        return getResourceIdByName(context, DRAWABLE_RESOURCE_TYPE, resourceName);
+    fun getDrawableIdByName(context: Context, resourceName: String?): Int {
+        return getResourceIdByName(context, DRAWABLE_RESOURCE_TYPE, resourceName)
     }
 
-    static public int getStringIdByName(Context context, final String resourceName){
-        return getResourceIdByName(context, STRING_RESOURCE_TYPE, resourceName);
+    fun getStringIdByName(context: Context, resourceName: String?): Int {
+        return getResourceIdByName(context, STRING_RESOURCE_TYPE, resourceName)
     }
 
-    static public int getResourceIdByName(Context context, final String resourceType, final String resourceName) {
+    fun getResourceIdByName(context: Context, resourceType: String?, resourceName: String?): Int {
         if (StringUtils.isNotBlank(resourceName)) {
-            String packageName = context.getPackageName();
-            return context.getResources().getIdentifier(resourceName, resourceType, packageName);
+            val packageName = context.getPackageName()
+            return context.getResources().getIdentifier(resourceName, resourceType, packageName)
         }
-        return 0;
-    }
-   
-    public static String contentOfRawResource(Context context, int rawResourceId) {
-        BufferedReader breader = null;
-        InputStream is = null;
-        try {
-             is = context.getResources().openRawResource(rawResourceId);
-             breader = new BufferedReader(new InputStreamReader(is));
-             StringBuilder total = new StringBuilder();
-             String line = null;
-             while ((line = breader.readLine()) != null) {
-                 total.append(line);
-             }
-             return total.toString();
-        }
-        catch (Exception e) {
-            //e.printStackTrace();
-        }
-         finally {
-            closeQuietly(breader);
-            closeQuietly(is);
-        }
-        return null;
-    }
-    
-    public static Map<String, List<Integer>> integerMapFromRawResource(Context context, int rawResourceId) {
-        String content = contentOfRawResource(context, rawResourceId);
-        return JSON.parseObject(content, new TypeReference<Map<String, List<Integer>>>(){});
+        return 0
     }
 
-    public static GObject objectFromRawResource(Context context, int rawResourceId) {
-        String content = contentOfRawResource(context, rawResourceId);
+    fun contentOfRawResource(context: Context, rawResourceId: Int): String? {
+        var breader: BufferedReader? = null
+        var `is`: InputStream? = null
         try {
-            Map<String, Object> map = JSON.parseObject(content);
+            `is` = context.getResources().openRawResource(rawResourceId)
+            breader = BufferedReader(InputStreamReader(`is`))
+            val total = StringBuilder()
+            var line: String? = null
+            while ((breader.readLine().also { line = it }) != null) {
+                total.append(line)
+            }
+            return total.toString()
+        } catch (e: Exception) { //e.printStackTrace();
+        } finally {
+            closeQuietly(breader)
+            closeQuietly(`is`)
+        }
+        return null
+    }
+
+    fun integerMapFromRawResource(
+        context: Context,
+        rawResourceId: Int
+    ): MutableMap<String?, MutableList<Int?>?>? {
+        val content = contentOfRawResource(context, rawResourceId)
+        return JSON.parseObject<MutableMap<String?, MutableList<Int?>?>?>(
+            content, object : TypeReference<MutableMap<String?, MutableList<Int?>?>?>() {})
+    }
+
+    fun objectFromRawResource(context: Context, rawResourceId: Int): GObject? {
+        val content = contentOfRawResource(context, rawResourceId)
+        try {
+            val map: MutableMap<String?, Any?>? = JSON.parseObject(content)
             if (map == null) {
-                return null;
+                return null
             }
-            GObject object = new GObject();
-            for(Map.Entry<String, Object> entry : map.entrySet()) {
-                object.putObject(entry.getKey(), entry.getValue());
+            val `object` = GObject()
+            for (entry in map.entries) {
+                `object`.putObject(entry.key, entry.value)
             }
-            return object;
-        } catch (Exception e) {
-            e.printStackTrace();
+            return `object`
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
-        return null;
+        return null
     }
 
-    static public void closeQuietly(Closeable closeable) {
+    fun closeQuietly(closeable: Closeable?) {
         try {
-            if (closeable != null)
-                closeable.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+            if (closeable != null) closeable.close()
+        } catch (e: IOException) {
+            e.printStackTrace()
         }
     }
-
 }

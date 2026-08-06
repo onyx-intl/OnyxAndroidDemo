@@ -1,52 +1,31 @@
-package com.android.onyx.demo;
+package com.android.onyx.demo
 
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import androidx.annotation.Nullable;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-
-
-import androidx.databinding.DataBindingUtil;
-
-import com.android.onyx.demo.databinding.ActivityAppOptimizeBinding;
-
+import android.app.Activity
+import android.content.Intent
+import android.os.Bundle
+import android.view.View
+import androidx.databinding.DataBindingUtil
+import com.android.onyx.demo.databinding.ActivityAppOptimizeBinding
 
 /**
  * Created by Administrator on 2018/3/26 17:35.
  */
+class AppOptimizeActivity : Activity() {
+    private lateinit var binding: ActivityAppOptimizeBinding
 
-public class AppOptimizeActivity extends Activity {
-    private EditText etIsFull;
-    private EditText etPkgName;
-    private Button btnSendBroadcast;
-    private ActivityAppOptimizeBinding binding;
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_app_optimize);
-
-
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_app_optimize)
     }
 
-    public void onClick(View v) {
-        boolean isfull;
-        String isfullTxt = etIsFull.getText().toString();
-        if (isfullTxt.equals("false")) {
-            isfull = false;
-        } else {
-            isfull = true;
-        }
-        String pkgnameTxt = etPkgName.getText().toString();
-        Intent intent = new Intent();
-        intent.setAction("com.onyx.app.optimize.setting");
-        intent.putExtra("optimize_fullScreen", isfull);
-        intent.putExtra("optimize_pkgName", pkgnameTxt);
-        sendBroadcast(intent);
+    fun onClick(v: View?) {
+        val isfullTxt = binding.etIsfull.text.toString()
+        val isfull = isfullTxt != "false"
+        val pkgnameTxt = binding.etPkgname.text.toString()
+        val intent = Intent()
+        intent.action = "com.onyx.app.optimize.setting"
+        intent.putExtra("optimize_fullScreen", isfull)
+        intent.putExtra("optimize_pkgName", pkgnameTxt)
+        sendBroadcast(intent)
     }
-
 }
-

@@ -1,36 +1,30 @@
-package com.onyx.android.eink.pen.demo.render;
+package com.onyx.android.eink.pen.demo.render
 
-import android.graphics.Canvas;
-import android.graphics.Rect;
-import android.view.SurfaceView;
+import android.view.SurfaceView
+import com.onyx.android.eink.pen.demo.helper.RendererHelper
+import com.onyx.android.eink.pen.demo.util.RendererUtils
+import com.onyx.android.sdk.utils.CanvasUtils
+import com.onyx.android.sdk.utils.RectUtils
 
-import com.onyx.android.eink.pen.demo.helper.RendererHelper;
-import com.onyx.android.eink.pen.demo.util.RendererUtils;
-import com.onyx.android.sdk.utils.CanvasUtils;
-import com.onyx.android.sdk.utils.RectUtils;
-
-public class PartialRefreshRenderer extends BaseRenderer {
-
-    @Override
-    public void renderToScreen(SurfaceView surfaceView, RendererHelper.RenderContext renderContext) {
-        if (surfaceView == null) {
-            return;
+class PartialRefreshRenderer : BaseRenderer() {
+    override fun renderToScreen(
+        surfaceView: SurfaceView?,
+        renderContext: RendererHelper.RenderContext?
+    ) {
+        if (surfaceView == null || renderContext == null) {
+            return
         }
-        Rect renderRect = RectUtils.toRect(renderContext.clipRect);
-        Rect viewRect = RendererUtils.checkSurfaceView(surfaceView);
-        Canvas canvas = lockHardwareCanvas(surfaceView.getHolder(), renderRect);
-        if (canvas == null) {
-            return;
-        }
+        val renderRect = RectUtils.toRect(renderContext.clipRect)
+        val viewRect = RendererUtils.checkSurfaceView(surfaceView) ?: return
+        val canvas = lockHardwareCanvas(surfaceView.holder, renderRect) ?: return
         try {
-            CanvasUtils.clipRect(canvas, renderRect);
-            RendererUtils.renderBackground(canvas, viewRect);
-            drawRendererContent(renderContext.bitmap, canvas);
-        } catch (Exception e) {
-            e.printStackTrace();
+            CanvasUtils.clipRect(canvas, renderRect)
+            RendererUtils.renderBackground(canvas, viewRect)
+            drawRendererContent(renderContext.bitmap, canvas)
+        } catch (e: Exception) {
+            e.printStackTrace()
         } finally {
-            surfaceView.getHolder().unlockCanvasAndPost(canvas);
+            surfaceView.holder.unlockCanvasAndPost(canvas)
         }
     }
-
 }

@@ -1,177 +1,166 @@
-package com.onyx.android.eink.pen.demo.scribble.ui;
+package com.onyx.android.eink.pen.demo.scribble.ui
 
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Rect;
-import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
-import android.view.View;
+import android.graphics.Color
+import android.graphics.Rect
+import android.os.Bundle
+import android.view.SurfaceHolder
+import android.view.SurfaceView
+import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import com.onyx.android.eink.pen.demo.R
+import com.onyx.android.eink.pen.demo.databinding.ActivityScribbleMultipleScrubbleViewDemoBinding
+import com.onyx.android.sdk.data.note.TouchPoint
+import com.onyx.android.sdk.pen.RawInputCallback
+import com.onyx.android.sdk.pen.TouchHelper
+import com.onyx.android.sdk.pen.data.TouchPointList
 
-import androidx.databinding.DataBindingUtil;
+class ScribbleMultipleScribbleViewActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityScribbleMultipleScrubbleViewDemoBinding
 
-import com.onyx.android.eink.pen.demo.R;
-import com.onyx.android.eink.pen.demo.databinding.ActivityScribbleMultipleScrubbleViewDemoBinding;
-import com.onyx.android.sdk.data.note.TouchPoint;
-import com.onyx.android.sdk.pen.RawInputCallback;
-import com.onyx.android.sdk.pen.TouchHelper;
-import com.onyx.android.sdk.pen.data.TouchPointList;
+    private lateinit var touchHelper: TouchHelper
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class ScribbleMultipleScribbleViewActivity extends AppCompatActivity {
-
-    private static final String TAG = ScribbleMultipleScribbleViewActivity.class.getSimpleName();
-
-    private ActivityScribbleMultipleScrubbleViewDemoBinding binding;
-
-    private TouchHelper touchHelper;
-
-    private RawInputCallback rawInputCallback;
-    private List<Rect> limitRectList = new ArrayList<>();
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_scribble_multiple_scrubble_view_demo);
-        binding.setActivityScribbleMultiple(this);
-
-        touchHelper = TouchHelper.create(getWindow().getDecorView().getRootView(), getRawInputCallback());
-        initSurfaceView(binding.surfaceview1);
-        initSurfaceView(binding.surfaceview2);
-    }
-
-    @Override
-    protected void onResume() {
-        touchHelper.setRawDrawingEnabled(true);
-        super.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        touchHelper.setRawDrawingEnabled(false);
-        super.onPause();
-    }
-
-    @Override
-    protected void onDestroy() {
-        touchHelper.closeRawDrawing();
-        super.onDestroy();
-    }
-
-    private void initSurfaceView(final SurfaceView surfaceView) {
-        final SurfaceHolder.Callback surfaceCallback = new SurfaceHolder.Callback() {
-            @Override
-            public void surfaceCreated(SurfaceHolder holder) {
-                cleanSurfaceView(surfaceView);
-                Rect limit = new Rect();
-                surfaceView.getGlobalVisibleRect(limit);
-                limitRectList.add(limit);
-                onSurfaceCreated(limitRectList);
+    private val rawInputCallback: RawInputCallback by lazy {
+        object : RawInputCallback() {
+            override fun onBeginRawDrawing(
+                b: Boolean,
+                touchPoint: TouchPoint?
+            ) {
             }
 
-            @Override
-            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+            override fun onEndRawDrawing(
+                b: Boolean,
+                touchPoint: TouchPoint?
+            ) {
             }
 
-            @Override
-            public void surfaceDestroyed(SurfaceHolder holder) {
-                holder.removeCallback(this);
+            override fun onRawDrawingTouchPointMoveReceived(touchPoint: TouchPoint?) {
             }
-        };
-        surfaceView.getHolder().addCallback(surfaceCallback);
-    }
 
-    private void onSurfaceCreated(List<Rect> limitRectList) {
-        if (limitRectList.size() < 2) {
-            return;
+            override fun onRawDrawingTouchPointListReceived(touchPointList: TouchPointList?) {
+            }
+
+            override fun onBeginRawErasing(
+                b: Boolean,
+                touchPoint: TouchPoint?
+            ) {
+            }
+
+            override fun onEndRawErasing(
+                b: Boolean,
+                touchPoint: TouchPoint?
+            ) {
+            }
+
+            override fun onRawErasingTouchPointMoveReceived(touchPoint: TouchPoint?) {
+            }
+
+            override fun onRawErasingTouchPointListReceived(touchPointList: TouchPointList?) {
+            }
         }
-        touchHelper.setLimitRect(limitRectList, new ArrayList<Rect>())
-                .openRawDrawing();
+    }
+    private val limitRectList: MutableList<Rect?> = ArrayList<Rect?>()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = DataBindingUtil.setContentView(
+            this, R.layout.activity_scribble_multiple_scrubble_view_demo
+        )
+        binding.setActivityScribbleMultiple(this)
+
+        touchHelper = TouchHelper.create(
+            window.decorView.rootView, rawInputCallback
+        )
+        initSurfaceView(binding.surfaceview1)
+        initSurfaceView(binding.surfaceview2)
     }
 
-    public RawInputCallback getRawInputCallback() {
-        if (rawInputCallback == null) {
-            rawInputCallback = new RawInputCallback() {
-                @Override
-                public void onBeginRawDrawing(boolean b, TouchPoint touchPoint) {
+    override fun onResume() {
+        touchHelper.setRawDrawingEnabled(true)
+        super.onResume()
+    }
 
-                }
+    override fun onPause() {
+        touchHelper.setRawDrawingEnabled(false)
+        super.onPause()
+    }
 
-                @Override
-                public void onEndRawDrawing(boolean b, TouchPoint touchPoint) {
+    override fun onDestroy() {
+        touchHelper.closeRawDrawing()
+        super.onDestroy()
+    }
 
-                }
+    private fun initSurfaceView(surfaceView: SurfaceView) {
+        val surfaceCallback: SurfaceHolder.Callback = object : SurfaceHolder.Callback {
+            override fun surfaceCreated(holder: SurfaceHolder) {
+                cleanSurfaceView(surfaceView)
+                val limit = Rect()
+                surfaceView.getGlobalVisibleRect(limit)
+                limitRectList.add(limit)
+                onSurfaceCreated(limitRectList)
+            }
 
-                @Override
-                public void onRawDrawingTouchPointMoveReceived(TouchPoint touchPoint) {
+            override fun surfaceChanged(
+                holder: SurfaceHolder,
+                format: Int,
+                width: Int,
+                height: Int
+            ) {
+            }
 
-                }
-
-                @Override
-                public void onRawDrawingTouchPointListReceived(TouchPointList touchPointList) {
-                }
-
-                @Override
-                public void onBeginRawErasing(boolean b, TouchPoint touchPoint) {
-                }
-
-                @Override
-                public void onEndRawErasing(boolean b, TouchPoint touchPoint) {
-                }
-
-                @Override
-                public void onRawErasingTouchPointMoveReceived(TouchPoint touchPoint) {
-                }
-
-                @Override
-                public void onRawErasingTouchPointListReceived(TouchPointList touchPointList) {
-                }
-            };
+            override fun surfaceDestroyed(holder: SurfaceHolder) {
+                holder.removeCallback(this)
+            }
         }
-        return rawInputCallback;
+        surfaceView.holder.addCallback(surfaceCallback)
     }
 
-    public void onPenClick(View view) {
-        touchHelper.setRawDrawingEnabled(true);
-    }
-
-    public void onEraserClick(View view) {
-        touchHelper.setRawDrawingEnabled(false);
-        cleanAllSurfaceView();
-        touchHelper.setRawDrawingEnabled(true);
-    }
-
-    public void onSingleRegionModeClick(View view) {
-        touchHelper.setRawDrawingEnabled(false);
-        cleanAllSurfaceView();
-        touchHelper.setSingleRegionMode();
-        touchHelper.setRawDrawingEnabled(true);
-    }
-
-    public void onMultiRegionModeClick(View view) {
-        touchHelper.setRawDrawingEnabled(false);
-        cleanAllSurfaceView();
-        touchHelper.setMultiRegionMode();
-        touchHelper.setRawDrawingEnabled(true);
-    }
-
-    private void cleanAllSurfaceView() {
-        cleanSurfaceView(binding.surfaceview1);
-        cleanSurfaceView(binding.surfaceview2);
-    }
-
-    private void cleanSurfaceView(SurfaceView surfaceView) {
-        if (surfaceView.getHolder() == null) {
-            return;
+    private fun onSurfaceCreated(limitRectList: MutableList<Rect?>) {
+        if (limitRectList.size < 2) {
+            return
         }
-        Canvas canvas = surfaceView.getHolder().lockCanvas();
-        if (canvas == null) {
-            return;
+        touchHelper.setLimitRect(limitRectList, ArrayList<Rect?>()).openRawDrawing()
+    }
+
+    fun onPenClick(view: View?) {
+        touchHelper.setRawDrawingEnabled(true)
+    }
+
+    fun onEraserClick(view: View?) {
+        touchHelper.setRawDrawingEnabled(false)
+        cleanAllSurfaceView()
+        touchHelper.setRawDrawingEnabled(true)
+    }
+
+    fun onSingleRegionModeClick(view: View?) {
+        touchHelper.setRawDrawingEnabled(false)
+        cleanAllSurfaceView()
+        touchHelper.setSingleRegionMode()
+        touchHelper.setRawDrawingEnabled(true)
+    }
+
+    fun onMultiRegionModeClick(view: View?) {
+        touchHelper.setRawDrawingEnabled(false)
+        cleanAllSurfaceView()
+        touchHelper.setMultiRegionMode()
+        touchHelper.setRawDrawingEnabled(true)
+    }
+
+    private fun cleanAllSurfaceView() {
+        cleanSurfaceView(binding.surfaceview1)
+        cleanSurfaceView(binding.surfaceview2)
+    }
+
+    private fun cleanSurfaceView(surfaceView: SurfaceView) {
+        if (surfaceView.holder == null) {
+            return
         }
-        canvas.drawColor(Color.WHITE);
-        surfaceView.getHolder().unlockCanvasAndPost(canvas);
+        val canvas = surfaceView.holder.lockCanvas() ?: return
+        canvas.drawColor(Color.WHITE)
+        surfaceView.holder.unlockCanvasAndPost(canvas)
+    }
+
+    companion object {
+        private val TAG: String = ScribbleMultipleScribbleViewActivity::class.java.simpleName
     }
 }

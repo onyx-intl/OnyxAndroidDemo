@@ -1,299 +1,285 @@
-package com.onyx.android.eink.pen.demo.erase.ui;
+package com.onyx.android.eink.pen.demo.erase.ui
 
-import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.SeekBar;
+import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.WindowManager
+import android.widget.CompoundButton
+import android.widget.SeekBar
+import android.widget.SeekBar.OnSeekBarChangeListener
+import androidx.annotation.StringRes
+import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.onyx.android.eink.pen.demo.PenBundle
+import com.onyx.android.eink.pen.demo.R
+import com.onyx.android.eink.pen.demo.databinding.LayoutEraseSettingPopBinding
+import com.onyx.android.eink.pen.demo.databinding.LayoutPenSettingPopBrushItemBinding
+import com.onyx.android.eink.pen.demo.erase.data.EraseType
+import com.onyx.android.eink.pen.demo.erase.data.EraseTypes
+import com.onyx.android.eink.pen.demo.erase.util.EraseUnits
+import com.onyx.android.eink.pen.demo.erase.util.EraserTrackHelper
+import com.onyx.android.eink.pen.demo.ui.popup.BasePopup
+import com.onyx.android.sdk.utils.ResManager
+import com.onyx.android.sdk.utils.ViewUtils
+import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
 
-import androidx.annotation.NonNull;
-import androidx.annotation.StringRes;
-import androidx.databinding.DataBindingUtil;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+class EraseSettingPop(context: Context?) : BasePopup(context) {
+    private lateinit var binding: LayoutEraseSettingPopBinding
+    private lateinit var eraseWidthPercents: MutableList<Int>
+    private var penBundle: PenBundle? = null
+    private var onChanged: Runnable? = null
+    private var currentEraseType = EraseTypes.ERASER_STROKE
 
-import com.onyx.android.eink.pen.demo.PenBundle;
-import com.onyx.android.eink.pen.demo.R;
-import com.onyx.android.eink.pen.demo.databinding.LayoutEraseSettingPopBinding;
-import com.onyx.android.eink.pen.demo.databinding.LayoutPenSettingPopBrushItemBinding;
-import com.onyx.android.eink.pen.demo.erase.data.EraseType;
-import com.onyx.android.eink.pen.demo.erase.data.EraseTypes;
-import com.onyx.android.eink.pen.demo.erase.util.EraseUnits;
-import com.onyx.android.eink.pen.demo.erase.util.EraserTrackHelper;
-import com.onyx.android.eink.pen.demo.ui.popup.BasePopup;
-import com.onyx.android.sdk.utils.ResManager;
-import com.onyx.android.sdk.utils.ViewUtils;
-
-import java.util.Arrays;
-import java.util.List;
-
-public class EraseSettingPop extends BasePopup {
-
-    private LayoutEraseSettingPopBinding binding;
-    private List<Integer> eraseWidthPercents;
-    private PenBundle penBundle;
-    private Runnable onChanged;
-    private int currentEraseType = EraseTypes.ERASER_STROKE;
-
-    public EraseSettingPop(Context context) {
-        super(context);
-        initPopupWindow();
+    init {
+        initPopupWindow()
     }
 
-    public EraseSettingPop setPenBundle(PenBundle penBundle) {
-        this.penBundle = penBundle;
-        return this;
+    fun setPenBundle(penBundle: PenBundle): EraseSettingPop {
+        this.penBundle = penBundle
+        return this
     }
 
-    public EraseSettingPop setOnChanged(Runnable onChanged) {
-        this.onChanged = onChanged;
-        return this;
+    fun setOnChanged(onChanged: Runnable?): EraseSettingPop {
+        this.onChanged = onChanged
+        return this
     }
 
-    @Override
-    public void showAsDropDown(View anchor, int xoff, int yoff, int gravity) {
-        super.showAsDropDown(anchor, xoff, yoff, gravity);
-        onShow();
+    override fun showAsDropDown(anchor: View?, xoff: Int, yoff: Int, gravity: Int) {
+        super.showAsDropDown(anchor, xoff, yoff, gravity)
+        onShow()
     }
 
-    private void onShow() {
+    private fun onShow() {
         if (binding.eraseTypeList.getAdapter() == null) {
-            initEraseTypeList();
+            initEraseTypeList()
         }
-        currentEraseType = requirePenBundle().getCurrentEraseType();
-        int percent = EraseUnits.widthToPercentage(
-                requirePenBundle().getEraseWidth(EraseTypes.ERASER_MOVE), EraseTypes.ERASER_MOVE);
-        updateEraseWidthUi(percent);
-        updateEraseTypeUi(currentEraseType);
+        currentEraseType = requirePenBundle().getCurrentEraseType()
+        val percent = EraseUnits.widthToPercentage(
+            requirePenBundle().getEraseWidth(EraseTypes.ERASER_MOVE), EraseTypes.ERASER_MOVE
+        )
+        updateEraseWidthUi(percent)
+        updateEraseTypeUi(currentEraseType)
     }
 
-    private void initPopupWindow() {
+    private fun initPopupWindow() {
         binding = DataBindingUtil.inflate(
-                LayoutInflater.from(context), R.layout.layout_erase_setting_pop, null, false);
-        setContentView(binding.getRoot());
-        setWidth(ResManager.getDimens(R.dimen.pen_popup_size));
-        setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
-        setFocusable(true);
-        setOutsideTouchable(true);
-        GradientDrawable drawable = new GradientDrawable();
-        drawable.setColor(Color.WHITE);
-        drawable.setStroke(2, Color.BLACK);
-        setBackgroundDrawable(drawable);
+            LayoutInflater.from(context), R.layout.layout_erase_setting_pop, null, false
+        )
+        contentView = binding.getRoot()
+        width = ResManager.getDimens(R.dimen.pen_popup_size)
+        height = WindowManager.LayoutParams.WRAP_CONTENT
+        isFocusable = true
+        isOutsideTouchable = true
+        val drawable = GradientDrawable()
+        drawable.setColor(Color.WHITE)
+        drawable.setStroke(2, Color.BLACK)
+        setBackgroundDrawable(drawable)
 
-        eraseWidthPercents = EraseUnits.getEraseWidthPercentRange(EraseTypes.ERASER_MOVE);
-        initSeekBar();
-        initListener();
-        initTrackCheck();
+        eraseWidthPercents = EraseUnits.getEraseWidthPercentRange(EraseTypes.ERASER_MOVE)
+        initSeekBar()
+        initListener()
+        initTrackCheck()
     }
 
-    private void initTrackCheck() {
-        binding.trackCheck.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (!buttonView.isPressed()) {
-                return;
+    private fun initTrackCheck() {
+        binding.trackCheck.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { buttonView: CompoundButton?, isChecked: Boolean ->
+            if (buttonView?.isPressed == true) {
+                onTrackToggled(currentEraseType, isChecked)
             }
-            onTrackToggled(currentEraseType, isChecked);
-        });
+        })
     }
 
-    private void syncTrackCheck(int eraseType) {
-        setCheckedSilently(requirePenBundle().isDisplayEraseTrack(eraseType));
-        binding.trackCheck.setText(buildTrackCheckLabel(eraseType));
+    private fun syncTrackCheck(eraseType: Int) {
+        setCheckedSilently(requirePenBundle().isDisplayEraseTrack(eraseType))
+        binding.trackCheck.text = buildTrackCheckLabel(eraseType)
     }
 
-    private void setCheckedSilently(boolean checked) {
-        binding.trackCheck.setOnCheckedChangeListener(null);
-        binding.trackCheck.setChecked(checked);
-        initTrackCheck();
+    private fun setCheckedSilently(checked: Boolean) {
+        binding.trackCheck.setOnCheckedChangeListener(null)
+        binding.trackCheck.isChecked = checked
+        initTrackCheck()
     }
 
-    private CharSequence buildTrackCheckLabel(int eraseType) {
-        @StringRes int labelRes = trackLabelRes(eraseType);
-        if (EraseTypes.isMoveOrStrokeErase(eraseType)
-                && !EraserTrackHelper.supportsMoveStrokeSfTrack()) {
-            return ResManager.getString(labelRes)
-                    + ResManager.getString(R.string.erase_track_app_layer_hint);
+    private fun buildTrackCheckLabel(eraseType: Int): CharSequence? {
+        @StringRes
+        val labelRes = trackLabelRes(eraseType)
+        if (EraseTypes.isMoveOrStrokeErase(eraseType) && !EraserTrackHelper.supportsMoveStrokeSfTrack()) {
+            return (ResManager.getString(labelRes) + ResManager.getString(R.string.erase_track_app_layer_hint))
         }
-        return ResManager.getString(labelRes);
+        return ResManager.getString(labelRes)
     }
 
     @StringRes
-    private int trackLabelRes(int eraseType) {
-        switch (eraseType) {
-            case EraseTypes.ERASER_MOVE:
-                return R.string.erase_track_move;
-            case EraseTypes.ERASER_AREA:
-                return R.string.erase_track_area;
-            default:
-                return R.string.erase_track_stroke;
+    private fun trackLabelRes(eraseType: Int): Int {
+        when (eraseType) {
+            EraseTypes.ERASER_MOVE -> return R.string.erase_track_move
+            EraseTypes.ERASER_AREA -> return R.string.erase_track_area
+            else -> return R.string.erase_track_stroke
         }
     }
 
-    private void onTrackToggled(int eraseType, boolean enabled) {
-        requirePenBundle().setDisplayEraseTrack(eraseType, enabled);
-        notifyChanged();
+    private fun onTrackToggled(eraseType: Int, enabled: Boolean) {
+        requirePenBundle().setDisplayEraseTrack(eraseType, enabled)
+        notifyChanged()
     }
 
-    private void updateEraseTypeUi(int eraseType) {
-        currentEraseType = eraseType;
-        updateWidthVisibility(eraseType);
-        syncTrackCheck(eraseType);
+    private fun updateEraseTypeUi(eraseType: Int) {
+        currentEraseType = eraseType
+        updateWidthVisibility(eraseType)
+        syncTrackCheck(eraseType)
     }
 
-    private void initEraseTypeList() {
-        EraseType selected = EraseType.fromValue(requirePenBundle().getCurrentEraseType());
-        EraseTypeAdapter adapter = new EraseTypeAdapter(Arrays.asList(EraseType.values()), selected);
-        binding.eraseTypeList.setLayoutManager(new GridLayoutManager(context, adapter.options.size()));
-        binding.eraseTypeList.setAdapter(adapter);
+    private fun initEraseTypeList() {
+        val selected: EraseType =
+            EraseType.fromValue(requirePenBundle().getCurrentEraseType())
+        val options = ArrayList(EraseType.entries)
+        val adapter = EraseTypeAdapter(options, selected)
+        binding.eraseTypeList.setLayoutManager(GridLayoutManager(context, adapter.options.size))
+        binding.eraseTypeList.setAdapter(adapter)
     }
 
-    private void initSeekBar() {
-        binding.widthSeekBar.setMax(eraseWidthPercents.size() - 1);
-        binding.widthSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (!fromUser || eraseWidthPercents == null || eraseWidthPercents.isEmpty()) {
-                    return;
+    private fun initSeekBar() {
+        binding.widthSeekBar.max = eraseWidthPercents.size - 1
+        binding.widthSeekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (!fromUser || eraseWidthPercents.isEmpty()) {
+                    return
                 }
-                updateEraseWidth(eraseWidthPercents.get(progress));
+                val percent = eraseWidthPercents.getOrNull(progress) ?: return
+                updateEraseWidth(percent)
             }
 
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
             }
 
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
             }
-        });
+        })
     }
 
-    private void initListener() {
-        binding.minus.setOnClickListener(v ->
-                updateEraseWidth(getClickEraseWidthPercent(false)));
-        binding.plus.setOnClickListener(v ->
-                updateEraseWidth(getClickEraseWidthPercent(true)));
+    private fun initListener() {
+        binding.minus.setOnClickListener(View.OnClickListener { v: View? ->
+            updateEraseWidth(
+                getClickEraseWidthPercent(false)
+            )
+        })
+        binding.plus.setOnClickListener(View.OnClickListener { v: View? ->
+            updateEraseWidth(
+                getClickEraseWidthPercent(true)
+            )
+        })
     }
 
-    private void updateWidthVisibility(int eraseType) {
-        ViewUtils.setViewVisibleOrGone(binding.widthContainer, eraseType == EraseTypes.ERASER_MOVE);
+    private fun updateWidthVisibility(eraseType: Int) {
+        ViewUtils.setViewVisibleOrGone(
+            binding.widthContainer, eraseType == EraseTypes.ERASER_MOVE
+        )
     }
 
-    private void updateEraseWidth(int percent) {
-        float width = EraseUnits.widthFromPercentage(percent);
-        requirePenBundle().setEraseWidth(EraseTypes.ERASER_MOVE, width);
-        updateEraseWidthUi(percent);
-        notifyChanged();
+    private fun updateEraseWidth(percent: Int) {
+        val width = EraseUnits.widthFromPercentage(percent)
+        requirePenBundle().setEraseWidth(EraseTypes.ERASER_MOVE, width)
+        updateEraseWidthUi(percent)
+        notifyChanged()
     }
 
-    private void updateEraseWidthUi(int percent) {
-        float width = EraseUnits.widthFromPercentage(percent);
-        binding.eraserWidth.setText(EraseUnits.formatWidthMm(width, EraseTypes.ERASER_MOVE));
-        updateSeekBarProgress(percent);
+    private fun updateEraseWidthUi(percent: Int) {
+        val width = EraseUnits.widthFromPercentage(percent)
+        binding.eraserWidth.text = EraseUnits.formatWidthMm(width, EraseTypes.ERASER_MOVE)
+        updateSeekBarProgress(percent)
     }
 
-    private void updateSeekBarProgress(int percent) {
-        if (eraseWidthPercents == null || eraseWidthPercents.isEmpty()) {
-            return;
+    private fun updateSeekBarProgress(percent: Int) {
+        if (eraseWidthPercents.isEmpty()) {
+            return
         }
-        int index = eraseWidthPercents.indexOf(percent);
+        var index = eraseWidthPercents.indexOf(percent)
         if (index < 0) {
-            index = findNearestPercentIndex(percent);
+            index = findNearestPercentIndex(percent)
         }
-        binding.widthSeekBar.setProgress(index);
+        binding.widthSeekBar.progress = index
     }
 
-    private int findNearestPercentIndex(int percent) {
-        int nearestIndex = 0;
-        int minDiff = Integer.MAX_VALUE;
-        for (int i = 0; i < eraseWidthPercents.size(); i++) {
-            int diff = Math.abs(eraseWidthPercents.get(i) - percent);
+    private fun findNearestPercentIndex(percent: Int): Int {
+        var nearestIndex = 0
+        var minDiff = Int.MAX_VALUE
+        for (i in eraseWidthPercents.indices) {
+            val diff = abs(eraseWidthPercents[i] - percent)
             if (diff < minDiff) {
-                minDiff = diff;
-                nearestIndex = i;
+                minDiff = diff
+                nearestIndex = i
             }
         }
-        return nearestIndex;
+        return nearestIndex
     }
 
-    private int getClickEraseWidthPercent(boolean plus) {
-        int currentPercent = EraseUnits.widthToPercentage(
-                requirePenBundle().getEraseWidth(EraseTypes.ERASER_MOVE), EraseTypes.ERASER_MOVE);
-        int nextPercent = plus
-                ? currentPercent + EraseUnits.getEraseWidthIncrement()
-                : currentPercent - EraseUnits.getEraseWidthIncrement();
-        int min = EraseUnits.getMinEraseWidthPercent(EraseTypes.ERASER_MOVE);
-        int max = EraseUnits.getMaxEraseWidthPercent(EraseTypes.ERASER_MOVE);
-        return Math.max(min, Math.min(max, nextPercent));
+    private fun getClickEraseWidthPercent(plus: Boolean): Int {
+        val currentPercent = EraseUnits.widthToPercentage(
+            requirePenBundle().getEraseWidth(EraseTypes.ERASER_MOVE), EraseTypes.ERASER_MOVE
+        )
+        val nextPercent = if (plus) currentPercent + EraseUnits.getEraseWidthIncrement()
+        else currentPercent - EraseUnits.getEraseWidthIncrement()
+        val min = EraseUnits.getMinEraseWidthPercent(EraseTypes.ERASER_MOVE)
+        val max = EraseUnits.getMaxEraseWidthPercent(EraseTypes.ERASER_MOVE)
+        return max(min, min(max, nextPercent))
     }
 
-    @NonNull
-    private PenBundle requirePenBundle() {
-        if (penBundle == null) {
-            throw new IllegalStateException("EraseSettingPop requires setPenBundle() before use");
-        }
-        return penBundle;
+    private fun requirePenBundle(): PenBundle {
+        return checkNotNull(penBundle) { "EraseSettingPop requires setPenBundle() before use" }
     }
 
-    private void notifyChanged() {
-        if (onChanged != null) {
-            onChanged.run();
-        }
+    private fun notifyChanged() {
+        onChanged?.run()
     }
 
-    private class EraseTypeAdapter extends RecyclerView.Adapter<EraseTypeAdapter.ViewHolder> {
-        private final List<EraseType> options;
-        private EraseType selectedEraseType;
-
-        EraseTypeAdapter(List<EraseType> options, EraseType selectedEraseType) {
-            this.options = options;
-            this.selectedEraseType = selectedEraseType;
+    private inner class EraseTypeAdapter(
+        val options: MutableList<EraseType>,
+        private var selectedEraseType: EraseType?
+    ) : RecyclerView.Adapter<EraseTypeAdapter.ViewHolder?>() {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.layout_pen_setting_pop_brush_item, parent, false)
+            return ViewHolder(view)
         }
 
-        @NonNull
-        @Override
-        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.layout_pen_setting_pop_brush_item, parent, false);
-            return new ViewHolder(view);
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            val eraseType = options.get(position)
+            holder.bindTo(eraseType, eraseType == selectedEraseType)
+            holder.itemView.setOnClickListener(View.OnClickListener { v: View? ->
+                onEraseTypeSelected(
+                    eraseType
+                )
+            })
         }
 
-        @Override
-        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            EraseType eraseType = options.get(position);
-            holder.bindTo(eraseType, eraseType == selectedEraseType);
-            holder.itemView.setOnClickListener(v -> onEraseTypeSelected(eraseType));
+        override fun getItemCount(): Int {
+            return options.size
         }
 
-        @Override
-        public int getItemCount() {
-            return options.size();
+        fun onEraseTypeSelected(eraseType: EraseType) {
+            selectedEraseType = eraseType
+            notifyDataSetChanged()
+            val eraseTypeValue = eraseType.getValue()
+            requirePenBundle().selectEraseType(eraseTypeValue)
+            updateEraseTypeUi(eraseTypeValue)
+            notifyChanged()
         }
 
-        private void onEraseTypeSelected(EraseType eraseType) {
-            selectedEraseType = eraseType;
-            notifyDataSetChanged();
-            int eraseTypeValue = eraseType.getValue();
-            requirePenBundle().selectEraseType(eraseTypeValue);
-            updateEraseTypeUi(eraseTypeValue);
-            notifyChanged();
-        }
+        inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            private val itemBinding: LayoutPenSettingPopBrushItemBinding =
+                checkNotNull(DataBindingUtil.bind(itemView))
 
-        class ViewHolder extends RecyclerView.ViewHolder {
-            private final LayoutPenSettingPopBrushItemBinding itemBinding;
-
-            ViewHolder(View itemView) {
-                super(itemView);
-                itemBinding = DataBindingUtil.bind(itemView);
-            }
-
-            void bindTo(EraseType eraseType, boolean selected) {
-                itemBinding.title.setText(eraseType.getNameResId());
-                itemBinding.icon.setVisibility(View.GONE);
-                itemBinding.radio.setChecked(selected);
-                itemBinding.executePendingBindings();
+            fun bindTo(eraseType: EraseType, selected: Boolean) {
+                itemBinding.title.setText(eraseType.getNameResId())
+                itemBinding.icon.visibility = View.GONE
+                itemBinding.radio.isChecked = selected
+                itemBinding.executePendingBindings()
             }
         }
     }

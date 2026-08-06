@@ -1,46 +1,48 @@
-package com.onyx.android.eink.pen.demo.event;
+package com.onyx.android.eink.pen.demo.event
 
-import static com.onyx.android.sdk.data.note.NoteConstant.COLOR_DEVICE_PEN_RESUME_DELAY_TIME_MS;
-import static com.onyx.android.sdk.data.note.NoteConstant.COMMON_PEN_RESUME_DELAY_TIME_MS;
+import com.onyx.android.sdk.data.note.NoteConstant
+import com.onyx.android.sdk.utils.DeviceInfoUtil
 
-import com.onyx.android.sdk.utils.DeviceInfoUtil;
+class PenEvent(
+    private val resumeDrawingRender: Boolean,
+    private val resumeRawInputReader: Boolean,
+    delayResumePenTimeMs: Int
+) {
+    private var delayResumePenTimeMs: Int = DELAY_ENABLE_RAW_DRAWING_MILLS
 
-public class PenEvent {
-    public static final int DELAY_ENABLE_RAW_DRAWING_MILLS = DeviceInfoUtil.isColorDevice() ?
-            COLOR_DEVICE_PEN_RESUME_DELAY_TIME_MS : COMMON_PEN_RESUME_DELAY_TIME_MS;
-    public static final int POPUP_RESUME_PEN_TIME_MS = DeviceInfoUtil.isColorDevice() ? 500 : 300;
-    private boolean resumeDrawingRender;
-    private boolean resumeRawInputReader;
-    private int delayResumePenTimeMs = DELAY_ENABLE_RAW_DRAWING_MILLS;
-
-    public PenEvent(boolean resumeDrawingRender, boolean resumeRawInputReader, int delayResumePenTimeMs) {
-        this.resumeDrawingRender = resumeDrawingRender;
-        this.resumeRawInputReader = resumeRawInputReader;
-        this.delayResumePenTimeMs = delayResumePenTimeMs;
+    init {
+        this.delayResumePenTimeMs = delayResumePenTimeMs
     }
 
-    /** Stop Soft Eraser overlay after side-button / cap erase while brush stays selected. */
-    public static PenEvent pauseDrawingRender() {
-        return new PenEvent(false, false, 0);
-    }
+    fun isResumeDrawingRender(): Boolean = resumeDrawingRender
 
-    public static PenEvent resumeRawDrawing(int delayResumePenTimeMs) {
-        return new PenEvent(true, true, delayResumePenTimeMs);
-    }
+    fun isResumeRawInputReader(): Boolean = resumeRawInputReader
 
-    public static PenEvent resumeRawDrawingImmediately() {
-        return new PenEvent(true, true, 0);
-    }
+    fun getDelayResumePenTimeMs(): Int = delayResumePenTimeMs
 
-    public boolean isResumeDrawingRender() {
-        return resumeDrawingRender;
-    }
+    companion object {
+        val DELAY_ENABLE_RAW_DRAWING_MILLS: Int =
+            if (DeviceInfoUtil.isColorDevice()) {
+                NoteConstant.COLOR_DEVICE_PEN_RESUME_DELAY_TIME_MS
+            } else {
+                NoteConstant.COMMON_PEN_RESUME_DELAY_TIME_MS
+            }
+        val POPUP_RESUME_PEN_TIME_MS: Int = if (DeviceInfoUtil.isColorDevice()) 500 else 300
 
-    public boolean isResumeRawInputReader() {
-        return resumeRawInputReader;
-    }
+        /** Stop Soft Eraser overlay after side-button / cap erase while brush stays selected.  */
+        @JvmStatic
+        fun pauseDrawingRender(): PenEvent {
+            return PenEvent(false, false, 0)
+        }
 
-    public int getDelayResumePenTimeMs() {
-        return delayResumePenTimeMs;
+        @JvmStatic
+        fun resumeRawDrawing(delayResumePenTimeMs: Int): PenEvent {
+            return PenEvent(true, true, delayResumePenTimeMs)
+        }
+
+        @JvmStatic
+        fun resumeRawDrawingImmediately(): PenEvent {
+            return PenEvent(true, true, 0)
+        }
     }
 }

@@ -1,220 +1,209 @@
-package com.android.onyx.demo;
+package com.android.onyx.demo
 
-import android.content.Context;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.webkit.WebSettings;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Toast;
-
-import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.databinding.DataBindingUtil;
-
-import com.android.onyx.demo.databinding.ActivityDictqueryBinding;
-import com.onyx.android.sdk.data.DictionaryQuery;
-import com.onyx.android.sdk.utils.DictionaryUtil;
-import com.onyx.android.sdk.utils.StringUtils;
-
-import java.util.ArrayList;
-import java.util.List;
+import android.content.Context
+import android.os.AsyncTask
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.view.View
+import android.view.inputmethod.InputMethodManager
+import android.widget.AdapterView
+import android.widget.AdapterView.OnItemSelectedListener
+import android.widget.ArrayAdapter
+import android.widget.Toast
+import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import com.android.onyx.demo.databinding.ActivityDictqueryBinding
+import com.onyx.android.sdk.data.DictionaryQuery
+import com.onyx.android.sdk.utils.DictionaryUtil
+import com.onyx.android.sdk.utils.StringUtils
 
 /**
  * Created by seeksky on 2018/5/17.
  */
+class DictionaryActivity : AppCompatActivity() {
 
-public class DictionaryActivity extends AppCompatActivity {
+    private lateinit var binding: ActivityDictqueryBinding
+    private val dictionaryResults: MutableList<DictionaryQuery.Dictionary> = ArrayList()
+    private val handler = Handler(Looper.getMainLooper())
+    private var suppressSpinnerCallback = false
+    private var dictionaryLoadCount = 0
+    private var pendingLoadingRetry: Runnable? = null
 
-    private static final int DELAY_DICTIONARY_LOAD_MS = 2000;
-    private static final int MAX_LOADING_RETRY = 5;
-
-    private ActivityDictqueryBinding binding;
-    private final List<DictionaryQuery.Dictionary> dictionaryResults = new ArrayList<>();
-    private final Handler handler = new Handler(Looper.getMainLooper());
-    private boolean suppressSpinnerCallback;
-    private int dictionaryLoadCount;
-    private Runnable pendingLoadingRetry;
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_dictquery);
-        binding.setActivityDictQuery(this);
-        setupWebView();
-        setupSpinner();
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_dictquery)
+        binding.activityDictQuery = this
+        setupWebView()
+        setupSpinner()
     }
 
-    @Override
-    protected void onDestroy() {
-        cancelPendingLoadingRetry();
-        super.onDestroy();
+    override fun onDestroy() {
+        cancelPendingLoadingRetry()
+        super.onDestroy()
     }
 
-    public void onClick(View v) {
-        dictionaryLoadCount = 0;
-        cancelPendingLoadingRetry();
-        queryDictionary(binding.edittextKeyword.getText().toString().trim());
+    fun onClick(v: View?) {
+        dictionaryLoadCount = 0
+        cancelPendingLoadingRetry()
+        queryDictionary(binding.edittextKeyword.text.toString().trim { it <= ' ' })
     }
 
-    private void setupWebView() {
-        WebSettings settings = binding.webviewResult.getSettings();
-        settings.setDefaultTextEncodingName("UTF-8");
-        settings.setLoadWithOverviewMode(true);
-        settings.setUseWideViewPort(true);
+    private fun setupWebView() {
+        val settings = binding.webviewResult.settings
+        settings.defaultTextEncodingName = "UTF-8"
+        settings.loadWithOverviewMode = true
+        settings.useWideViewPort = true
     }
 
-    private void setupSpinner() {
-        binding.spinnerDict.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (suppressSpinnerCallback || position < 0 || position >= dictionaryResults.size()) {
-                    return;
+    private fun setupSpinner() {
+        binding.spinnerDict.onItemSelectedListener = object : OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                if (suppressSpinnerCallback || position !in dictionaryResults.indices) {
+                    return
                 }
-                loadHtml(dictionaryResults.get(position).getExplanation());
+                loadHtml(dictionaryResults[position].explanation)
             }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
             }
-        });
+        }
     }
 
-    private void queryDictionary(String keyword) {
+    private fun queryDictionary(keyword: String) {
         if (StringUtils.isNullOrEmpty(keyword)) {
-            Toast.makeText(this, R.string.dict_query_param_error, Toast.LENGTH_SHORT).show();
-            return;
+            Toast.makeText(this, R.string.dict_query_param_error, Toast.LENGTH_SHORT).show()
+            return
         }
-        clearResult();
-        hideSoftKeyboard();
-        new AsyncTask<Void, Void, DictionaryQuery>() {
-            @Override
-            protected DictionaryQuery doInBackground(Void... params) {
-                return DictionaryUtil.queryKeyWord(DictionaryActivity.this, keyword);
+        clearResult()
+        hideSoftKeyboard()
+        object : AsyncTask<Void, Void, DictionaryQuery>() {
+            @Deprecated("Deprecated in Java")
+            override fun doInBackground(vararg params: Void?): DictionaryQuery {
+                return DictionaryUtil.queryKeyWord(this@DictionaryActivity, keyword)
             }
 
-            @Override
-            protected void onPostExecute(DictionaryQuery dictionaryQuery) {
-                if (isFinishing()) {
-                    return;
+            @Deprecated("Deprecated in Java")
+            override fun onPostExecute(dictionaryQuery: DictionaryQuery?) {
+                if (isFinishing) {
+                    return
                 }
-                handleQueryResult(keyword, dictionaryQuery);
+                handleQueryResult(keyword, dictionaryQuery)
             }
-        }.execute();
+        }.execute()
     }
 
-    private void handleQueryResult(final String keyword, @Nullable DictionaryQuery dictionaryQuery) {
+    private fun handleQueryResult(keyword: String, dictionaryQuery: DictionaryQuery?) {
         if (dictionaryQuery == null) {
-            showMessage(R.string.dict_query_error, Toast.LENGTH_SHORT);
-            return;
+            showMessage(R.string.dict_query_error, Toast.LENGTH_SHORT)
+            return
         }
 
-        switch (dictionaryQuery.getState()) {
-            case DictionaryQuery.DICT_STATE_QUERY_SUCCESSFUL:
-                List<DictionaryQuery.Dictionary> list = dictionaryQuery.getList();
-                if (list == null || list.isEmpty()) {
-                    showMessage(R.string.dict_query_no_data, Toast.LENGTH_SHORT);
-                    return;
+        when (dictionaryQuery.state) {
+            DictionaryQuery.DICT_STATE_QUERY_SUCCESSFUL -> {
+                val list = dictionaryQuery.list
+                if (list.isNullOrEmpty()) {
+                    showMessage(R.string.dict_query_no_data, Toast.LENGTH_SHORT)
+                    return
                 }
-                bindDictionaryResults(list);
-                break;
-            case DictionaryQuery.DICT_STATE_LOADING:
-                handleLoadingState(keyword);
-                break;
-            case DictionaryQuery.DICT_STATE_QUERY_FAILED:
-                showMessage(R.string.dict_query_failed, Toast.LENGTH_SHORT);
-                break;
-            case DictionaryQuery.DICT_STATE_NO_DATA:
-                showMessage(R.string.dict_query_no_data, Toast.LENGTH_SHORT);
-                break;
-            case DictionaryQuery.DICT_STATE_PARAM_ERROR:
-                showMessage(R.string.dict_query_param_error, Toast.LENGTH_SHORT);
-                break;
-            case DictionaryQuery.DICT_STATE_ERROR:
-            default:
-                showMessage(R.string.dict_query_error, Toast.LENGTH_SHORT);
-                break;
-        }
-    }
-
-    private void handleLoadingState(final String keyword) {
-        if (dictionaryLoadCount >= MAX_LOADING_RETRY) {
-            showMessage(R.string.dict_query_load_fail, Toast.LENGTH_SHORT);
-            return;
-        }
-        showMessage(R.string.dict_query_loading, Toast.LENGTH_SHORT);
-        dictionaryLoadCount++;
-        cancelPendingLoadingRetry();
-        pendingLoadingRetry = new Runnable() {
-            @Override
-            public void run() {
-                pendingLoadingRetry = null;
-                if (!isFinishing()) {
-                    queryDictionary(keyword);
-                }
+                bindDictionaryResults(list)
             }
-        };
-        handler.postDelayed(pendingLoadingRetry, DELAY_DICTIONARY_LOAD_MS);
-    }
-
-    private void bindDictionaryResults(List<DictionaryQuery.Dictionary> list) {
-        dictionaryResults.clear();
-        dictionaryResults.addAll(list);
-
-        List<String> dictNames = new ArrayList<>(list.size());
-        for (DictionaryQuery.Dictionary dictionary : list) {
-            String name = dictionary.getDictName();
-            dictNames.add(StringUtils.isNullOrEmpty(name)
-                    ? getString(R.string.dict_query_unknown_dictionary) : name);
-        }
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                this, R.layout.layout_dict_spinner_item, dictNames);
-        adapter.setDropDownViewResource(R.layout.layout_dict_spinner_dropdown_item);
-
-        suppressSpinnerCallback = true;
-        binding.spinnerDict.setAdapter(adapter);
-        binding.spinnerDict.setSelection(0, false);
-        suppressSpinnerCallback = false;
-
-        binding.spinnerDict.setVisibility(list.size() > 1 ? View.VISIBLE : View.GONE);
-        loadHtml(list.get(0).getExplanation());
-    }
-
-    private void loadHtml(String html) {
-        binding.webviewResult.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null);
-    }
-
-    private void clearResult() {
-        binding.spinnerDict.setVisibility(View.GONE);
-        dictionaryResults.clear();
-        loadHtml("");
-    }
-
-    private void showMessage(@StringRes int messageResId, int duration) {
-        String message = getString(messageResId);
-        binding.spinnerDict.setVisibility(View.GONE);
-        dictionaryResults.clear();
-        loadHtml("");
-        Toast.makeText(this, message, duration).show();
-    }
-
-    private void cancelPendingLoadingRetry() {
-        if (pendingLoadingRetry != null) {
-            handler.removeCallbacks(pendingLoadingRetry);
-            pendingLoadingRetry = null;
+            DictionaryQuery.DICT_STATE_LOADING ->
+                handleLoadingState(keyword)
+            DictionaryQuery.DICT_STATE_QUERY_FAILED ->
+                showMessage(R.string.dict_query_failed, Toast.LENGTH_SHORT)
+            DictionaryQuery.DICT_STATE_NO_DATA ->
+                showMessage(R.string.dict_query_no_data, Toast.LENGTH_SHORT)
+            DictionaryQuery.DICT_STATE_PARAM_ERROR ->
+                showMessage(R.string.dict_query_param_error, Toast.LENGTH_SHORT)
+            else -> showMessage(R.string.dict_query_error, Toast.LENGTH_SHORT)
         }
     }
 
-    private void hideSoftKeyboard() {
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm != null) {
-            imm.hideSoftInputFromWindow(binding.buttonQuery.getWindowToken(), 0);
+    private fun handleLoadingState(keyword: String) {
+        if (dictionaryLoadCount >= MAX_LOADING_RETRY) {
+            showMessage(R.string.dict_query_load_fail, Toast.LENGTH_SHORT)
+            return
         }
+        showMessage(R.string.dict_query_loading, Toast.LENGTH_SHORT)
+        dictionaryLoadCount++
+        cancelPendingLoadingRetry()
+        val retry = Runnable {
+            pendingLoadingRetry = null
+            if (!isFinishing) {
+                queryDictionary(keyword)
+            }
+        }
+        pendingLoadingRetry = retry
+        handler.postDelayed(retry, DELAY_DICTIONARY_LOAD_MS.toLong())
+    }
+
+    private fun bindDictionaryResults(list: List<DictionaryQuery.Dictionary>) {
+        dictionaryResults.clear()
+        dictionaryResults.addAll(list)
+
+        val dictNames = ArrayList<String>(list.size)
+        for (dictionary in list) {
+            val name = dictionary.dictName
+            dictNames.add(
+                if (StringUtils.isNullOrEmpty(name)) {
+                    getString(R.string.dict_query_unknown_dictionary)
+                } else {
+                    name
+                }
+            )
+        }
+
+        val adapter = ArrayAdapter(this, R.layout.layout_dict_spinner_item, dictNames)
+        adapter.setDropDownViewResource(R.layout.layout_dict_spinner_dropdown_item)
+
+        suppressSpinnerCallback = true
+        binding.spinnerDict.adapter = adapter
+        binding.spinnerDict.setSelection(0, false)
+        suppressSpinnerCallback = false
+
+        binding.spinnerDict.visibility = if (list.size > 1) View.VISIBLE else View.GONE
+        loadHtml(list[0].explanation)
+    }
+
+    private fun loadHtml(html: String?) {
+        binding.webviewResult.loadDataWithBaseURL(null, html ?: "", "text/html", "UTF-8", null)
+    }
+
+    private fun clearResult() {
+        binding.spinnerDict.visibility = View.GONE
+        dictionaryResults.clear()
+        loadHtml("")
+    }
+
+    private fun showMessage(@StringRes messageResId: Int, duration: Int) {
+        val message = getString(messageResId)
+        binding.spinnerDict.visibility = View.GONE
+        dictionaryResults.clear()
+        loadHtml("")
+        Toast.makeText(this, message, duration).show()
+    }
+
+    private fun cancelPendingLoadingRetry() {
+        pendingLoadingRetry?.let {
+            handler.removeCallbacks(it)
+            pendingLoadingRetry = null
+        }
+    }
+
+    private fun hideSoftKeyboard() {
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager ?: return
+        imm.hideSoftInputFromWindow(binding.buttonQuery.windowToken, 0)
+    }
+
+    companion object {
+        private const val DELAY_DICTIONARY_LOAD_MS = 2000
+        private const val MAX_LOADING_RETRY = 5
     }
 }

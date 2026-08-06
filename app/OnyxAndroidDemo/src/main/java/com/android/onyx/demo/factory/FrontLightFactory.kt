@@ -1,31 +1,21 @@
-package com.android.onyx.demo.factory;
+package com.android.onyx.demo.factory
 
-import android.content.Context;
+import android.content.Context
+import com.android.onyx.demo.model.BaseLightModel
+import com.android.onyx.demo.model.CTMAllLightModel
+import com.android.onyx.demo.model.FLLightModel
+import com.android.onyx.demo.model.WarmAndColdLightModel
+import com.onyx.android.sdk.api.device.brightness.BrightnessController
+import com.onyx.android.sdk.api.device.brightness.BrightnessType
 
-import com.android.onyx.demo.model.BaseLightModel;
-import com.android.onyx.demo.model.CTMAllLightModel;
-import com.android.onyx.demo.model.FLLightModel;
-import com.android.onyx.demo.model.WarmAndColdLightModel;
-import com.onyx.android.sdk.api.device.brightness.BrightnessController;
-
-public class FrontLightFactory {
-
-    public static BaseLightModel createLightModel(Context context) {
-        BaseLightModel lightModel = null;
-        switch (BrightnessController.getBrightnessType(context)) {
-            case FL:
-                lightModel = new FLLightModel(context);
-                break;
-            case WARM_AND_COLD:
-                lightModel = new WarmAndColdLightModel(context);
-                break;
-            case CTM:
-                lightModel = new CTMAllLightModel(context);
-                break;
-            case NONE:
-            default:
-                break;
+object FrontLightFactory {
+    fun createLightModel(context: Context): BaseLightModel? {
+        return when (BrightnessController.getBrightnessType(context)) {
+            BrightnessType.FL -> FLLightModel(context)
+            BrightnessType.WARM_AND_COLD -> WarmAndColdLightModel(context)
+            BrightnessType.CTM -> CTMAllLightModel(context)
+            BrightnessType.NONE -> null
+            else -> null
         }
-        return lightModel;
     }
 }

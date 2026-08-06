@@ -1,27 +1,23 @@
-package com.onyx.daydreamdemo.utils;
+package com.onyx.daydreamdemo.utils
 
-import java.lang.reflect.Method;
+import java.lang.reflect.Method
 
-public class ReflectUtils {
-    public static Method getDeclaredMethod(Class<?> cls, String name, Class<?>... parameterTypes) {
+object ReflectUtils {
+    fun getDeclaredMethod(cls: Class<*>, name: String, vararg parameterTypes: Class<*>?): Method? {
         try {
-            Method method = cls.getDeclaredMethod(name, parameterTypes);
-            if (method == null) {
-                return null;
-            }
-            method.setAccessible(true);
-            return method;
-        } catch (Throwable tr) {
-            return null;
+            val method = cls.getDeclaredMethod(name, *parameterTypes) ?: return null
+            method.isAccessible = true
+            return method
+        } catch (tr: Throwable) {
+            return null
         }
     }
 
-    public static Object invokeMethod(Method method, Object receiver, Object... args)
-    {
+    fun invokeMethod(method: Method, receiver: Any?, vararg args: Any?): Any? {
         try {
-            return method.invoke(receiver, args);
-        } catch (Throwable tr) {
-            return null;
+            return method.invoke(receiver, *args)
+        } catch (tr: Throwable) {
+            return null
         }
     }
 }

@@ -1,39 +1,34 @@
-package com.android.onyx.demo;
+package com.android.onyx.demo
 
-import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import com.android.onyx.demo.databinding.ActivityFrontLightDemoBinding
+import com.android.onyx.demo.factory.FrontLightFactory
+import com.android.onyx.demo.model.BaseLightModel
 
-import androidx.databinding.DataBindingUtil;
+class FrontLightDemoActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityFrontLightDemoBinding
+    private var lightModel: BaseLightModel? = null
 
-import com.android.onyx.demo.databinding.ActivityFrontLightDemoBinding;
-import com.android.onyx.demo.factory.FrontLightFactory;
-import com.android.onyx.demo.model.BaseLightModel;
-
-
-public class FrontLightDemoActivity extends AppCompatActivity {
-    private ActivityFrontLightDemoBinding binding;
-    private BaseLightModel lightModel;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_front_light_demo);
-        initLightModel();
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_front_light_demo)
+        initLightModel()
     }
 
-    private void initLightModel() {
-        lightModel = FrontLightFactory.createLightModel(this);
-        if (lightModel != null) {
-            lightModel.initView(binding);
-            binding.buttonShowBrightnessSetting.setOnClickListener(v -> lightModel.showBrightnessSetting(v));
+    private fun initLightModel() {
+        lightModel = FrontLightFactory.createLightModel(this)
+        lightModel?.let { model ->
+            model.initView(binding)
+            binding.buttonShowBrightnessSetting.setOnClickListener { v ->
+                model.showBrightnessSetting(v)
+            }
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (lightModel != null) {
-            lightModel.updateLightValue();
-        }
+    override fun onResume() {
+        super.onResume()
+        lightModel?.updateLightValue()
     }
 }

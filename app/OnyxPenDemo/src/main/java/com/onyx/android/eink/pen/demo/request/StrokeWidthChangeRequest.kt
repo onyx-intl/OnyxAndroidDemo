@@ -1,23 +1,17 @@
-package com.onyx.android.eink.pen.demo.request;
+package com.onyx.android.eink.pen.demo.request
 
-import androidx.annotation.NonNull;
+import com.onyx.android.eink.pen.demo.PenManager
 
-import com.onyx.android.eink.pen.demo.PenManager;
+class StrokeWidthChangeRequest(penManager: PenManager) : BaseRequest(penManager) {
+    private var width = 0f
 
-public class StrokeWidthChangeRequest extends BaseRequest {
-    private float width;
-
-    public StrokeWidthChangeRequest(@NonNull PenManager penManager) {
-        super(penManager);
+    fun setWidth(width: Float): StrokeWidthChangeRequest {
+        this.width = width
+        return this
     }
 
-    public StrokeWidthChangeRequest setWidth(float width) {
-        this.width = width;
-        return this;
-    }
-
-    @Override
-    public void execute(PenManager penManager) throws Exception {
-        getPenManager().setStrokeWidth(width);
+    @Throws(Exception::class)
+    override fun execute(penManager: PenManager) {
+        getPenManager().setStrokeWidth(width)
     }
 }

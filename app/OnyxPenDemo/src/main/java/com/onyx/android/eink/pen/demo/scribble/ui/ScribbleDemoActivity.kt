@@ -1,63 +1,60 @@
-package com.onyx.android.eink.pen.demo.scribble.ui;
+package com.onyx.android.eink.pen.demo.scribble.ui
 
-import android.content.Intent;
-import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import android.view.View;
-
-import androidx.databinding.DataBindingUtil;
-
-import com.onyx.android.eink.pen.demo.R;
-import com.onyx.android.eink.pen.demo.databinding.ActivitySribbleDemoBinding;
+import android.content.Intent
+import android.os.Bundle
+import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import com.onyx.android.eink.pen.demo.R
+import com.onyx.android.eink.pen.demo.databinding.ActivitySribbleDemoBinding
 
 /**
  * Created by seeksky on 2018/4/26.
  */
+class ScribbleDemoActivity : AppCompatActivity() {
+    private lateinit var binding: ActivitySribbleDemoBinding
 
-public class ScribbleDemoActivity extends AppCompatActivity {
-    private ActivitySribbleDemoBinding binding;
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_sribble_demo);
-        binding.setActivitySribble(this);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = DataBindingUtil.setContentView(
+            this, R.layout.activity_sribble_demo
+        )
+        binding.setActivitySribble(this)
     }
 
-    public void button_scribble_touch_helper(View view) {
-        go(ScribbleTouchHelperDemoActivity.class);
+    fun button_scribble_touch_helper(view: View?) {
+        go(ScribbleTouchHelperDemoActivity::class.java)
     }
 
-    public void button_surfaceview_stylus_scribble(View view) {
-        go(ScribbleTouchHelperDemoActivity.class);
+    fun button_surfaceview_stylus_scribble(view: View?) {
+        go(ScribbleTouchHelperDemoActivity::class.java)
     }
 
-    public void button_webview_stylus_scribble(View view) {
-        go(ScribbleWebViewDemoActivity.class);
+    fun button_webview_stylus_scribble(view: View?) {
+        go(ScribbleWebViewDemoActivity::class.java)
     }
 
-    public void button_move_erase_scribble(View view) {
-        go(ScribbleMoveEraserDemoActivity.class);
+    fun button_move_erase_scribble(view: View?) {
+        go(ScribbleMoveEraserDemoActivity::class.java)
     }
 
-    public void button_multiple_scribble(View view) {
-        go(ScribbleMultipleScribbleViewActivity.class);
+    fun button_multiple_scribble(view: View?) {
+        go(ScribbleMultipleScribbleViewActivity::class.java)
     }
 
-    public void button_pen_up_refresh(View view) {
-        go(ScribblePenUpRefreshDemoActivity.class);
+    fun button_pen_up_refresh(view: View?) {
+        go(ScribblePenUpRefreshDemoActivity::class.java)
     }
 
-    public void button_epd_controller(View view) {
-        go(ScribbleEpdControllerDemoActivity.class);
+    fun button_epd_controller(view: View?) {
+        go(ScribbleEpdControllerDemoActivity::class.java)
     }
 
-    public void gotoScribbleFingerTouchDemo(View view) {
-        go(ScribbleFingerTouchDemoActivity.class);
+    fun gotoScribbleFingerTouchDemo(view: View?) {
+        go(ScribbleFingerTouchDemoActivity::class.java)
     }
 
-    private void go(Class<?> activityClass) {
-        startActivity(new Intent(this, activityClass));
+    private fun go(activityClass: Class<*>?) {
+        startActivity(Intent(this, activityClass))
     }
 }

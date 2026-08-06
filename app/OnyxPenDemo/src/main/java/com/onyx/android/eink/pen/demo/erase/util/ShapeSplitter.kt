@@ -1,117 +1,116 @@
-package com.onyx.android.eink.pen.demo.erase.util;
+package com.onyx.android.eink.pen.demo.erase.util
 
-import com.onyx.android.eink.pen.demo.data.ShapeFactory;
-import com.onyx.android.eink.pen.demo.erase.bean.EraseBean;
-import com.onyx.android.eink.pen.demo.erase.bean.SplitShapeResult;
-import com.onyx.android.eink.pen.demo.shape.BrushScribbleShape;
-import com.onyx.android.eink.pen.demo.shape.Shape;
-import com.onyx.android.eink.pen.demo.util.ShapeUtils;
-import com.onyx.android.sdk.data.note.TouchPoint;
-import com.onyx.android.sdk.pen.data.TouchPointList;
+import com.onyx.android.eink.pen.demo.data.ShapeFactory
+import com.onyx.android.eink.pen.demo.erase.bean.EraseBean
+import com.onyx.android.eink.pen.demo.erase.bean.SplitShapeResult
+import com.onyx.android.eink.pen.demo.shape.BrushScribbleShape
+import com.onyx.android.eink.pen.demo.shape.Shape
+import com.onyx.android.eink.pen.demo.util.ShapeUtils
+import com.onyx.android.sdk.data.note.TouchPoint
+import com.onyx.android.sdk.pen.data.TouchPointList
+import kotlin.math.abs
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+object ShapeSplitter {
+    private const val LOCATION_EPSILON_PX = 0.01f
 
-public class ShapeSplitter {
-
-    private static final float LOCATION_EPSILON_PX = 0.01f;
-
-    public static SplitShapeResult split(Shape shape, EraseBean eraseBean) {
-        SplitShapeResult result = new SplitShapeResult();
-        List<TouchPoint> touchPoints = shape.getTouchPointList().getPoints();
-        Set<TouchPoint> hitTestPointSet = new HashSet<>();
-        TouchPoint lastPoint = null;
-        for (TouchPoint touchPoint : touchPoints) {
+    fun split(shape: Shape, eraseBean: EraseBean): SplitShapeResult {
+        val result = SplitShapeResult()
+        val touchPointList = shape.getTouchPointList() ?: return result
+        val touchPoints = touchPointList.getPoints()
+        val hitTestPointSet: MutableSet<TouchPoint?> = HashSet<TouchPoint?>()
+        var lastPoint: TouchPoint? = null
+        for (touchPoint in touchPoints) {
             if (eraseBean.isPointHitTest(lastPoint, touchPoint)) {
-                hitTestPointSet.add(touchPoint);
+                hitTestPointSet.add(touchPoint)
             }
-            lastPoint = touchPoint;
+            lastPoint = touchPoint
         }
         if (hitTestPointSet.isEmpty()) {
-            return result;
+            return result
         }
-        if (touchPoints.size() - hitTestPointSet.size() < 2) {
-            result.setShapeErased(true);
-            return result;
+        if (touchPoints.size - hitTestPointSet.size < 2) {
+            result.setShapeErased(true)
+            return result
         }
-        List<TouchPointList> segmentList = splitPath(shape, hitTestPointSet);
-        TouchPoint originalFirst = touchPoints.get(0);
-        TouchPoint originalLast = touchPoints.get(touchPoints.size() - 1);
-        List<Shape> splitShapes = new ArrayList<>();
-        for (TouchPointList segment : segmentList) {
+        val segmentList = splitPath(shape, hitTestPointSet)
+        val originalFirst: TouchPoint? = touchPoints.get(0)
+        val originalLast: TouchPoint? = touchPoints.get(touchPoints.size - 1)
+        val splitShapes: MutableList<Shape?> = ArrayList<Shape?>()
+        for (segment in segmentList) {
             if (segment == null || segment.size() < 2) {
-                continue;
+                continue
             }
-            Shape segmentShape = ShapeUtils.cloneShape(shape, segment);
-            taperCutEndpointPressures(segmentShape, originalFirst, originalLast);
-            splitShapes.add(segmentShape);
+            val segmentShape = ShapeUtils.cloneShape(shape, segment)
+            taperCutEndpointPressures(segmentShape, originalFirst, originalLast)
+            splitShapes.add(segmentShape)
         }
         if (splitShapes.isEmpty()) {
-            result.setShapeErased(true);
-            return result;
+            result.setShapeErased(true)
+            return result
         }
-        result.setSplitShapes(splitShapes);
-        return result;
+        result.setSplitShapes(splitShapes)
+        return result
     }
 
-    private static void taperCutEndpointPressures(Shape segmentShape,
-                                                  TouchPoint originalFirst,
-                                                  TouchPoint originalLast) {
-        if (segmentShape.getShapeType() != ShapeFactory.SHAPE_BRUSH_SCRIBBLE
-                && !(segmentShape instanceof BrushScribbleShape)) {
-            return;
+    private fun taperCutEndpointPressures(
+        segmentShape: Shape,
+        originalFirst: TouchPoint?,
+        originalLast: TouchPoint?
+    ) {
+        if (segmentShape.getShapeType() != ShapeFactory.SHAPE_BRUSH_SCRIBBLE && segmentShape !is BrushScribbleShape) {
+            return
         }
-        List<TouchPoint> points = segmentShape.getTouchPointList().getPoints();
-        if (points.size() < 2) {
-            return;
+        val points = segmentShape.getTouchPointList()?.getPoints() ?: return
+        if (points.size < 2) {
+            return
         }
-        TouchPoint first = points.get(0);
-        TouchPoint last = points.get(points.size() - 1);
+        val first = points.get(0)
+        val last = points.get(points.size - 1)
         if (!isSameLocation(first, originalFirst)) {
-            first.pressure = points.get(1).getPressure();
+            first.pressure = points.get(1).pressure
         }
         if (!isSameLocation(last, originalLast)) {
-            last.pressure = points.get(points.size() - 2).getPressure();
+            last.pressure = points.get(points.size - 2).pressure
         }
     }
 
-    private static boolean isSameLocation(TouchPoint a, TouchPoint b) {
+    private fun isSameLocation(a: TouchPoint?, b: TouchPoint?): Boolean {
         if (a == null || b == null) {
-            return false;
+            return false
         }
-        return Math.abs(a.getX() - b.getX()) < LOCATION_EPSILON_PX
-                && Math.abs(a.getY() - b.getY()) < LOCATION_EPSILON_PX;
+        return abs(a.x - b.x) < LOCATION_EPSILON_PX && abs(a.y - b.y) < LOCATION_EPSILON_PX
     }
 
-    private static List<TouchPointList> splitPath(Shape shape, Set<TouchPoint> hitTestPointSet) {
-        List<TouchPointList> segmentList = new ArrayList<>();
-        if (hitTestPointSet == null || shape.getTouchPointList() == null
-                || shape.getTouchPointList().isEmpty()) {
-            return segmentList;
+    private fun splitPath(
+        shape: Shape,
+        hitTestPointSet: MutableSet<TouchPoint?>?
+    ): MutableList<TouchPointList?> {
+        val segmentList: MutableList<TouchPointList?> = ArrayList<TouchPointList?>()
+        val touchPointList = shape.getTouchPointList()
+        if (hitTestPointSet == null || touchPointList == null || touchPointList.isEmpty()) {
+            return segmentList
         }
-        for (TouchPoint point : shape.getTouchPointList().getPoints()) {
-            TouchPointList lastSegment = segmentList.isEmpty()
-                    ? null : segmentList.get(segmentList.size() - 1);
+        for (point in touchPointList.points) {
+            var lastSegment = if (segmentList.isEmpty()) null
+            else segmentList.get(segmentList.size - 1)
             if (hitTestPointSet.contains(point)) {
                 if (lastSegment != null && !lastSegment.isEmpty()) {
-                    segmentList.add(new TouchPointList());
+                    segmentList.add(TouchPointList())
                 }
             } else {
                 if (lastSegment == null) {
-                    lastSegment = new TouchPointList();
-                    segmentList.add(lastSegment);
+                    lastSegment = TouchPointList()
+                    segmentList.add(lastSegment)
                 }
-                lastSegment.add(point);
+                lastSegment.add(point)
             }
         }
-        List<TouchPointList> validSegments = new ArrayList<>();
-        for (TouchPointList segment : segmentList) {
+        val validSegments: MutableList<TouchPointList?> = ArrayList<TouchPointList?>()
+        for (segment in segmentList) {
             if (segment != null && segment.size() >= 2) {
-                validSegments.add(segment);
+                validSegments.add(segment)
             }
         }
-        return validSegments;
+        return validSegments
     }
 }

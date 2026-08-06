@@ -1,9 +1,3 @@
-package com.onyx.android.eink.pen.demo.event;
+package com.onyx.android.eink.pen.demo.event
 
-public class FloatButtonChangedEvent {
-    public boolean active;
-
-    public FloatButtonChangedEvent(boolean active) {
-        this.active = active;
-    }
-}
+class FloatButtonChangedEvent(var active: Boolean)

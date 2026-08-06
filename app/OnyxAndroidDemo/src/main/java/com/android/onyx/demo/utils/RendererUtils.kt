@@ -1,30 +1,29 @@
-package com.android.onyx.demo.utils;
+package com.android.onyx.demo.utils
 
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
-import android.view.SurfaceView;
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Rect
+import android.view.SurfaceView
 
-public class RendererUtils {
-
-    public static void renderBackground(Canvas canvas,
-                                        Rect viewRect) {
-        RendererUtils.clearBackground(canvas, new Paint(), viewRect);
+object RendererUtils {
+    fun renderBackground(
+        canvas: Canvas,
+        viewRect: Rect
+    ) {
+        clearBackground(canvas, Paint(), viewRect)
     }
 
-    public static Rect checkSurfaceView(SurfaceView surfaceView) {
+    fun checkSurfaceView(surfaceView: SurfaceView?): Rect? {
         if (surfaceView == null || !surfaceView.getHolder().getSurface().isValid()) {
-            return null;
+            return null
         }
-        return new Rect(0, 0, surfaceView.getWidth(), surfaceView.getHeight());
+        return Rect(0, 0, surfaceView.getWidth(), surfaceView.getHeight())
     }
 
-    public static void clearBackground(final Canvas canvas, final Paint paint, final Rect rect) {
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(Color.WHITE);
-        canvas.drawRect(rect, paint);
+    fun clearBackground(canvas: Canvas, paint: Paint, rect: Rect) {
+        paint.setStyle(Paint.Style.FILL)
+        paint.setColor(Color.WHITE)
+        canvas.drawRect(rect, paint)
     }
-
-
 }

@@ -1,7 +1,7 @@
-package com.onyx.android.eink.pen.demo.erase;
+package com.onyx.android.eink.pen.demo.erase
 
-public interface EraseLifecycleCallbacks {
-    void resumePenAfterErase();
+interface EraseLifecycleCallbacks {
+    fun resumePenAfterErase()
 
-    void refreshScreen();
+    fun refreshScreen()
 }

@@ -1,84 +1,84 @@
-package com.onyx.android.eink.pen.demo.helper;
+package com.onyx.android.eink.pen.demo.helper
 
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Point;
-import android.graphics.RectF;
-import android.view.SurfaceView;
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Point
+import android.graphics.RectF
+import android.view.SurfaceView
+import com.onyx.android.eink.pen.demo.data.InteractiveMode
+import com.onyx.android.eink.pen.demo.erase.bean.EraseArgs
+import com.onyx.android.eink.pen.demo.render.EraseRenderer
+import com.onyx.android.eink.pen.demo.render.NormalRenderer
+import com.onyx.android.eink.pen.demo.render.PartialRefreshRenderer
+import com.onyx.android.eink.pen.demo.render.Renderer
+import com.onyx.android.eink.pen.demo.shape.Shape
+import com.onyx.android.sdk.utils.BitmapUtils
 
-import com.onyx.android.eink.pen.demo.data.InteractiveMode;
-import com.onyx.android.eink.pen.demo.erase.bean.EraseArgs;
-import com.onyx.android.eink.pen.demo.render.EraseRenderer;
-import com.onyx.android.eink.pen.demo.render.NormalRenderer;
-import com.onyx.android.eink.pen.demo.render.PartialRefreshRenderer;
-import com.onyx.android.eink.pen.demo.render.Renderer;
-import com.onyx.android.eink.pen.demo.shape.Shape;
-import com.onyx.android.sdk.utils.BitmapUtils;
+class RendererHelper {
+    private val rendererMap: MutableMap<InteractiveMode, Renderer> = HashMap()
+    private var renderContext: RenderContext? = null
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+    class RenderContext {
+        var paint: Paint = Paint()
+        var bitmap: Bitmap? = null
+        var canvas: Canvas? = null
+        var eraseArgs: EraseArgs? = null
+        var clipRect: RectF? = null
+        var viewPoint: Point = Point()
 
-public class RendererHelper {
-    private Map<InteractiveMode, Renderer> rendererMap;
-    private RenderContext renderContext;
-
-    public class RenderContext {
-        public Paint paint = new Paint();
-        public Bitmap bitmap;
-        public Canvas canvas;
-        public EraseArgs eraseArgs;
-        public RectF clipRect;
-        public Point viewPoint;
-
-        public void recycleBitmap() {
-            BitmapUtils.recycle(bitmap);
-            bitmap = null;
-            canvas = null;
+        fun recycleBitmap() {
+            BitmapUtils.recycle(bitmap)
+            bitmap = null
+            canvas = null
         }
     }
 
-    public RendererHelper() {
-        initRendererMap();
+    init {
+        initRendererMap()
     }
 
-    private void initRendererMap() {
-        rendererMap = new HashMap<>();
-        rendererMap.put(InteractiveMode.SCRIBBLE, new NormalRenderer());
-        rendererMap.put(InteractiveMode.SCRIBBLE_ERASE, new EraseRenderer());
-        rendererMap.put(InteractiveMode.SCRIBBLE_PARTIAL_REFRESH, new PartialRefreshRenderer());
+    private fun initRendererMap() {
+        rendererMap[InteractiveMode.SCRIBBLE] = NormalRenderer()
+        rendererMap[InteractiveMode.SCRIBBLE_ERASE] = EraseRenderer()
+        rendererMap[InteractiveMode.SCRIBBLE_PARTIAL_REFRESH] = PartialRefreshRenderer()
     }
 
-    public Map<InteractiveMode, Renderer> getRendererMap() {
-        return rendererMap;
-    }
+    fun getRendererMap(): MutableMap<InteractiveMode, Renderer> = rendererMap
 
-    public RenderContext getRenderContext() {
-        if (renderContext == null) {
-            renderContext = new RenderContext();
+    fun getRenderContext(): RenderContext {
+        val existing = renderContext
+        if (existing != null) {
+            return existing
         }
-        return renderContext;
+        return RenderContext().also { renderContext = it }
     }
 
-    public Renderer getRenderer(InteractiveMode scribbleMode) {
-        return getRendererMap().get(scribbleMode);
+    fun getRenderer(scribbleMode: InteractiveMode?): Renderer? {
+        return getRendererMap()[scribbleMode]
     }
 
-    public void renderToScreen(InteractiveMode scribbleMode, SurfaceView surfaceView, Bitmap bitmap) {
-        getRenderer(scribbleMode).renderToScreen(surfaceView, bitmap);
+    fun renderToScreen(scribbleMode: InteractiveMode?, surfaceView: SurfaceView?, bitmap: Bitmap?) {
+        getRenderer(scribbleMode)?.renderToScreen(surfaceView, bitmap)
     }
 
-    public void renderToScreen(InteractiveMode scribbleMode, SurfaceView surfaceView, RenderContext renderContext) {
-        getRenderer(scribbleMode).renderToScreen(surfaceView, renderContext);
+    fun renderToScreen(
+        scribbleMode: InteractiveMode?,
+        surfaceView: SurfaceView?,
+        renderContext: RenderContext?
+    ) {
+        getRenderer(scribbleMode)?.renderToScreen(surfaceView, renderContext)
     }
 
-    public void renderToBitmap(InteractiveMode scribbleMode, SurfaceView surfaceView, RenderContext renderContext) {
-        getRenderer(scribbleMode).renderToBitmap(surfaceView, renderContext);
+    fun renderToBitmap(
+        scribbleMode: InteractiveMode?,
+        surfaceView: SurfaceView?,
+        renderContext: RenderContext?
+    ) {
+        getRenderer(scribbleMode)?.renderToBitmap(surfaceView, renderContext)
     }
 
-    public void renderToBitmap(InteractiveMode scribbleMode, List<Shape> shapes) {
-        getRenderer(scribbleMode).renderToBitmap(shapes, getRenderContext());
+    fun renderToBitmap(scribbleMode: InteractiveMode?, shapes: MutableList<Shape>?) {
+        getRenderer(scribbleMode)?.renderToBitmap(shapes, getRenderContext())
     }
-
 }

@@ -1,45 +1,42 @@
-package com.android.onyx.demo;
+package com.android.onyx.demo
 
-import android.content.Context;
-import android.os.Build;
-import androidx.multidex.MultiDex;
-import androidx.multidex.MultiDexApplication;
-
-import com.onyx.android.sdk.rx.RxManager;
-
-import org.lsposed.hiddenapibypass.HiddenApiBypass;
+import android.content.Context
+import android.os.Build
+import androidx.multidex.MultiDex
+import androidx.multidex.MultiDexApplication
+import com.onyx.android.sdk.rx.RxManager
+import org.lsposed.hiddenapibypass.HiddenApiBypass
 
 /**
  * Created by suicheng on 2017/3/23.
  */
-
-public class SampleApplication extends MultiDexApplication {
-    private static SampleApplication sInstance;
-
-    @Override
-    protected void attachBaseContext(Context base) {
-        super.attachBaseContext(base);
-        MultiDex.install(SampleApplication.this);
+class SampleApplication : MultiDexApplication() {
+    override fun attachBaseContext(base: Context?) {
+        super.attachBaseContext(base)
+        MultiDex.install(this@SampleApplication)
     }
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        initConfig();
-        RxManager.Builder.initAppContext(this);
-        checkHiddenApiBypass();
+    override fun onCreate() {
+        super.onCreate()
+        initConfig()
+        RxManager.Builder.initAppContext(this)
+        checkHiddenApiBypass()
     }
 
-    private void initConfig() {
+    private fun initConfig() {
         try {
-            sInstance = this;
-        } catch (Exception e) {
+            sInstance = this
+        } catch (e: Exception) {
         }
     }
 
-    private void checkHiddenApiBypass() {
+    private fun checkHiddenApiBypass() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            HiddenApiBypass.addHiddenApiExemptions("");
+            HiddenApiBypass.addHiddenApiExemptions("")
         }
+    }
+
+    companion object {
+        private var sInstance: SampleApplication? = null
     }
 }

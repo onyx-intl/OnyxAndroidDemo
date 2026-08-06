@@ -1,147 +1,142 @@
-package com.android.onyx.demo.utils;
+package com.android.onyx.demo.utils
 
-
-import android.util.Log;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import android.util.Log
 
 /**
  * Created by zhuzeng on 10/16/15.
  */
-public class StringUtils {
+object StringUtils {
+    const val UTF16LE: String = "UTF-16LE"
+    const val UTF16BE: String = "UTF-16BE"
+    const val UTF16: String = "UTF-16"
 
-    static public final String UTF16LE = "UTF-16LE";
-    static public final String UTF16BE = "UTF-16BE";
-    static public final String UTF16 = "UTF-16";
+    var punctuation: String =
+        "[`~!@#$%^&*()+=|{}':;',\\[\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]"
 
-    static public String punctuation="[`~!@#$%^&*()+=|{}':;',\\[\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]";
-
-    static public boolean isNullOrEmpty(final String string) {
-        return (string == null || string.trim().length() <= 0);
+    fun isNullOrEmpty(string: String?): Boolean {
+        return string == null || string.trim { it <= ' ' }.isEmpty()
     }
 
-    static public boolean isNotBlank(final String string) {
-        return (string != null && string.trim().length() > 0);
+    fun isNotBlank(string: String?): Boolean {
+        return string != null && string.trim { it <= ' ' }.isNotEmpty()
     }
 
-    static public boolean isBlank(final String string) {
-        return !isNotBlank(string);
-    }
+    fun isBlank(string: String?): Boolean = !isNotBlank(string)
 
-    static public String utf16le(final byte [] data) {
-        String string = "";
+    fun utf16le(data: ByteArray?): String {
         if (data == null) {
-            return string;
+            return ""
         }
-        try {
-            string = new String(data, UTF16LE);
-        } catch (Exception e) {
-            Log.w("", e);
+        return try {
+            String(data, charset(UTF16LE))
+        } catch (e: Exception) {
+            Log.w("", e)
+            ""
         }
-        return string;
     }
 
-    static public String utf16(final byte [] data) {
-        String string = "";
-        try {
-            string = new String(data, UTF16);
-        } catch (Exception e) {
+    fun utf16(data: ByteArray?): String {
+        if (data == null) {
+            return ""
         }
-        return string;
+        return try {
+            String(data, charset(UTF16))
+        } catch (_: Exception) {
+            ""
+        }
     }
 
-    static public byte[] utf16leBuffer(final String text) {
-        byte [] buffer = null;
-        try {
-            buffer = text.getBytes(UTF16LE);
-        } catch (Exception e) {
+    fun utf16leBuffer(text: String): ByteArray? {
+        return try {
+            text.toByteArray(charset(UTF16LE))
+        } catch (_: Exception) {
+            null
         }
-        return buffer;
     }
 
-    public static String join(Iterable<?> elements, String delimiter) {
-        StringBuilder sb = new StringBuilder();
-        for (Object e : elements) {
-            if (sb.length() > 0)
-                sb.append(delimiter);
-            sb.append(e);
+    fun join(elements: Iterable<*>, delimiter: String?): String {
+        val sb = StringBuilder()
+        for (e in elements) {
+            if (sb.isNotEmpty()) sb.append(delimiter)
+            sb.append(e)
         }
-        return sb.toString();
+        return sb.toString()
     }
 
-    public static List<String> split(final String string, final String delimiter) {
-        if (isNullOrEmpty(string)) {
-            return new ArrayList<String>();
+    fun split(string: String?, delimiter: String): MutableList<String> {
+        if (isNullOrEmpty(string) || string == null) {
+            return ArrayList()
         }
-        final String[] result = string.split(delimiter);
-        return Arrays.asList(result);
+        // Align with Java String.split(regex): discard trailing empty segments.
+        val parts = string.split(delimiter.toRegex()).dropLastWhile { it.isEmpty() }
+        return ArrayList(parts)
     }
 
-    public static String deleteNewlineSymbol(String content){
-        if (!isNullOrEmpty(content)){
-            content = content.replaceAll("\r\n"," ").replaceAll("\n", " ");
+    fun deleteNewlineSymbol(content: String?): String? {
+        if (isNullOrEmpty(content) || content == null) {
+            return content
         }
-        return content;
+        return content.replace("\r\n".toRegex(), " ").replace("\n".toRegex(), " ")
     }
 
-    public static String leftTrim(String content) {
-        int start = 0, last = content.length() - 1;
-        while ((start <= last) && (content.charAt(start) <= ' ')) {
-            start++;
+    fun leftTrim(content: String): String {
+        var start = 0
+        val last = content.length - 1
+        while (start <= last && content[start] <= ' ') {
+            start++
         }
         if (start == 0) {
-            return content;
+            return content
         }
-        return content.substring(start, last + 1);
+        return content.substring(start, last + 1)
     }
 
-    public static String rightTrim(String content) {
-        int start = 0, last = content.length() - 1;
-        int end = last;
-        while ((end >= start) && (content.charAt(end) <= ' ')) {
-            end--;
+    fun rightTrim(content: String): String {
+        val start = 0
+        val last = content.length - 1
+        var end = last
+        while (end >= start && content[end] <= ' ') {
+            end--
         }
         if (end == last) {
-            return content;
+            return content
         }
-        return content.substring(start, end + 1);
+        return content.substring(start, end + 1)
     }
 
-    public static String trim(String input) {
-        if (StringUtils.isNotBlank(input)) {
-            input = input.trim();
-            input = input.replace("\u0000", "");
-            input = input.replace("\\u0000", "");
-            input = input.replaceAll("\\u0000", ""); // removes NUL chars
-            input = input.replaceAll("\\\\u0000", ""); // removes backslash+u0000
+    fun trim(input: String?): String? {
+        if (!isNotBlank(input) || input == null) {
+            return input
         }
-        return input;
+        var result = input.trim { it <= ' ' }
+        result = result.replace("\u0000", "")
+        result = result.replace("\\u0000", "")
+        result = result.replace("\\u0000".toRegex(), "")
+        result = result.replace("\\\\u0000".toRegex(), "")
+        return result
     }
 
-    public static String trimPunctuation(String input) {
-        input = StringUtils.trim(input);
-        if (StringUtils.isNullOrEmpty(input)) {
-            return input;
+    fun trimPunctuation(input: String?): String? {
+        var result = trim(input)
+        if (isNullOrEmpty(result) || result == null) {
+            return result
         }
 
-        int start = 0;
-        while (start < input.length() - 1) {
-            if (!punctuation.contains(String.valueOf(input.charAt(start)))) {
-                break;
+        var start = 0
+        while (start < result.length - 1) {
+            if (!punctuation.contains(result[start].toString())) {
+                break
             }
-            ++start;
+            ++start
         }
 
-        int end = input.length() - 1;
+        var end = result.length - 1
         while (end >= 0) {
-            if (!punctuation.contains(String.valueOf(input.charAt(end)))) {
-                break;
+            if (!punctuation.contains(result[end].toString())) {
+                break
             }
-            --end;
+            --end
         }
-        input = input.substring(start, end + 1);
-        return input;
+        return result.substring(start, end + 1)
     }
 }

@@ -1,103 +1,101 @@
-package com.onyx.android.eink.pen.demo.erase.util;
+package com.onyx.android.eink.pen.demo.erase.util
 
-import com.onyx.android.eink.pen.demo.erase.data.EraseTypes;
-import com.onyx.android.sdk.utils.ResManager;
+import com.onyx.android.eink.pen.demo.erase.data.EraseTypes
+import com.onyx.android.sdk.utils.ResManager
+import java.util.Locale
+import kotlin.math.max
+import kotlin.math.min
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+object EraseUnits {
+    private const val MM_OF_ONE_INCH = 25.4f
+    private const val PROGRESS_MULTIPLE_VALUE = 100f
+    const val ERASE_WIDTH_INCREMENT: Int = 5
 
-public class EraseUnits {
-    private static final float MM_OF_ONE_INCH = 25.4f;
-    private static final float PROGRESS_MULTIPLE_VALUE = 100f;
-    private static final int ERASE_WIDTH_INCREMENT = 5;
+    fun getEraseWidthIncrement(): Int = ERASE_WIDTH_INCREMENT
 
-    public static final int MOVE_ERASE_WIDTH_MIN_VALUE = 100;
-    public static final int MOVE_ERASE_WIDTH_MAX_VALUE = 800;
-    private static final int STROKE_ERASE_WIDTH_MIN_VALUE = 50;
-    private static final int STROKE_ERASE_WIDTH_MAX_VALUE = 800;
+    const val MOVE_ERASE_WIDTH_MIN_VALUE: Int = 100
+    const val MOVE_ERASE_WIDTH_MAX_VALUE: Int = 800
+    private const val STROKE_ERASE_WIDTH_MIN_VALUE = 50
+    private const val STROKE_ERASE_WIDTH_MAX_VALUE = 800
 
-    private static final float DEFAULT_MOVE_ERASE_WIDTH_MM = 5f;
-    private static final float DEFAULT_STROKE_ERASE_WIDTH_MM = 0.5f;
+    private const val DEFAULT_MOVE_ERASE_WIDTH_MM = 5f
+    private const val DEFAULT_STROKE_ERASE_WIDTH_MM = 0.5f
 
-    private EraseUnits() {
-    }
-
-    public static float getDefaultEraseWidth(int eraseType) {
+    fun getDefaultEraseWidth(eraseType: Int): Float {
         if (eraseType == EraseTypes.ERASER_MOVE) {
-            return mmToPx(DEFAULT_MOVE_ERASE_WIDTH_MM);
+            return mmToPx(DEFAULT_MOVE_ERASE_WIDTH_MM)
         }
-        return mmToPx(DEFAULT_STROKE_ERASE_WIDTH_MM);
+        return mmToPx(DEFAULT_STROKE_ERASE_WIDTH_MM)
     }
 
-    public static List<Integer> getEraseWidthPercentRange(int eraseType) {
-        List<Integer> values = new ArrayList<>();
-        int min = getMinEraseWidthPercent(eraseType);
-        int max = getMaxEraseWidthPercent(eraseType);
-        for (int progress = min; progress <= max; progress += ERASE_WIDTH_INCREMENT) {
-            values.add(progress);
+    fun getEraseWidthPercentRange(eraseType: Int): MutableList<Int> {
+        val values: MutableList<Int> = ArrayList()
+        val min = getMinEraseWidthPercent(eraseType)
+        val max = getMaxEraseWidthPercent(eraseType)
+        var progress = min
+        while (progress <= max) {
+            values.add(progress)
+            progress += ERASE_WIDTH_INCREMENT
         }
-        return values;
+        return values
     }
 
-    public static int widthToPercentage(float widthPx, int eraseType) {
-        float widthMm = pxToMm(widthPx);
-        int min = getMinEraseWidthPercent(eraseType);
-        int max = getMaxEraseWidthPercent(eraseType);
-        int percentage = roundToNearestMultipleOfFive(Math.round(widthMm * PROGRESS_MULTIPLE_VALUE));
-        return Math.max(min, Math.min(max, percentage));
+    fun widthToPercentage(widthPx: Float, eraseType: Int): Int {
+        val widthMm = pxToMm(widthPx)
+        val min = getMinEraseWidthPercent(eraseType)
+        val max = getMaxEraseWidthPercent(eraseType)
+        val percentage = roundToNearestMultipleOfFive(Math.round(widthMm * PROGRESS_MULTIPLE_VALUE))
+        return max(min, min(max, percentage))
     }
 
-    public static float widthFromPercentage(int progress) {
-        return mmToPx(progress / PROGRESS_MULTIPLE_VALUE);
+    fun widthFromPercentage(progress: Int): Float {
+        return mmToPx(progress / PROGRESS_MULTIPLE_VALUE)
     }
 
-    public static float percentageToMm(int progress) {
-        return progress / PROGRESS_MULTIPLE_VALUE;
+    fun percentageToMm(progress: Int): Float {
+        return progress / PROGRESS_MULTIPLE_VALUE
     }
 
-    public static float clampEraseWidth(float widthPx, int eraseType) {
-        return widthFromPercentage(widthToPercentage(widthPx, eraseType));
+    fun clampEraseWidth(widthPx: Float, eraseType: Int): Float {
+        return widthFromPercentage(widthToPercentage(widthPx, eraseType))
     }
 
-    public static String formatWidthMm(float widthPx, int eraseType) {
-        int percent = widthToPercentage(widthPx, eraseType);
-        return String.format(Locale.getDefault(), "%.1fmm", percentageToMm(percent));
+    fun formatWidthMm(widthPx: Float, eraseType: Int): String {
+        val percent = widthToPercentage(widthPx, eraseType)
+        return String.format(Locale.getDefault(), "%.1fmm", percentageToMm(percent))
     }
 
-    public static int getMinEraseWidthPercent(int eraseType) {
+    fun getMinEraseWidthPercent(eraseType: Int): Int {
         if (eraseType == EraseTypes.ERASER_MOVE) {
-            return MOVE_ERASE_WIDTH_MIN_VALUE;
+            return MOVE_ERASE_WIDTH_MIN_VALUE
         }
-        return STROKE_ERASE_WIDTH_MIN_VALUE;
+        return STROKE_ERASE_WIDTH_MIN_VALUE
     }
 
-    public static int getMaxEraseWidthPercent(int eraseType) {
+    fun getMaxEraseWidthPercent(eraseType: Int): Int {
         if (eraseType == EraseTypes.ERASER_MOVE) {
-            return MOVE_ERASE_WIDTH_MAX_VALUE;
+            return MOVE_ERASE_WIDTH_MAX_VALUE
         }
-        return STROKE_ERASE_WIDTH_MAX_VALUE;
+        return STROKE_ERASE_WIDTH_MAX_VALUE
     }
 
-    public static int getEraseWidthIncrement() {
-        return ERASE_WIDTH_INCREMENT;
-    }
-
-    private static int roundToNearestMultipleOfFive(int num) {
-        int remainder = num % ERASE_WIDTH_INCREMENT;
+    private fun roundToNearestMultipleOfFive(num: Int): Int {
+        val remainder: Int = num % ERASE_WIDTH_INCREMENT
         if (remainder < 3) {
-            return num - remainder;
+            return num - remainder
         }
-        return num + (ERASE_WIDTH_INCREMENT - remainder);
+        return num + (ERASE_WIDTH_INCREMENT - remainder)
     }
 
-    private static float mmToPx(float mm) {
-        float densityDpi = ResManager.getAppContext().getResources().getDisplayMetrics().densityDpi;
-        return mm * densityDpi / MM_OF_ONE_INCH;
+    private fun mmToPx(mm: Float): Float {
+        val densityDpi =
+            ResManager.getAppContext().getResources().getDisplayMetrics().densityDpi.toFloat()
+        return mm * densityDpi / MM_OF_ONE_INCH
     }
 
-    private static float pxToMm(float px) {
-        float densityDpi = ResManager.getAppContext().getResources().getDisplayMetrics().densityDpi;
-        return px / densityDpi * MM_OF_ONE_INCH;
+    private fun pxToMm(px: Float): Float {
+        val densityDpi =
+            ResManager.getAppContext().getResources().getDisplayMetrics().densityDpi.toFloat()
+        return px / densityDpi * MM_OF_ONE_INCH
     }
 }

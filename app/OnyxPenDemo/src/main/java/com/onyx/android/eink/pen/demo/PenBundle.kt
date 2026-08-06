@@ -1,240 +1,214 @@
-package com.onyx.android.eink.pen.demo;
+package com.onyx.android.eink.pen.demo
 
-import android.graphics.Color;
-import android.graphics.Rect;
+import android.graphics.Color
+import android.graphics.Rect
+import com.onyx.android.eink.pen.demo.data.ShapeFactory
+import com.onyx.android.eink.pen.demo.data.ShapeType
+import com.onyx.android.eink.pen.demo.erase.data.EraseTypes
+import com.onyx.android.eink.pen.demo.erase.util.EraseUnits
+import com.onyx.android.eink.pen.demo.erase.util.EraserTrackHelper
+import com.onyx.android.eink.pen.demo.util.PenInfoUtils
+import com.onyx.android.sdk.data.note.PenTexture
+import org.greenrobot.eventbus.EventBus
 
-import com.onyx.android.eink.pen.demo.data.ShapeFactory;
-import com.onyx.android.eink.pen.demo.data.ShapeType;
-import com.onyx.android.eink.pen.demo.erase.data.EraseTypes;
-import com.onyx.android.eink.pen.demo.erase.util.EraseUnits;
-import com.onyx.android.eink.pen.demo.erase.util.EraserTrackHelper;
-import com.onyx.android.eink.pen.demo.util.PenInfoUtils;
-import com.onyx.android.sdk.data.note.PenTexture;
+class PenBundle private constructor() {
+    var penLineWidthMap: MutableMap<Int, Float> = HashMap()
 
-import org.greenrobot.eventbus.EventBus;
+    private var penManager: PenManager? = null
+    private var eventBus: EventBus? = null
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+    private var currentShapeType: Int = ShapeFactory.SHAPE_BRUSH_SCRIBBLE
+    private var currentStrokeColor: Int = Color.BLACK
+    private var currentTexture: Int = PenTexture.CHARCOAL_SHAPE_V1
+    private var currentStrokeWidth: Float = 0f
 
-public class PenBundle {
-    private static PenBundle instance;
+    private var erasing: Boolean = false
+    private var currentEraseType = EraseTypes.ERASER_STROKE
+    private var lastEraseType: Int = EraseTypes.ERASER_STROKE
+    private val eraseWidthMap: MutableMap<Int, Float> = HashMap()
+    private val displayEraseTrackMap: MutableMap<Int, Boolean> = HashMap()
 
-    private PenManager penManager;
-    private EventBus eventBus;
+    private var displayEraseTrack = false
+    private var enablePenUpRefresh = false
+    private var penUpRefreshTimeMs: Int = 500
 
-    public Map<Integer, Float> penLineWidthMap = new HashMap<>();
-    private int currentShapeType = ShapeFactory.SHAPE_BRUSH_SCRIBBLE;
-    private int currentStrokeColor = Color.BLACK;
-    private int currentTexture = PenTexture.CHARCOAL_SHAPE_V1;
-    private float currentStrokeWidth;
+    private var excludeRectList: MutableList<Rect>? = null
 
-    private boolean isErasing = false;
-    private int currentEraseType = EraseTypes.ERASER_STROKE;
-    private int lastEraseType = EraseTypes.ERASER_STROKE;
-    private final Map<Integer, Float> eraseWidthMap = new HashMap<>();
-    private final Map<Integer, Boolean> displayEraseTrackMap = new HashMap<>();
-
-    private boolean displayEraseTrack = false;
-    private boolean enablePenUpRefresh = false;
-    private int penUpRefreshTimeMs = 500;
-
-    private List<Rect> excludeRectList;
-
-    private PenBundle() {
-        initDefaultPenLineWidth();
-        initDefaultEraseSettings();
-        setCurrentStrokeWidth(getPenLineWidth(currentShapeType));
+    init {
+        initDefaultPenLineWidth()
+        initDefaultEraseSettings()
+        setCurrentStrokeWidth(getPenLineWidth(currentShapeType))
     }
 
-    private void initDefaultPenLineWidth() {
-        for (ShapeType style : ShapeType.values()) {
-            int shapeType = style.getValue();
-            penLineWidthMap.put(shapeType, PenInfoUtils.getShapeDefaultStrokeWidth(shapeType));
+    private fun initDefaultPenLineWidth() {
+        for (style in ShapeType.entries) {
+            val shapeType = style.getValue()
+            penLineWidthMap[shapeType] = PenInfoUtils.getShapeDefaultStrokeWidth(shapeType)
         }
     }
 
-    private void initDefaultEraseSettings() {
-        int[] eraseTypes = new int[]{
-                EraseTypes.ERASER_STROKE,
-                EraseTypes.ERASER_MOVE,
-                EraseTypes.ERASER_AREA
-        };
-        for (int eraseType : eraseTypes) {
-            eraseWidthMap.put(eraseType, EraseUnits.getDefaultEraseWidth(eraseType));
-            displayEraseTrackMap.put(eraseType, EraserTrackHelper.defaultTrackEnabled(eraseType));
+    private fun initDefaultEraseSettings() {
+        val eraseTypes = intArrayOf(
+            EraseTypes.ERASER_STROKE, EraseTypes.ERASER_MOVE, EraseTypes.ERASER_AREA
+        )
+        for (eraseType in eraseTypes) {
+            eraseWidthMap[eraseType] = EraseUnits.getDefaultEraseWidth(eraseType)
+            displayEraseTrackMap[eraseType] = EraserTrackHelper.defaultTrackEnabled(eraseType)
         }
-        displayEraseTrack = isDisplayEraseTrack(EraseTypes.ERASER_STROKE);
+        displayEraseTrack = isDisplayEraseTrack(EraseTypes.ERASER_STROKE)
     }
 
-    public static PenBundle getInstance() {
-        if (instance == null) {
-            instance = new PenBundle();
+    fun getPenManager(): PenManager {
+        val manager = penManager
+        if (manager != null) {
+            return manager
         }
-        return instance;
+        return PenManager(getEventBus()).also { penManager = it }
     }
 
-    public PenManager getPenManager() {
-        if (penManager == null) {
-            penManager = new PenManager(getEventBus());
+    fun getEventBus(): EventBus {
+        val bus = eventBus
+        if (bus != null) {
+            return bus
         }
-        return penManager;
+        return EventBus().also { eventBus = it }
     }
 
-    public EventBus getEventBus() {
-        if (eventBus == null) {
-            eventBus = new EventBus();
-        }
-        return eventBus;
+    fun getCurrentShapeType(): Int = currentShapeType
+
+    fun setCurrentShapeType(currentShapeType: Int) {
+        this.currentShapeType = currentShapeType
     }
 
-    public int getCurrentShapeType() {
-        return currentShapeType;
+    fun getCurrentStrokeWidth(): Float = currentStrokeWidth
+
+    fun setCurrentStrokeWidth(currentStrokeWidth: Float) {
+        this.currentStrokeWidth = currentStrokeWidth
     }
 
-    public void setCurrentShapeType(int currentShapeType) {
-        this.currentShapeType = currentShapeType;
+    fun getCurrentStrokeColor(): Int = currentStrokeColor
+
+    fun setCurrentStrokeColor(currentStrokeColor: Int) {
+        this.currentStrokeColor = currentStrokeColor
     }
 
-    public float getCurrentStrokeWidth() {
-        return currentStrokeWidth;
+    fun getCurrentTexture(): Int = currentTexture
+
+    fun setCurrentTexture(currentTexture: Int) {
+        this.currentTexture = currentTexture
     }
 
-    public void setCurrentStrokeWidth(float currentStrokeWidth) {
-        this.currentStrokeWidth = currentStrokeWidth;
+    fun savePenLineWidth(shapeType: Int, lineWidth: Float) {
+        penLineWidthMap[shapeType] = lineWidth
     }
 
-    public int getCurrentStrokeColor() {
-        return currentStrokeColor;
+    fun getPenLineWidth(shapeType: Int): Float {
+        return penLineWidthMap[shapeType]
+            ?: PenInfoUtils.getShapeDefaultStrokeWidth(shapeType)
     }
 
-    public void setCurrentStrokeColor(int currentStrokeColor) {
-        this.currentStrokeColor = currentStrokeColor;
+    fun isErasing(): Boolean = erasing
+
+    fun setErasing(erasing: Boolean) {
+        this.erasing = erasing
     }
 
-    public int getCurrentTexture() {
-        return currentTexture;
+    fun resetToolToBrushOnSessionEnd() {
+        erasing = false
     }
 
-    public void setCurrentTexture(int currentTexture) {
-        this.currentTexture = currentTexture;
+    fun isEraseTool(): Boolean = isErasing()
+
+    fun getCurrentEraseType(): Int = currentEraseType
+
+    fun setCurrentEraseType(currentEraseType: Int) {
+        this.currentEraseType = currentEraseType
+        this.lastEraseType = currentEraseType
+        displayEraseTrack = isDisplayEraseTrack(currentEraseType)
     }
 
-    public void savePenLineWidth(int shapeType, float lineWidth) {
-        penLineWidthMap.put(shapeType, lineWidth);
+    fun getLastEraseType(): Int = lastEraseType
+
+    fun selectEraseType(eraseType: Int) {
+        setCurrentEraseType(eraseType)
     }
 
-    public float getPenLineWidth(int shapeType) {
-        Float lineWidth = penLineWidthMap.get(shapeType);
-        if (lineWidth != null) {
-            return lineWidth;
-        }
-        return PenInfoUtils.getShapeDefaultStrokeWidth(shapeType);
-    }
-
-    public boolean isErasing() {
-        return isErasing;
-    }
-
-    public void setErasing(boolean erasing) {
-        isErasing = erasing;
-    }
-
-    public void resetToolToBrushOnSessionEnd() {
-        isErasing = false;
-    }
-
-    public boolean isEraseTool() {
-        return isErasing();
-    }
-
-    public int getCurrentEraseType() {
-        return currentEraseType;
-    }
-
-    public void setCurrentEraseType(int currentEraseType) {
-        this.currentEraseType = currentEraseType;
-        this.lastEraseType = currentEraseType;
-        displayEraseTrack = isDisplayEraseTrack(currentEraseType);
-    }
-
-    public int getLastEraseType() {
-        return lastEraseType;
-    }
-
-    public void selectEraseType(int eraseType) {
-        setCurrentEraseType(eraseType);
-    }
-
-    public float getEraseWidth(int eraseType) {
-        Float width = eraseWidthMap.get(eraseType);
+    fun getEraseWidth(eraseType: Int): Float {
+        val width = eraseWidthMap[eraseType]
         if (width != null) {
-            return width;
+            return width
         }
-        float defaultWidth = EraseUnits.getDefaultEraseWidth(eraseType);
-        eraseWidthMap.put(eraseType, defaultWidth);
-        return defaultWidth;
+        val defaultWidth = EraseUnits.getDefaultEraseWidth(eraseType)
+        eraseWidthMap[eraseType] = defaultWidth
+        return defaultWidth
     }
 
-    public void setEraseWidth(int eraseType, float eraseWidth) {
-        eraseWidthMap.put(eraseType, EraseUnits.clampEraseWidth(eraseWidth, eraseType));
+    fun setEraseWidth(eraseType: Int, eraseWidth: Float) {
+        eraseWidthMap[eraseType] = EraseUnits.clampEraseWidth(eraseWidth, eraseType)
     }
 
-    public float getCurrentEraseWidth() {
-        return getEraseWidth(currentEraseType);
+    fun getCurrentEraseWidth(): Float = getEraseWidth(currentEraseType)
+
+    fun setCurrentEraseWidth(currentEraseWidth: Float) {
+        setEraseWidth(currentEraseType, currentEraseWidth)
     }
 
-    public void setCurrentEraseWidth(float currentEraseWidth) {
-        setEraseWidth(currentEraseType, currentEraseWidth);
-    }
+    fun isDisplayEraseTrack(): Boolean = isDisplayEraseTrack(currentEraseType)
 
-    public boolean isDisplayEraseTrack() {
-        return isDisplayEraseTrack(currentEraseType);
-    }
-
-    public boolean isDisplayEraseTrack(int eraseType) {
-        Boolean displayTrack = displayEraseTrackMap.get(eraseType);
+    fun isDisplayEraseTrack(eraseType: Int): Boolean {
+        val displayTrack = displayEraseTrackMap[eraseType]
         if (displayTrack != null) {
-            return displayTrack;
+            return displayTrack
         }
-        boolean defaultValue = EraserTrackHelper.defaultTrackEnabled(eraseType);
-        displayEraseTrackMap.put(eraseType, defaultValue);
-        return defaultValue;
+        val defaultValue = EraserTrackHelper.defaultTrackEnabled(eraseType)
+        displayEraseTrackMap[eraseType] = defaultValue
+        return defaultValue
     }
 
-    public void setDisplayEraseTrack(boolean displayEraseTrack) {
-        this.displayEraseTrack = displayEraseTrack;
-        setDisplayEraseTrack(currentEraseType, displayEraseTrack);
+    fun setDisplayEraseTrack(displayEraseTrack: Boolean) {
+        this.displayEraseTrack = displayEraseTrack
+        setDisplayEraseTrack(currentEraseType, displayEraseTrack)
     }
 
-    public void setDisplayEraseTrack(int eraseType, boolean displayEraseTrack) {
-        displayEraseTrackMap.put(eraseType, displayEraseTrack);
+    fun setDisplayEraseTrack(eraseType: Int, displayEraseTrack: Boolean) {
+        displayEraseTrackMap[eraseType] = displayEraseTrack
         if (eraseType == currentEraseType) {
-            this.displayEraseTrack = displayEraseTrack;
+            this.displayEraseTrack = displayEraseTrack
         }
     }
 
-    public boolean isEnablePenUpRefresh() {
-        return enablePenUpRefresh;
+    fun isEnablePenUpRefresh(): Boolean = enablePenUpRefresh
+
+    fun setEnablePenUpRefresh(enablePenUpRefresh: Boolean) {
+        this.enablePenUpRefresh = enablePenUpRefresh
     }
 
-    public void setEnablePenUpRefresh(boolean enablePenUpRefresh) {
-        this.enablePenUpRefresh = enablePenUpRefresh;
+    fun getPenUpRefreshTimeMs(): Int = penUpRefreshTimeMs
+
+    fun setPenUpRefreshTimeMs(penUpRefreshTimeMs: Int) {
+        this.penUpRefreshTimeMs = penUpRefreshTimeMs
     }
 
-    public int getPenUpRefreshTimeMs() {
-        return penUpRefreshTimeMs;
+    fun getExcludeRectList(): MutableList<Rect>? = excludeRectList
+
+    fun setExcludeRectList(excludeRectList: MutableList<Rect>?) {
+        this.excludeRectList = excludeRectList
     }
 
-    public void setPenUpRefreshTimeMs(int penUpRefreshTimeMs) {
-        this.penUpRefreshTimeMs = penUpRefreshTimeMs;
-    }
+    companion object {
+        @Volatile
+        private var instance: PenBundle? = null
 
-    public List<Rect> getExcludeRectList() {
-        return excludeRectList;
-    }
-
-    public void setExcludeRectList(List<Rect> excludeRectList) {
-        this.excludeRectList = excludeRectList;
+        @JvmStatic
+        fun getInstance(): PenBundle {
+            val existing = instance
+            if (existing != null) {
+                return existing
+            }
+            return synchronized(this) {
+                val again = instance
+                again ?: PenBundle().also { instance = it }
+            }
+        }
     }
 }

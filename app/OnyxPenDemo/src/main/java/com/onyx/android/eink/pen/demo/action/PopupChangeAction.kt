@@ -1,52 +1,42 @@
-package com.onyx.android.eink.pen.demo.action;
+package com.onyx.android.eink.pen.demo.action
 
-import com.onyx.android.eink.pen.demo.PenBundle;
-import com.onyx.android.eink.pen.demo.PenManager;
-import com.onyx.android.eink.pen.demo.event.PopupWindowChangeEvent;
-import com.onyx.android.sdk.rx.RxBaseAction;
-import com.onyx.android.sdk.utils.EventBusUtils;
+import com.onyx.android.eink.pen.demo.PenBundle
+import com.onyx.android.eink.pen.demo.PenManager
+import com.onyx.android.eink.pen.demo.event.PopupWindowChangeEvent
+import com.onyx.android.sdk.rx.RxBaseAction
+import com.onyx.android.sdk.utils.EventBusUtils
+import io.reactivex.Observable
+import io.reactivex.functions.Function
 
-import io.reactivex.Observable;
-
-public class PopupChangeAction extends RxBaseAction<PopupChangeAction> {
-    private final boolean show;
-
-    public PopupChangeAction(boolean show) {
-        this.show = show;
+class PopupChangeAction(private val show: Boolean) : RxBaseAction<PopupChangeAction>() {
+    override fun create(): Observable<PopupChangeAction> {
+        return Observable.just(this).observeOn(trampolineMainThread())
+            .map { postPopShowEvent() }
+            .flatMap { RefreshScreenAction().setResumeRawDrawing(false).build() }
+            .map { postPopDismissEvent() }
     }
 
-    @Override
-    protected Observable<PopupChangeAction> create() {
-        return Observable.just(this)
-                .observeOn(trampolineMainThread())
-                .map(o -> postPopShowEvent())
-                .flatMap(o -> new RefreshScreenAction()
-                        .setResumeRawDrawing(false).build())
-                .map(o -> postPopDismissEvent());
-    }
-
-    private PopupChangeAction postPopShowEvent() {
+    private fun postPopShowEvent(): PopupChangeAction {
         if (show) {
-            EventBusUtils.safelyPostEvent(getPenManager().getEventBus()
-                    , new PopupWindowChangeEvent(true));
+            EventBusUtils.safelyPostEvent(
+                penManager.getEventBus(), PopupWindowChangeEvent(true)
+            )
         }
-        return this;
+        return this
     }
 
-    private PopupChangeAction postPopDismissEvent() {
+    private fun postPopDismissEvent(): PopupChangeAction {
         if (!show) {
-            EventBusUtils.safelyPostEvent(getPenManager().getEventBus()
-                    , new PopupWindowChangeEvent(false));
+            EventBusUtils.safelyPostEvent(
+                penManager.getEventBus(), PopupWindowChangeEvent(false)
+            )
         }
-        return this;
+        return this
     }
 
-    public PenBundle getDataBundle() {
-        return PenBundle.getInstance();
-    }
+    val dataBundle: PenBundle
+        get() = PenBundle.getInstance()
 
-    public PenManager getPenManager() {
-        return getDataBundle().getPenManager();
-    }
-
+    val penManager: PenManager
+        get() = dataBundle.getPenManager()
 }

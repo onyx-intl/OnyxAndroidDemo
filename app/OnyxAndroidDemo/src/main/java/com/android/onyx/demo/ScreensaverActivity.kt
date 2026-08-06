@@ -1,59 +1,66 @@
-package com.android.onyx.demo;
+package com.android.onyx.demo
 
-import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
-import android.view.View;
-import android.widget.Toast;
+import android.os.Bundle
+import android.view.View
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ObservableBoolean
+import com.android.onyx.demo.databinding.ActivityScreenSaverBinding
+import com.onyx.android.sdk.api.device.screensaver.ScreenResourceManager
 
-import androidx.annotation.NonNull;
-import androidx.databinding.DataBindingUtil;
-import androidx.databinding.ObservableBoolean;
+class ScreensaverActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityScreenSaverBinding
+    @JvmField
+    var supportWallpaper: ObservableBoolean = ObservableBoolean()
+    @JvmField
+    var supportSetShutdown: ObservableBoolean = ObservableBoolean()
 
-import com.android.onyx.demo.databinding.ActivityScreenSaverBinding;
-import com.onyx.android.sdk.api.device.screensaver.ScreenResourceManager;
-
-
-public class ScreensaverActivity extends AppCompatActivity {
-    private ActivityScreenSaverBinding binding;
-    public ObservableBoolean supportWallpaper = new ObservableBoolean();
-    public ObservableBoolean supportSetShutdown = new ObservableBoolean();
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_screen_saver);
-        binding.setActivityScreenSaver(this);
-        initData();
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_screen_saver)
+        binding.activityScreenSaver = this
+        initData()
     }
 
-    private void initData() {
-        supportWallpaper.set(ScreenResourceManager.supportWallpaperSetting());
-        supportSetShutdown.set(ScreenResourceManager.supportShutdownSetting());
+    private fun initData() {
+        supportWallpaper.set(ScreenResourceManager.supportWallpaperSetting())
+        supportSetShutdown.set(ScreenResourceManager.supportShutdownSetting())
     }
 
-    public void setScreensaver(View view) {
-        boolean success = ScreenResourceManager.setScreensaver(this, getFilePath(), true);
+    fun setScreensaver(view: View?) {
+        val success = ScreenResourceManager.setScreensaver(this, filePath, true)
         if (!success) {
-            Toast.makeText(this, "Set screensaver failed, detailed information can be found in the logs.", Toast.LENGTH_LONG).show();
+            Toast.makeText(
+                this,
+                "Set screensaver failed, detailed information can be found in the logs.",
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
-    public void setShutdown(View view) {
-        boolean success = ScreenResourceManager.setShutdown(this, getFilePath(), true);
+    fun setShutdown(view: View?) {
+        val success = ScreenResourceManager.setShutdown(this, filePath, true)
         if (!success) {
-            Toast.makeText(this, "Set shutdown failed, detailed information can be found in the logs.", Toast.LENGTH_LONG).show();
+            Toast.makeText(
+                this,
+                "Set shutdown failed, detailed information can be found in the logs.",
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
-    public void setWallpaper(View view) {
-        boolean success = ScreenResourceManager.setWallpaper(this, getFilePath(), true);
+    fun setWallpaper(view: View?) {
+        val success = ScreenResourceManager.setWallpaper(this, filePath, true)
         if (!success) {
-            Toast.makeText(this, "Set wallpaper failed, detailed information can be found in the logs.", Toast.LENGTH_LONG).show();
+            Toast.makeText(
+                this,
+                "Set wallpaper failed, detailed information can be found in the logs.",
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
-    @NonNull
-    private String getFilePath() {
-        return binding.etImage.getText().toString();
-    }
+    private val filePath: String
+        get() = binding.etImage.text.toString()
 }

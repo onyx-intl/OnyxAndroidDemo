@@ -1,51 +1,52 @@
-package com.onyx.android.eink.pen.demo.erase.bean;
+package com.onyx.android.eink.pen.demo.erase.bean
 
-import com.onyx.android.sdk.data.note.TouchPoint;
-import com.onyx.android.sdk.pen.data.TouchPointList;
+import com.onyx.android.sdk.data.note.TouchPoint
+import com.onyx.android.sdk.pen.data.TouchPointList
 
-public class EraseArgs {
-    public TouchPointList eraseTrackPoints;
-    public TouchPointList wholeEraseTrackPoints;
-    public float eraserWidth = 20f;
-    public float drawRadius = eraserWidth / 2;
-    public boolean showEraseCircle;
-    public boolean showEraseLine;
+class EraseArgs {
+    var eraseTrackPoints: TouchPointList? = null
+    var wholeEraseTrackPoints: TouchPointList? = null
+    var eraserWidth: Float = 20f
+    var drawRadius: Float = eraserWidth / 2
+    var showEraseCircle: Boolean = false
+    var showEraseLine: Boolean = false
 
-    public EraseArgs setEraseTrackPoints(TouchPointList eraseTrackPoints) {
-        this.eraseTrackPoints = eraseTrackPoints;
-        return this;
+    fun setEraseTrackPoints(eraseTrackPoints: TouchPointList?): EraseArgs {
+        this.eraseTrackPoints = eraseTrackPoints
+        return this
     }
 
-    public EraseArgs setWholeEraseTrackPoints(TouchPointList wholeEraseTrackPoints) {
-        this.wholeEraseTrackPoints = wholeEraseTrackPoints;
-        return this;
+    fun setWholeEraseTrackPoints(wholeEraseTrackPoints: TouchPointList?): EraseArgs {
+        this.wholeEraseTrackPoints = wholeEraseTrackPoints
+        return this
     }
 
-    public EraseArgs setShowEraseLine(boolean showEraseLine) {
-        this.showEraseLine = showEraseLine;
-        return this;
+    fun setShowEraseLine(showEraseLine: Boolean): EraseArgs {
+        this.showEraseLine = showEraseLine
+        return this
     }
 
-    public EraseArgs setDrawRadius(float drawRadius) {
-        this.drawRadius = drawRadius;
-        return this;
+    fun setDrawRadius(drawRadius: Float): EraseArgs {
+        this.drawRadius = drawRadius
+        return this
     }
 
-    public EraseArgs setShowEraseCircle(boolean showEraseCircle) {
-        this.showEraseCircle = showEraseCircle;
-        return this;
+    fun setShowEraseCircle(showEraseCircle: Boolean): EraseArgs {
+        this.showEraseCircle = showEraseCircle
+        return this
     }
 
-    public TouchPoint getErasePoint() {
-        if (eraseTrackPoints == null || eraseTrackPoints.isEmpty()) {
-            return null;
+    fun getErasePoint(): TouchPoint? {
+        val points = eraseTrackPoints
+        if (points == null || points.isEmpty()) {
+            return null
         }
-        return eraseTrackPoints.get(eraseTrackPoints.size() - 1);
+        return points.get(points.size() - 1)
     }
 
-    public EraseArgs setEraserWidth(float eraserWidth) {
-        this.eraserWidth = eraserWidth;
-        this.drawRadius = eraserWidth / 2f;
-        return this;
+    fun setEraserWidth(eraserWidth: Float): EraseArgs {
+        this.eraserWidth = eraserWidth
+        this.drawRadius = eraserWidth / 2f
+        return this
     }
 }

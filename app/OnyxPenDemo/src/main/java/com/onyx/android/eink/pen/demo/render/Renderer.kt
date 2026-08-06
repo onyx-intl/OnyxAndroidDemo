@@ -1,31 +1,32 @@
-package com.onyx.android.eink.pen.demo.render;
+package com.onyx.android.eink.pen.demo.render
 
-import android.graphics.Bitmap;
-import android.view.SurfaceView;
-
-import com.onyx.android.eink.pen.demo.helper.RendererHelper;
-import com.onyx.android.eink.pen.demo.shape.Shape;
-
-import java.util.List;
+import android.graphics.Bitmap
+import android.view.SurfaceView
+import com.onyx.android.eink.pen.demo.helper.RendererHelper
+import com.onyx.android.eink.pen.demo.shape.Shape
 
 /**
  * Created by lxm on 2018/2/8.
  */
+interface Renderer {
+    fun renderToBitmap(
+        surfaceView: SurfaceView?,
+        renderContext: RendererHelper.RenderContext?
+    )
 
-public interface Renderer {
+    fun renderToBitmap(
+        shapes: MutableList<Shape>?,
+        renderContext: RendererHelper.RenderContext?
+    )
 
-    void renderToBitmap(SurfaceView surfaceView,
-                        RendererHelper.RenderContext renderContext);
+    fun renderToScreen(surfaceView: SurfaceView?, bitmap: Bitmap?)
 
-    void renderToBitmap(final List<Shape> shapes,
-                        final RendererHelper.RenderContext renderContext);
+    fun renderToScreen(
+        surfaceView: SurfaceView?,
+        renderContext: RendererHelper.RenderContext?
+    )
 
-    void renderToScreen(final SurfaceView surfaceView, final Bitmap bitmap);
+    fun onDeactivate(surfaceView: SurfaceView?)
 
-    void renderToScreen(final SurfaceView surfaceView,
-                        RendererHelper.RenderContext renderContext);
-
-    void onDeactivate(final SurfaceView surfaceView);
-
-    void onActive(final SurfaceView surfaceView);
+    fun onActive(surfaceView: SurfaceView?)
 }

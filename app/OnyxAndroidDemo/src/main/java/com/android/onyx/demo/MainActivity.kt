@@ -1,86 +1,82 @@
-package com.android.onyx.demo;
+package com.android.onyx.demo
 
-import android.content.Intent;
-import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
-import android.view.View;
+import android.content.Intent
+import android.os.Bundle
+import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import com.android.onyx.demo.databinding.ActivityMainBinding
+import com.onyx.android.sdk.api.device.epd.EpdController
 
-import androidx.databinding.DataBindingUtil;
+class MainActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityMainBinding
 
-import com.android.onyx.demo.databinding.ActivityMainBinding;
-import com.onyx.android.sdk.api.device.epd.EpdController;
-
-
-public class MainActivity extends AppCompatActivity {
-    private ActivityMainBinding binding;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-        final View view = binding.getRoot();
-        binding.setActivityMain(this);
-        EpdController.enablePost(view, 1);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        // Layout id @+id/activity_main also generates field activityMain (View);
+        // use the generated setter for the data-binding variable.
+        binding.setActivityMain(this)
+        EpdController.enablePost(binding.root, 1)
     }
 
-    public void button_epd(View view) {
-        go(EpdDemoActivity.class);
+    fun button_epd(view: View?) {
+        go(EpdDemoActivity::class.java)
     }
 
-    public void button_front_light(View view) {
-        go(FrontLightDemoActivity.class);
+    fun button_front_light(view: View?) {
+        go(FrontLightDemoActivity::class.java)
     }
 
-    public void button_full_screen(View view) {
-        go(FullScreenDemoActivity.class);
+    fun button_full_screen(view: View?) {
+        go(FullScreenDemoActivity::class.java)
     }
 
-    public void button_environment(View view) {
-        go(EnvironmentDemoActivity.class);
+    fun button_environment(view: View?) {
+        go(EnvironmentDemoActivity::class.java)
     }
 
-    public void btn_dict_query(View view) {
-        go(DictionaryActivity.class);
+    fun btn_dict_query(view: View?) {
+        go(DictionaryActivity::class.java)
     }
 
-    public void btn_reader(View view) {
-        go(ReaderDemoActivity.class);
+    fun btn_reader(view: View?) {
+        go(ReaderDemoActivity::class.java)
     }
 
-    public void btn_screen_saver(View view) {
-        go(ScreensaverActivity.class);
+    fun btn_screen_saver(view: View?) {
+        go(ScreensaverActivity::class.java)
     }
 
-    public void btn_open_setting(View view) {
-        go(OpenSettingActivity.class);
+    fun btn_open_setting(view: View?) {
+        go(OpenSettingActivity::class.java)
     }
 
-    public void btn_webview_optimize(View view) {
-        go(WebViewOptimizeActivity.class);
+    fun btn_webview_optimize(view: View?) {
+        go(WebViewOptimizeActivity::class.java)
     }
 
-    public void btn_open_kcb(View view) {
-        go(OpenKcbActivity.class);
+    fun btn_open_kcb(view: View?) {
+        go(OpenKcbActivity::class.java)
     }
 
-    public void btn_open_ota(View view) {
-        go(OTADemoActivity.class);
+    fun btn_open_ota(view: View?) {
+        go(OTADemoActivity::class.java)
     }
 
-    public void onClickButtonRefreshMode(View view) {
-        go(RefreshModeDemoActivity.class);
+    fun onClickButtonRefreshMode(view: View?) {
+        go(RefreshModeDemoActivity::class.java)
     }
 
-    public void onClickButtonEacDemo(View view) {
-        go(EacDemoActivity.class);
+    fun onClickButtonEacDemo(view: View?) {
+        go(EacDemoActivity::class.java)
     }
 
-    public void openBooxSettingDemo(View view) {
-        go(BooxSettingsDemoActivity.class);
+    fun openBooxSettingDemo(view: View?) {
+        go(BooxSettingsDemoActivity::class.java)
     }
 
-    private void go(Class<?> activityClass) {
-        startActivity(new Intent(this, activityClass));
+    private fun go(activityClass: Class<*>) {
+        startActivity(Intent(this, activityClass))
     }
-
 }

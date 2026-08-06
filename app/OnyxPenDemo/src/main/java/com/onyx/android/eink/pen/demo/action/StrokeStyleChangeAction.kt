@@ -1,38 +1,31 @@
-package com.onyx.android.eink.pen.demo.action;
+package com.onyx.android.eink.pen.demo.action
 
-import com.onyx.android.eink.pen.demo.request.StrokeStyleChangeRequest;
+import com.onyx.android.eink.pen.demo.PenManager
+import com.onyx.android.eink.pen.demo.request.StrokeStyleChangeRequest
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.functions.Function
 
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-
-public class StrokeStyleChangeAction extends BaseAction<StrokeStyleChangeAction> {
-    private final int shapeType;
-    private final int texture;
-
-    public StrokeStyleChangeAction(int shapeType, int texture) {
-        this.shapeType = shapeType;
-        this.texture = texture;
-    }
-
-    @Override
-    protected Observable<StrokeStyleChangeAction> create() {
+class StrokeStyleChangeAction(private val shapeType: Int, private val texture: Int) :
+    BaseAction<StrokeStyleChangeAction>() {
+    override fun create(): Observable<StrokeStyleChangeAction> {
         return getPenManager().createObservable()
-                .map(o -> change())
-                .observeOn(AndroidSchedulers.mainThread())
-                .map(o -> updateDrawingArgs());
+            .map<StrokeStyleChangeRequest?> { o: PenManager? -> change() }
+            .observeOn(AndroidSchedulers.mainThread())
+            .map<StrokeStyleChangeAction> { o: StrokeStyleChangeRequest? -> updateDrawingArgs() }
     }
 
-    private StrokeStyleChangeRequest change() throws Exception {
-        final StrokeStyleChangeRequest request = new StrokeStyleChangeRequest(getPenManager())
-                .setShapeType(shapeType)
-                .setTexture(texture);
-        request.execute();
-        return request;
+    @Throws(Exception::class)
+    private fun change(): StrokeStyleChangeRequest {
+        val request =
+            StrokeStyleChangeRequest(getPenManager()).setShapeType(shapeType).setTexture(texture)
+        request.execute()
+        return request
     }
 
-    private StrokeStyleChangeAction updateDrawingArgs() {
-        getDataBundle().setCurrentShapeType(shapeType);
-        getDataBundle().setCurrentTexture(texture);
-        return this;
+    private fun updateDrawingArgs(): StrokeStyleChangeAction {
+        getDataBundle().setCurrentShapeType(shapeType)
+        getDataBundle().setCurrentTexture(texture)
+        return this
     }
 }

@@ -1,69 +1,45 @@
-package com.android.onyx.demo;
+package com.android.onyx.demo
 
-import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import android.view.View;
-import android.widget.EditText;
-
-
-import androidx.databinding.DataBindingUtil;
-
-import com.android.onyx.demo.databinding.ActivityOtaDemoBinding;
-import com.onyx.android.sdk.api.data.model.FirmwareBean;
-import com.onyx.android.sdk.api.device.OTAManager;
-import com.onyx.android.sdk.rx.RxUtils;
-import com.onyx.android.sdk.utils.JSONUtils;
-
-import java.util.concurrent.Callable;
-
-import io.reactivex.functions.Consumer;
+import android.os.Bundle
+import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import com.android.onyx.demo.databinding.ActivityOtaDemoBinding
+import com.onyx.android.sdk.api.data.model.FirmwareBean
+import com.onyx.android.sdk.api.device.OTAManager
+import com.onyx.android.sdk.rx.RxUtils
+import com.onyx.android.sdk.utils.JSONUtils
 
 /**
  * Created by seeksky on 2018/5/17.
  */
+class OTADemoActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityOtaDemoBinding
 
-public class OTADemoActivity extends AppCompatActivity {
-    private ActivityOtaDemoBinding binding;
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_ota_demo);
-        binding.setActivityOta(this);
-        initData();
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_ota_demo)
+        binding.activityOta = this
+        initData()
     }
 
-    private void initData() {
-        RxUtils.runWithInComputation(new Callable<FirmwareBean>() {
-            @Override
-            public FirmwareBean call() throws Exception {
-                return getCurrentFirmwareInfo();
-            }
-        }, new Consumer<FirmwareBean>() {
-            @Override
-            public void accept(FirmwareBean firmwareBean) throws Exception {
+    private fun initData() {
+        RxUtils.runWithInComputation(
+            { currentFirmwareInfo },
+            { firmwareBean: FirmwareBean? ->
                 if (firmwareBean != null) {
-                    binding.tvFirmwareInfo.setText(JSONUtils.toJson(firmwareBean));
+                    binding.tvFirmwareInfo.text = JSONUtils.toJson(firmwareBean)
                 }
             }
-        });
+        )
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    fun onOTAUpdate(view: View?) {
+        val path = binding.edittextOtaPackagePath.text.toString()
+        // TODO
+        // OTAManager.startFirmwareUpdate(this, path)
     }
 
-    public void onOTAUpdate(View view) {
-        EditText editText = binding.edittextOtaPackagePath;
-        String path = editText.getText().toString();
-        //TODO
-        //OTAManager.startFirmwareUpdate(this, path);
-    }
-
-    private FirmwareBean getCurrentFirmwareInfo() {
-        return OTAManager.getCurrentFirmware(this);
-    }
-
+    private val currentFirmwareInfo: FirmwareBean
+        get() = OTAManager.getCurrentFirmware(this)
 }

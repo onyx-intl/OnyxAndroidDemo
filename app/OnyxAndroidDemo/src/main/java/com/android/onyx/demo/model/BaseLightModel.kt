@@ -1,63 +1,56 @@
-package com.android.onyx.demo.model;
+package com.android.onyx.demo.model
 
-import android.content.Context;
-import android.content.Intent;
-import android.database.ContentObserver;
-import android.provider.Settings;
-import android.view.View;
-import android.widget.SeekBar;
+import android.content.Context
+import android.content.Intent
+import android.database.ContentObserver
+import android.provider.Settings
+import android.view.View
+import android.widget.SeekBar
+import android.widget.SeekBar.OnSeekBarChangeListener
+import com.android.onyx.demo.databinding.ActivityFrontLightDemoBinding
+import com.onyx.android.sdk.api.device.brightness.BaseBrightnessProvider
+import com.onyx.android.sdk.utils.RxTimerUtil
+import java.util.concurrent.TimeUnit
 
-import com.android.onyx.demo.databinding.ActivityFrontLightDemoBinding;
-import com.onyx.android.sdk.api.device.brightness.BaseBrightnessProvider;
-import com.onyx.android.sdk.utils.RxTimerUtil;
+abstract class BaseLightModel(protected var mContext: Context) {
+    protected var binding: ActivityFrontLightDemoBinding? = null
 
-import java.util.concurrent.TimeUnit;
+    abstract fun updateLightValue()
 
-public abstract class BaseLightModel {
-    protected static final String TAG = "LightModel";
-    protected Context mContext;
-    protected ActivityFrontLightDemoBinding binding;
+    abstract fun initView(binding: ActivityFrontLightDemoBinding)
 
-    public BaseLightModel(Context mContext) {
-        this.mContext = mContext;
-    }
-
-    public abstract void updateLightValue();
-
-    public abstract void initView(ActivityFrontLightDemoBinding binding);
-
-    public void initSeekBar(SeekBar seekBar, BaseBrightnessProvider provider) {
-        seekBar.setMax(provider.getMaxIndex());
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+    fun initSeekBar(seekBar: SeekBar, provider: BaseBrightnessProvider) {
+        seekBar.max = provider.maxIndex
+        seekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
-                    provider.setIndex(progress);
+                    provider.index = progress
                 }
             }
 
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
             }
 
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
             }
-        });
-        seekBar.setProgress(provider.getIndex());
+        })
+        seekBar.progress = provider.index
     }
 
-    public void showBrightnessSetting(View view) {
-        mContext.sendBroadcast(new Intent("action.show.brightness.dialog"));
+    fun showBrightnessSetting(view: View?) {
+        mContext.sendBroadcast(Intent("action.show.brightness.dialog"))
     }
 
-    public void delay(RxTimerUtil.TimerObserver timerObserver) {
-        RxTimerUtil.timer(100, TimeUnit.MILLISECONDS, timerObserver);
+    fun delay(timerObserver: RxTimerUtil.TimerObserver) {
+        RxTimerUtil.timer(100, TimeUnit.MILLISECONDS, timerObserver)
     }
 
-    public void registerObserver(String key, ContentObserver contentObserver) {
-        mContext.getContentResolver().registerContentObserver(Settings.System.getUriFor(key), false, contentObserver);
+    fun registerObserver(key: String, contentObserver: ContentObserver) {
+        mContext.contentResolver
+            .registerContentObserver(Settings.System.getUriFor(key), false, contentObserver)
+    }
+
+    companion object {
+        const val TAG: String = "LightModel"
     }
 }

@@ -1,23 +1,17 @@
-package com.onyx.android.eink.pen.demo.request;
+package com.onyx.android.eink.pen.demo.request
 
-import androidx.annotation.NonNull;
+import com.onyx.android.eink.pen.demo.PenManager
 
-import com.onyx.android.eink.pen.demo.PenManager;
+class StrokeColorChangeRequest(penManager: PenManager) : BaseRequest(penManager) {
+    private var color = 0
 
-public class StrokeColorChangeRequest extends BaseRequest {
-    private int color;
-
-    public StrokeColorChangeRequest(@NonNull PenManager penManager) {
-        super(penManager);
+    fun setColor(color: Int): StrokeColorChangeRequest {
+        this.color = color
+        return this
     }
 
-    public StrokeColorChangeRequest setColor(int color) {
-        this.color = color;
-        return this;
-    }
-
-    @Override
-    public void execute(PenManager penManager) throws Exception {
-        getPenManager().setStrokeColor(color);
+    @Throws(Exception::class)
+    override fun execute(penManager: PenManager) {
+        getPenManager().setStrokeColor(color)
     }
 }

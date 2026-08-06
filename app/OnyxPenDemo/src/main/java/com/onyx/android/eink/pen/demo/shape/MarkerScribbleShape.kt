@@ -1,37 +1,40 @@
-package com.onyx.android.eink.pen.demo.shape;
+package com.onyx.android.eink.pen.demo.shape
 
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
+import com.onyx.android.eink.pen.demo.helper.RendererHelper
+import com.onyx.android.sdk.api.device.epd.EpdController
+import com.onyx.android.sdk.data.note.TouchPoint
+import com.onyx.android.sdk.pen.NeoMarkerPenWrapper
 
-import com.onyx.android.eink.pen.demo.helper.RendererHelper;
-import com.onyx.android.sdk.api.device.epd.EpdController;
-import com.onyx.android.sdk.data.note.TouchPoint;
-import com.onyx.android.sdk.pen.NeoMarkerPenWrapper;
-
-import java.util.ArrayList;
-import java.util.List;
-
-public class MarkerScribbleShape extends Shape {
-
-    @Override
-    public void render(RendererHelper.RenderContext renderContext) {
-        List<TouchPoint> points = touchPointList.getPoints();
-        Paint oldPaint = new Paint(renderContext.paint);
-        applyStrokeStyle(renderContext);
+class MarkerScribbleShape : Shape() {
+    override fun render(renderContext: RendererHelper.RenderContext) {
+        val points = touchPointList?.getPoints() ?: return
+        val canvas = renderContext.canvas ?: return
+        val oldPaint = Paint(renderContext.paint)
+        applyStrokeStyle(renderContext)
         if (!isTransparent()) {
-            renderContext.paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DARKEN));
+            renderContext.paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.DARKEN)
         }
-        float maxPressure = EpdController.getMaxTouchPressure();
-        float renderStrokeWidth = getRenderStrokeWidth();
-        List<TouchPoint> copy = new ArrayList<>(points.size());
-        for (TouchPoint p : points) {
-            copy.add(new TouchPoint(p));
+        val maxPressure = EpdController.getMaxTouchPressure()
+        val renderStrokeWidth = getRenderStrokeWidth()
+        val copy: MutableList<TouchPoint> = ArrayList(points.size)
+        for (p in points) {
+            if (p != null) {
+                copy.add(TouchPoint(p))
+            }
         }
-        List<TouchPoint> markerPoints = NeoMarkerPenWrapper.computeStrokePoints(copy,
-                renderStrokeWidth, maxPressure);
-        NeoMarkerPenWrapper.drawStroke(renderContext.canvas, renderContext.paint, markerPoints,
-                renderStrokeWidth, isTransparent());
-        renderContext.paint.set(oldPaint);
+        val markerPoints = NeoMarkerPenWrapper.computeStrokePoints(
+            copy, renderStrokeWidth, maxPressure
+        )
+        NeoMarkerPenWrapper.drawStroke(
+            canvas,
+            renderContext.paint,
+            markerPoints,
+            renderStrokeWidth,
+            isTransparent()
+        )
+        renderContext.paint.set(oldPaint)
     }
 }

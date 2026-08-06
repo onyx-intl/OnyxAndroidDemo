@@ -1,11 +1,7 @@
-package com.android.onyx.demo.data;
+package com.android.onyx.demo.data
 
-
-import android.graphics.Bitmap;
-
-import com.alibaba.fastjson2.JSONObject;
-
-import java.util.List;
+import android.graphics.Bitmap
+import com.alibaba.fastjson2.JSONObject
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,295 +10,214 @@ import java.util.List;
  * Time: 11:33 AM
  * Generic object container.
  */
-public class GObject {
-    public static abstract class GObjectCallback {
-        public void changed(final String key, GObject object) {
+class GObject {
+    abstract class GObjectCallback {
+        open fun changed(key: String?, `object`: GObject?) {
         }
     }
 
-    transient public static final String TAG = GObject.class.getSimpleName();
-    private JSONObject backend = new JSONObject();
-    transient private GObjectCallback callback;
+    private var backend: JSONObject? = JSONObject()
 
-    public GObject() {
-        super();
+    @Transient
+    private var callback: GObjectCallback? = null
+
+    constructor()
+
+    constructor(obj: JSONObject?) {
+        backend = obj
     }
 
-    public JSONObject getBackend(){
-        return backend;
+    fun getBackend(): JSONObject? = backend
+
+    fun setBackend(obj: JSONObject?) {
+        backend = obj
     }
 
-    public void setBackend(final JSONObject object) {
-        backend = object;
+    fun setDummyObject(): GObject {
+        backend = null
+        return this
     }
 
-    public GObject setDummyObject() {
-        backend = null;
-        return this;
-    }
-    public boolean isDummyObject() {
-        return (backend == null);
+    fun isDummyObject(): Boolean = backend == null
+
+    fun setCallback(cb: GObjectCallback?) {
+        callback = cb
     }
 
-    public GObject(JSONObject obj) {
-        backend = obj;
+    fun invokeCallback(key: String?) {
+        callback?.changed(key, this)
     }
 
-    public void setCallback(GObjectCallback cb) {
-        callback = cb;
+    fun hasKey(key: String?): Boolean {
+        val b = backend ?: return false
+        return b.containsKey(key)
     }
 
-    public void invokeCallback(final String key) {
-        if (callback != null) {
-            callback.changed(key, this);
-        }
-    }
-
-    public boolean hasKey(final String key) {
-        if (isDummyObject()){
-            return false;
-        }
-        return backend.containsKey(key);
-    }
-
-    public boolean matches(final String key, final Object pattern) {
+    fun matches(key: String?, pattern: Any): Boolean {
         if (!hasKey(key)) {
-            return false;
+            return false
         }
-        return pattern.equals(getObject(key));
+        return pattern == getObject(key)
     }
 
-    public String getString(final String key)  {
-        if (isDummyObject()){
-            return null;
+    fun getString(key: String?): String? {
+        val b = backend ?: return null
+        if (b.containsKey(key)) {
+            return b.getString(key)
         }
-        if (backend.containsKey(key)) {
-            return backend.getString(key);
-        }
-        return null;
+        return null
     }
 
-    public boolean putString(final String key, final String value) {
-        if (isDummyObject()){
-            return false;
-        }
-        backend.put(key, value);
-        invokeCallback(key);
-        return true;
+    fun putString(key: String?, value: String?): Boolean {
+        val b = backend ?: return false
+        b[key] = value
+        invokeCallback(key)
+        return true
     }
 
-    public boolean putLong(final String key, final long value) {
-        if (isDummyObject()){
-            return false;
-        }
-
-        backend.put(key, value);
-        invokeCallback(key);
-        return true;
+    fun putLong(key: String?, value: Long): Boolean {
+        val b = backend ?: return false
+        b[key] = value
+        invokeCallback(key)
+        return true
     }
 
-    public long getLong(final String key) {
-        if (isDummyObject()){
-            return -1;
-        }
-        return backend.getLong(key);
+    fun getLong(key: String?): Long {
+        val b = backend ?: return -1
+        return b.getLong(key)
     }
 
-    public boolean putGObject(final String key, final GObject object) {
-        if (isDummyObject()){
-            return false;
-        }
-
-        backend.put(key, object);
-        invokeCallback(key);
-        return true;
+    fun putGObject(key: String?, `object`: GObject?): Boolean {
+        val b = backend ?: return false
+        b[key] = `object`
+        invokeCallback(key)
+        return true
     }
 
-    public GObject getGObject(final String key) {
-        if (isDummyObject()){
-            return null;
-        }
-        Object object = backend.get(key);
-        if (object instanceof GObject) {
-            return (GObject)object;
-        }
-        return null;
+    fun getGObject(key: String?): GObject? {
+        val b = backend ?: return null
+        val value = b[key]
+        return value as? GObject
     }
 
-    public int getInt(final String key, final int defaultValue)  {
-        if (isDummyObject()){
-            return defaultValue;
-        }
-        if (backend.containsKey(key)) {
-            return backend.getInteger(key);
-        } else {
-            return defaultValue;
-        }
+    fun getInt(key: String?, defaultValue: Int): Int {
+        val b = backend ?: return defaultValue
+        return if (b.containsKey(key)) b.getInteger(key) else defaultValue
     }
 
-    public int getInt(final String key)  {
-        if (isDummyObject()){
-            return -1;
-        }
-        return backend.getInteger(key);
+    fun getInt(key: String?): Int {
+        val b = backend ?: return -1
+        return b.getInteger(key)
     }
 
-    public boolean putInt(final String key, int value){
-        if (isDummyObject()){
-            return false;
-        }
-
-        backend.put(key, value);
-        invokeCallback(key);
-        return true;
+    fun putInt(key: String?, value: Int): Boolean {
+        val b = backend ?: return false
+        b[key] = value
+        invokeCallback(key)
+        return true
     }
 
-    public float getFloat(final String key) {
-        if (isDummyObject()){
-            return Float.NEGATIVE_INFINITY;
-        }
-
-        return backend.getFloat(key);
+    fun getFloat(key: String?): Float {
+        val b = backend ?: return Float.NEGATIVE_INFINITY
+        return b.getFloat(key)
     }
 
-    public boolean putFloat(final String key, float value) {
-        if (isDummyObject()){
-            return false;
-        }
-
-        backend.put(key, value);
-        invokeCallback(key);
-        return true;
+    fun putFloat(key: String?, value: Float): Boolean {
+        val b = backend ?: return false
+        b[key] = value
+        invokeCallback(key)
+        return true
     }
 
-    public List getList(final String key) {
-        if (isDummyObject()){
-            return null;
-        }
-        Object object = backend.get(key);
-        if (object instanceof List) {
-            return (List)object;
-        }
-        return null;
+    fun getList(key: String?): MutableList<*>? {
+        val b = backend ?: return null
+        return b[key] as? MutableList<*>
     }
 
-    public boolean putList(final String key, List list) {
-        if (isDummyObject()){
-            return false;
-        }
-
-        backend.put(key, list);
-        invokeCallback(key);
-        return true;
+    fun putList(key: String?, list: MutableList<*>?): Boolean {
+        val b = backend ?: return false
+        b[key] = list
+        invokeCallback(key)
+        return true
     }
 
-    public boolean getBoolean(final String key, boolean defaultValue) {
-        if (isDummyObject()){
-            return defaultValue;
-        }
-        if (backend.containsKey(key)) {
-            return backend.getBoolean(key);
-        } else {
-            return defaultValue;
-        }
+    fun getBoolean(key: String?, defaultValue: Boolean): Boolean {
+        val b = backend ?: return defaultValue
+        return if (b.containsKey(key)) b.getBoolean(key) else defaultValue
     }
 
-    public boolean getBoolean(final String key) {
-        if (isDummyObject()){
-            return false;
-        }
-
-        return backend.getBoolean(key);
+    fun getBoolean(key: String?): Boolean {
+        val b = backend ?: return false
+        return b.getBoolean(key)
     }
 
-    public boolean putBoolean(final String key, boolean value) {
-        if (isDummyObject()){
-            return false;
-        }
-
-        backend.put(key, value);
-        invokeCallback(key);
-        return true;
+    fun putBoolean(key: String?, value: Boolean): Boolean {
+        val b = backend ?: return false
+        b[key] = value
+        invokeCallback(key)
+        return true
     }
 
-    public boolean removeObject(final String key){
-        if (isDummyObject()){
-            return false;
-        }
-
-        backend.remove(key);
-        invokeCallback(key);
-        return true;
+    fun removeObject(key: String?): Boolean {
+        val b = backend ?: return false
+        b.remove(key)
+        invokeCallback(key)
+        return true
     }
 
-    public double getDouble(final String key) {
-        if (isDummyObject()){
-            return -1;
-        }
-        return backend.getDouble(key);
+    fun getDouble(key: String?): Double {
+        val b = backend ?: return -1.0
+        return b.getDouble(key)
     }
 
-    public boolean putDouble(final String key, double value) {
-        if (isDummyObject()){
-            return false;
-        }
-
-        backend.put(key, value);
-        invokeCallback(key);
-        return true;
+    fun putDouble(key: String?, value: Double): Boolean {
+        val b = backend ?: return false
+        b[key] = value
+        invokeCallback(key)
+        return true
     }
 
-    public boolean putObject(final String key, Object value) {
-        if (isDummyObject()){
-            return false;
-        }
-
-        backend.put(key, value);
-        invokeCallback(key);
-        return true;
+    fun putObject(key: String?, value: Any?): Boolean {
+        val b = backend ?: return false
+        b[key] = value
+        invokeCallback(key)
+        return true
     }
 
-    public boolean putNonNullObject(final String key, Object value) {
-        if (isDummyObject()){
-            return false;
+    fun putNonNullObject(key: String?, value: Any?): Boolean {
+        if (backend == null || value == null) {
+            return false
         }
-
-        if (value == null) {
-            return false;
-        }
-        return putObject(key, value);
+        return putObject(key, value)
     }
 
-    public Object getObject(final String key) {
-        if (isDummyObject()){
-            return null;
-        }
-        return backend.get(key);
+    fun getObject(key: String?): Any? {
+        val b = backend ?: return null
+        return b[key]
     }
 
-    public Bitmap getBitmap(final String key, final Bitmap fallbackBitmap) {
-        if (isDummyObject()){
-            return fallbackBitmap;
+    fun getBitmap(key: String?, fallbackBitmap: Bitmap?): Bitmap? {
+        val b = backend ?: return fallbackBitmap
+        if (!b.containsKey(key)) {
+            return fallbackBitmap
         }
-        if (backend.containsKey(key)) {
-            Object object = getObject(key);
-            if (object instanceof Bitmap) {
-                return (Bitmap)object;
-            }
-            return fallbackBitmap;
-        }
-        return fallbackBitmap;
+        return getObject(key) as? Bitmap ?: fallbackBitmap
     }
 
-    public boolean recycleBitmap(final String key) {
-        Bitmap bitmap = getBitmap(key, null);
-        if (bitmap != null && !bitmap.isRecycled()) {
-            bitmap.recycle();
-            backend.remove(key);
-            return true;
+    fun recycleBitmap(key: String?): Boolean {
+        val bitmap = getBitmap(key, null)
+        val b = backend
+        if (bitmap != null && !bitmap.isRecycled && b != null) {
+            bitmap.recycle()
+            b.remove(key)
+            return true
         }
-        return false;
+        return false
     }
 
-
+    companion object {
+        @Transient
+        @JvmField
+        val TAG: String = GObject::class.java.simpleName
+    }
 }

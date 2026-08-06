@@ -1,91 +1,82 @@
-package com.onyx.android.eink.pen.demo.shape;
+package com.onyx.android.eink.pen.demo.shape
 
-import android.graphics.Paint;
+import android.graphics.Paint
+import com.onyx.android.eink.pen.demo.helper.RendererHelper
+import com.onyx.android.eink.pen.demo.util.PenInfoUtils
+import com.onyx.android.sdk.api.device.epd.EpdController
+import com.onyx.android.sdk.data.note.TouchPoint
+import com.onyx.android.sdk.pen.NeoFountainPenWrapper
+import com.onyx.android.sdk.pen.NeoPenRender
+import com.onyx.android.sdk.pen.utils.FountainShapes.createNeoPenV2
 
-import com.onyx.android.eink.pen.demo.helper.RendererHelper;
-import com.onyx.android.eink.pen.demo.util.PenInfoUtils;
-import com.onyx.android.sdk.api.device.epd.EpdController;
-import com.onyx.android.sdk.data.note.TouchPoint;
-import com.onyx.android.sdk.pen.NeoFountainPenWrapper;
-import com.onyx.android.sdk.pen.NeoPen;
-import com.onyx.android.sdk.pen.NeoPenRender;
-import com.onyx.android.sdk.pen.utils.FountainShapes;
-
-import java.util.ArrayList;
-import java.util.List;
-
-public class BrushScribbleShape extends Shape {
-
-    @Override
-    public void render(RendererHelper.RenderContext renderContext) {
-        List<TouchPoint> points = touchPointList.getPoints();
-        applyStrokeStyle(renderContext);
-        if (points == null || points.size() < 2) {
-            return;
+class BrushScribbleShape : Shape() {
+    override fun render(renderContext: RendererHelper.RenderContext) {
+        val points = touchPointList?.getPoints() ?: return
+        applyStrokeStyle(renderContext)
+        if (points.size < 2) {
+            return
         }
-        Paint.Style oldStyle = renderContext.paint.getStyle();
-        float oldWidth = renderContext.paint.getStrokeWidth();
-        applyFountainPaintStyle(renderContext);
-        renderFountainV2(renderContext, copyAndNormalizePressure(points));
-        renderContext.paint.setStyle(oldStyle);
-        renderContext.paint.setStrokeWidth(oldWidth);
+        val oldStyle = renderContext.paint.style
+        val oldWidth = renderContext.paint.strokeWidth
+        applyFountainPaintStyle(renderContext)
+        renderFountainV2(renderContext, copyAndNormalizePressure(points))
+        renderContext.paint.style = oldStyle
+        renderContext.paint.strokeWidth = oldWidth
     }
 
-    private void applyFountainPaintStyle(RendererHelper.RenderContext renderContext) {
+    private fun applyFountainPaintStyle(renderContext: RendererHelper.RenderContext) {
         // Fountain NeoPenV2 outputs closed paths; FILL so draw and CLEAR erase share footprint.
-        renderContext.paint.setStyle(Paint.Style.FILL);
-        renderContext.paint.setStrokeWidth(0.0f);
+        renderContext.paint.style = Paint.Style.FILL
+        renderContext.paint.strokeWidth = 0.0f
     }
 
-    private void renderFountainV2(RendererHelper.RenderContext renderContext,
-                                  List<TouchPoint> renderPoints) {
-        if (renderPoints.size() < 2) {
-            return;
+    private fun renderFountainV2(
+        renderContext: RendererHelper.RenderContext,
+        renderPoints: MutableList<TouchPoint>
+    ) {
+        if (renderPoints.size < 2) {
+            return
         }
-        NeoPen pen = FountainShapes.INSTANCE.createNeoPenV2(
-                getRenderStrokeWidth(),
-                NeoFountainPenWrapper.MIN_FOUNTAIN_PEN_WIDTH,
-                1.0f,
-                1.0f,
-                1.0f,
-                1.0f,
-                PenInfoUtils.getDefaultPressureSensitivity(getShapeType()),
-                true,
-                PenInfoUtils.getDefaultSmoothLevel(getShapeType()));
-        if (pen == null) {
-            return;
-        }
-        NeoPenRender penRender = new NeoPenRender(pen);
+        val canvas = renderContext.canvas ?: return
+        val pen = createNeoPenV2(
+            getRenderStrokeWidth(),
+            NeoFountainPenWrapper.MIN_FOUNTAIN_PEN_WIDTH,
+            1.0f,
+            1.0f,
+            1.0f,
+            1.0f,
+            PenInfoUtils.getDefaultPressureSensitivity(getShapeType()),
+            true,
+            PenInfoUtils.getDefaultSmoothLevel(getShapeType())
+        ) ?: return
+        val penRender = NeoPenRender(pen)
         try {
-            penRender.onTouchPointList(renderPoints);
-            penRender.render(renderContext.canvas, renderContext.paint);
+            penRender.onTouchPointList(renderPoints)
+            penRender.render(canvas, renderContext.paint)
         } finally {
-            penRender.destroyPen();
+            penRender.destroyPen()
         }
     }
 
-    private List<TouchPoint> copyAndNormalizePressure(List<TouchPoint> points) {
-        List<TouchPoint> renderPoints = new ArrayList<>();
-        if (points == null) {
-            return renderPoints;
-        }
-        boolean needNormalize = false;
-        for (TouchPoint point : points) {
-            if (point != null && point.getPressure() > 1.0f) {
-                needNormalize = true;
-                break;
+    private fun copyAndNormalizePressure(points: MutableList<TouchPoint?>): MutableList<TouchPoint> {
+        val renderPoints: MutableList<TouchPoint> = ArrayList()
+        var needNormalize = false
+        for (point in points) {
+            if (point != null && point.pressure > 1.0f) {
+                needNormalize = true
+                break
             }
         }
-        for (TouchPoint point : points) {
+        for (point in points) {
             if (point == null) {
-                continue;
+                continue
             }
-            TouchPoint copy = new TouchPoint(point);
+            val copy = TouchPoint(point)
             if (needNormalize) {
-                copy.pressure = copy.getPressure() / EpdController.MAX_TOUCH_PRESSURE;
+                copy.pressure /= EpdController.MAX_TOUCH_PRESSURE
             }
-            renderPoints.add(copy);
+            renderPoints.add(copy)
         }
-        return renderPoints;
+        return renderPoints
     }
 }

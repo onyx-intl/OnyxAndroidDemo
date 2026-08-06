@@ -1,29 +1,22 @@
-package com.onyx.android.eink.pen.demo.erase.bean;
+package com.onyx.android.eink.pen.demo.erase.bean
 
-import com.onyx.android.eink.pen.demo.shape.Shape;
+import com.onyx.android.eink.pen.demo.shape.Shape
 
-import java.util.ArrayList;
-import java.util.List;
+class SplitShapeResult {
+    private var splitShapes: MutableList<Shape?> = ArrayList()
+    private var shapeErased: Boolean = false
 
-public class SplitShapeResult {
-    private List<Shape> splitShapes = new ArrayList<>();
-    private boolean shapeErased;
+    fun getSplitShapes(): MutableList<Shape?> = splitShapes
 
-    public List<Shape> getSplitShapes() {
-        return splitShapes;
+    fun setSplitShapes(splitShapes: MutableList<Shape?>?): SplitShapeResult {
+        this.splitShapes = splitShapes ?: ArrayList()
+        return this
     }
 
-    public SplitShapeResult setSplitShapes(List<Shape> splitShapes) {
-        this.splitShapes = splitShapes;
-        return this;
-    }
+    fun isShapeErased(): Boolean = shapeErased
 
-    public boolean isShapeErased() {
-        return shapeErased;
-    }
-
-    public SplitShapeResult setShapeErased(boolean shapeErased) {
-        this.shapeErased = shapeErased;
-        return this;
+    fun setShapeErased(shapeErased: Boolean): SplitShapeResult {
+        this.shapeErased = shapeErased
+        return this
     }
 }

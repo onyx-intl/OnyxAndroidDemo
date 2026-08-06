@@ -1,9 +1,3 @@
-package com.onyx.android.eink.pen.demo.event;
+package com.onyx.android.eink.pen.demo.event
 
-public class ApplyFastModeEvent {
-    public boolean enable;
-
-    public ApplyFastModeEvent(boolean enable) {
-        this.enable = enable;
-    }
-}
+class ApplyFastModeEvent(var enable: Boolean)

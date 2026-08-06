@@ -1,38 +1,24 @@
-package com.onyx.android.eink.pen.demo.ui;
+package com.onyx.android.eink.pen.demo.ui
 
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
+import android.app.Activity
+import android.content.Intent
+import android.os.Bundle
+import android.view.View
+import androidx.databinding.DataBindingUtil
+import com.onyx.android.eink.pen.demo.R
+import com.onyx.android.eink.pen.demo.databinding.ActivityMainBinding
+import com.onyx.android.eink.pen.demo.scribble.ui.ScribbleDemoActivity
 
-import androidx.databinding.DataBindingUtil;
-
-import com.onyx.android.eink.pen.demo.R;
-import com.onyx.android.eink.pen.demo.databinding.ActivityMainBinding;
-import com.onyx.android.eink.pen.demo.scribble.ui.ScribbleDemoActivity;
-
-public class MainActivity extends Activity {
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        ActivityMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-        binding.buttonScribbleDemo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                go(ScribbleDemoActivity.class);
-            }
-        });
-        binding.buttonPenDemo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                go(PenDemoActivity.class);
-            }
-        });
+class MainActivity : Activity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val binding =
+            DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
+        binding.buttonScribbleDemo.setOnClickListener { go(ScribbleDemoActivity::class.java) }
+        binding.buttonPenDemo.setOnClickListener { go(PenDemoActivity::class.java) }
     }
 
-    private void go(Class<?> activityClass) {
-        startActivity(new Intent(this, activityClass));
+    private fun go(activityClass: Class<*>?) {
+        startActivity(Intent(this, activityClass))
     }
-
 }

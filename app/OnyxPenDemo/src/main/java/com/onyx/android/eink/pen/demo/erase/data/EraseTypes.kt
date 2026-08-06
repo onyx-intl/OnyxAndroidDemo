@@ -1,14 +1,11 @@
-package com.onyx.android.eink.pen.demo.erase.data;
+package com.onyx.android.eink.pen.demo.erase.data
 
-public final class EraseTypes {
-    public static final int ERASER_STROKE = 0;
-    public static final int ERASER_MOVE = 1;
-    public static final int ERASER_AREA = 2;
+object EraseTypes {
+    const val ERASER_STROKE: Int = 0
+    const val ERASER_MOVE: Int = 1
+    const val ERASER_AREA: Int = 2
 
-    private EraseTypes() {
-    }
-
-    public static boolean isMoveOrStrokeErase(int eraseType) {
-        return eraseType == ERASER_MOVE || eraseType == ERASER_STROKE;
+    fun isMoveOrStrokeErase(eraseType: Int): Boolean {
+        return eraseType == ERASER_MOVE || eraseType == ERASER_STROKE
     }
 }

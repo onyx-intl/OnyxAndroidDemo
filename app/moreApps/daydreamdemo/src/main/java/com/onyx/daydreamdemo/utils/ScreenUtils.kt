@@ -1,20 +1,17 @@
-package com.onyx.daydreamdemo.utils;
+package com.onyx.daydreamdemo.utils
 
-import android.content.Context;
-import android.graphics.Point;
-import android.util.Size;
-import android.view.WindowManager;
+import android.content.Context
+import android.graphics.Point
+import android.util.Size
+import android.view.WindowManager
 
-public class ScreenUtils {
-
-    public static Size getScreenSize(final Context context) {
-        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        if (wm == null) {
-            return new Size(context.getResources().getDisplayMetrics().widthPixels,
-                    context.getResources().getDisplayMetrics().heightPixels);
-        }
-        Point point = new Point();
-        wm.getDefaultDisplay().getRealSize(point);
-        return new Size(point.x, point.y);
+object ScreenUtils {
+    fun getScreenSize(context: Context): Size {
+        val wm = context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager? ?: return Size(
+            context.resources.displayMetrics.widthPixels, context.resources.displayMetrics.heightPixels
+        )
+        val point = Point()
+        wm.defaultDisplay.getRealSize(point)
+        return Size(point.x, point.y)
     }
 }

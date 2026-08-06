@@ -1,32 +1,26 @@
-package com.onyx.android.eink.pen.demo.request;
+package com.onyx.android.eink.pen.demo.request
 
-import androidx.annotation.NonNull;
+import com.onyx.android.eink.pen.demo.PenManager
+import com.onyx.android.eink.pen.demo.data.ShapeFactory
 
-import com.onyx.android.eink.pen.demo.PenManager;
-import com.onyx.android.eink.pen.demo.data.ShapeFactory;
+class StrokeStyleChangeRequest(penManager: PenManager) : BaseRequest(penManager) {
+    private var shapeType = 0
+    private var texture = 0
 
-public class StrokeStyleChangeRequest extends BaseRequest {
-    private int shapeType;
-    private int texture;
-
-    public StrokeStyleChangeRequest(@NonNull PenManager penManager) {
-        super(penManager);
+    fun setShapeType(shapeType: Int): StrokeStyleChangeRequest {
+        this.shapeType = shapeType
+        return this
     }
 
-    public StrokeStyleChangeRequest setShapeType(int shapeType) {
-        this.shapeType = shapeType;
-        return this;
+    fun setTexture(texture: Int): StrokeStyleChangeRequest {
+        this.texture = texture
+        return this
     }
 
-    public StrokeStyleChangeRequest setTexture(int texture) {
-        this.texture = texture;
-        return this;
-    }
-
-    @Override
-    public void execute(PenManager penManager) throws Exception {
-        int strokeStyle = ShapeFactory.getStrokeStyle(shapeType, texture);
-        getPenManager().setStrokeStyle(strokeStyle);
-        getPenManager().applyStrokeParameters(shapeType, strokeStyle);
+    @Throws(Exception::class)
+    override fun execute(penManager: PenManager) {
+        val strokeStyle = ShapeFactory.getStrokeStyle(shapeType, texture)
+        getPenManager().setStrokeStyle(strokeStyle)
+        getPenManager().applyStrokeParameters(shapeType, strokeStyle)
     }
 }

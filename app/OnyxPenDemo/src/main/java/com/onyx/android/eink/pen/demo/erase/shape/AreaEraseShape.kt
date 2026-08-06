@@ -1,75 +1,71 @@
-package com.onyx.android.eink.pen.demo.erase.shape;
+package com.onyx.android.eink.pen.demo.erase.shape
 
-import android.graphics.Path;
-import android.graphics.RectF;
-import android.graphics.Region;
+import android.graphics.Path
+import android.graphics.RectF
+import android.graphics.Region
+import com.onyx.android.sdk.data.note.TouchPoint
+import com.onyx.android.sdk.pen.data.TouchPointList
 
-import com.onyx.android.sdk.data.note.TouchPoint;
-import com.onyx.android.sdk.pen.data.TouchPointList;
+class AreaEraseShape(private val touchPointList: TouchPointList) {
+    private var boundingRectField: RectF? = null
 
-import java.util.List;
+    fun getBoundingRect(): RectF? = boundingRectField
+    private var region: Region? = null
 
-public class AreaEraseShape {
-    private final TouchPointList touchPointList;
-    private RectF boundingRect;
-    private Region region;
-
-    public AreaEraseShape(TouchPointList touchPointList) {
-        this.touchPointList = touchPointList;
-        updateBoundingRect();
+    init {
+        updateBoundingRect()
     }
 
-    public RectF getBoundingRect() {
-        return boundingRect;
-    }
-
-    private void updateBoundingRect() {
-        boundingRect = null;
-        List<TouchPoint> points = touchPointList.getPoints();
-        for (TouchPoint point : points) {
+    private fun updateBoundingRect() {
+        boundingRectField = null
+        val points = touchPointList.getPoints()
+        for (point in points) {
             if (point == null) {
-                continue;
+                continue
             }
-            if (boundingRect == null) {
-                boundingRect = new RectF(point.x, point.y, point.x, point.y);
+            val rect = boundingRectField
+            if (rect == null) {
+                boundingRectField = RectF(point.x, point.y, point.x, point.y)
             } else {
-                boundingRect.union(point.x, point.y);
+                rect.union(point.x, point.y)
             }
         }
-        if (boundingRect == null) {
-            boundingRect = new RectF();
+        if (boundingRectField == null) {
+            boundingRectField = RectF()
         }
     }
 
-    public boolean hitTest(float x, float y, float radius) {
-        if (region == null) {
-            region = createRegion();
-        }
-        return region.contains((int) x, (int) y);
+    fun hitTest(x: Float, y: Float, radius: Float): Boolean {
+        val hitRegion = region ?: createRegion().also { region = it }
+        return hitRegion.contains(x.toInt(), y.toInt())
     }
 
-    public void recycle() {
-        region = null;
+    fun recycle() {
+        region = null
     }
 
-    private Region createRegion() {
-        Path path = new Path();
-        List<TouchPoint> points = touchPointList.getPoints();
+    private fun createRegion(): Region {
+        val path = Path()
+        val points = touchPointList.points
         if (points.isEmpty()) {
-            return new Region();
+            return Region()
         }
-        TouchPoint first = points.get(0);
-        path.moveTo(first.x, first.y);
-        for (int i = 1; i < points.size(); i++) {
-            TouchPoint point = points.get(i);
-            path.lineTo(point.x, point.y);
+        val first: TouchPoint = points[0] ?: return Region()
+        path.moveTo(first.x, first.y)
+        for (i in 1 until points.size) {
+            val point: TouchPoint = points[i] ?: continue
+            path.lineTo(point.x, point.y)
         }
-        path.close();
-        Region clip = new Region(
-                (int) boundingRect.left, (int) boundingRect.top,
-                (int) boundingRect.right, (int) boundingRect.bottom);
-        Region result = new Region();
-        result.setPath(path, clip);
-        return result;
+        path.close()
+        val bounds = boundingRectField ?: RectF()
+        val clip = Region(
+            bounds.left.toInt(),
+            bounds.top.toInt(),
+            bounds.right.toInt(),
+            bounds.bottom.toInt()
+        )
+        val result = Region()
+        result.setPath(path, clip)
+        return result
     }
 }

@@ -1,124 +1,109 @@
-package com.android.onyx.demo;
+package com.android.onyx.demo
 
-import android.content.ComponentName;
-import android.content.Intent;
-import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import android.view.View;
-
-import android.widget.Toast;
-
-import androidx.databinding.DataBindingUtil;
-
-import com.android.onyx.demo.databinding.ActivityOpenKcbBinding;
-import com.onyx.android.sdk.utils.JSONUtils;
-import com.onyx.android.sdk.utils.StringUtils;
-
+import android.content.ComponentName
+import android.content.Intent
+import android.os.Bundle
+import android.view.View
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import com.android.onyx.demo.databinding.ActivityOpenKcbBinding
+import com.onyx.android.sdk.utils.JSONUtils
+import com.onyx.android.sdk.utils.StringUtils
 
 /**
  * Created by zhilun on 2019/4/4.
  */
-public class OpenKcbActivity extends AppCompatActivity {
-
-    public enum TabAction {
-        NOTHING, OPEN_HOME, OPEN_STORAGE, OPEN_APPLICATION_MANAGEMENT, OPEN_SETTING, OPEN_APPS, OPEN_NOTE, OPEN_ACCOUNT_MANAGER,
-        OPEN_SHOP
+class OpenKcbActivity : AppCompatActivity() {
+    enum class TabAction {
+        NOTHING, OPEN_HOME, OPEN_STORAGE, OPEN_APPLICATION_MANAGEMENT, OPEN_SETTING, OPEN_APPS,
+        OPEN_NOTE, OPEN_ACCOUNT_MANAGER, OPEN_SHOP
     }
 
-    public enum NoteRouter {
-        SEARCH, BACKUP, COMMON_SETTING, AI_SETTING;
+    enum class NoteRouter {
+        SEARCH, BACKUP, COMMON_SETTING, AI_SETTING
     }
 
-    public static class TabIntentData {
-        public String jumpPath;
-        public TabAction action = TabAction.NOTHING;
+    class TabIntentData {
+        var jumpPath: String? = null
+        var action: TabAction = TabAction.NOTHING
 
-        public TabIntentData setJumpPath(String jumpPath) {
-            this.jumpPath = jumpPath;
-            return this;
+        fun setJumpPath(jumpPath: String?): TabIntentData {
+            this.jumpPath = jumpPath
+            return this
         }
 
-        public TabIntentData setAction(TabAction action) {
-            this.action = action;
-            return this;
+        fun setAction(action: TabAction): TabIntentData {
+            this.action = action
+            return this
         }
     }
 
-    private ActivityOpenKcbBinding binding;
+    private lateinit var binding: ActivityOpenKcbBinding
 
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_open_kcb);
-        binding.setActivityOpenKcb(this);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_open_kcb)
+        binding.activityOpenKcb = this
     }
 
-    public void openLibrary(View view) {
-        openModule(new TabIntentData().setAction(TabAction.OPEN_HOME));
+    fun openLibrary(view: View?) {
+        openModule(TabIntentData().setAction(TabAction.OPEN_HOME))
     }
 
-    public void openShop(View view) {
-        openModule(new TabIntentData().setAction(TabAction.OPEN_SHOP));
+    fun openShop(view: View?) {
+        openModule(TabIntentData().setAction(TabAction.OPEN_SHOP))
     }
 
-    public void openNote(View view) {
-        openModule(setNoteJumpPath(new TabIntentData().setAction(TabAction.OPEN_NOTE)));
+    fun openNote(view: View?) {
+        openModule(setNoteJumpPath(TabIntentData().setAction(TabAction.OPEN_NOTE)))
     }
 
-    public void openStorage(View view) {
-        TabIntentData data = new TabIntentData().setAction(TabAction.OPEN_STORAGE);
-        String jumpPath = binding.etStorageJumpPath.getText().toString();
+    fun openStorage(view: View?) {
+        val data = TabIntentData().setAction(TabAction.OPEN_STORAGE)
+        val jumpPath = binding.etStorageJumpPath.text.toString()
         if (!StringUtils.isNullOrEmpty(jumpPath)) {
-            data.setJumpPath(jumpPath);
+            data.setJumpPath(jumpPath)
         }
-        openModule(data);
+        openModule(data)
     }
 
-    public void openApps(View view) {
-        openModule(new TabIntentData().setAction(TabAction.OPEN_APPS));
+    fun openApps(view: View?) {
+        openModule(TabIntentData().setAction(TabAction.OPEN_APPS))
     }
 
-    public void openSetting(View view) {
-        openModule(new TabIntentData().setAction(TabAction.OPEN_SETTING));
+    fun openSetting(view: View?) {
+        openModule(TabIntentData().setAction(TabAction.OPEN_SETTING))
     }
 
-    public void openApplicationManagement(View view) {
-        openModule(new TabIntentData().setAction(TabAction.OPEN_APPLICATION_MANAGEMENT));
+    fun openApplicationManagement(view: View?) {
+        openModule(TabIntentData().setAction(TabAction.OPEN_APPLICATION_MANAGEMENT))
     }
 
-    public void openAccountManagement(View view) {
-        openModule(new TabIntentData().setAction(TabAction.OPEN_ACCOUNT_MANAGER));
+    fun openAccountManagement(view: View?) {
+        openModule(TabIntentData().setAction(TabAction.OPEN_ACCOUNT_MANAGER))
     }
 
-    private TabIntentData setNoteJumpPath(TabIntentData data) {
-        String jumpPath = "";
-        switch (binding.rgNote.getCheckedRadioButtonId()) {
-            case R.id.rb_search:
-                jumpPath = NoteRouter.SEARCH.toString();
-                break;
-            case R.id.rb_backup:
-                jumpPath = NoteRouter.BACKUP.toString();
-                break;
-            case R.id.rb_common_setting:
-                jumpPath = NoteRouter.COMMON_SETTING.toString();
-                break;
-            case R.id.rb_ai_setting:
-                jumpPath = NoteRouter.AI_SETTING.toString();
-                break;
+    private fun setNoteJumpPath(data: TabIntentData): TabIntentData {
+        val jumpPath = when (binding.rgNote.checkedRadioButtonId) {
+            R.id.rb_search -> NoteRouter.SEARCH.toString()
+            R.id.rb_backup -> NoteRouter.BACKUP.toString()
+            R.id.rb_common_setting -> NoteRouter.COMMON_SETTING.toString()
+            R.id.rb_ai_setting -> NoteRouter.AI_SETTING.toString()
+            else -> ""
         }
-        return data.setJumpPath(jumpPath);
+        return data.setJumpPath(jumpPath)
     }
 
-    private void openModule(TabIntentData data) {
-        Intent intent = new Intent();
-        intent.setComponent(new ComponentName("com.onyx", "com.onyx.main.ui.MainActivity"));
-        intent.putExtra("json", JSONUtils.toJson(data));
+    private fun openModule(data: TabIntentData) {
+        val intent = Intent()
+        intent.component = ComponentName("com.onyx", "com.onyx.main.ui.MainActivity")
+        intent.putExtra("json", JSONUtils.toJson(data))
         try {
-            startActivity(intent);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(this, "open kcb failed!", Toast.LENGTH_SHORT).show();
+            startActivity(intent)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(this, "open kcb failed!", Toast.LENGTH_SHORT).show()
         }
     }
 }

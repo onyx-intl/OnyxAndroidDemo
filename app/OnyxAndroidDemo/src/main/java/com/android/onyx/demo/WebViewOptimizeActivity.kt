@@ -1,38 +1,31 @@
-package com.android.onyx.demo;
+package com.android.onyx.demo
 
-import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
-import android.view.View;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import android.os.Bundle
+import android.view.View
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import com.android.onyx.demo.databinding.ActivityWebviewOptimizeBinding
+import com.onyx.android.sdk.api.device.epd.EpdController
 
-import androidx.databinding.DataBindingUtil;
+class WebViewOptimizeActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityWebviewOptimizeBinding
+    private lateinit var webView: WebView
+    private var toggled = true
 
-import com.android.onyx.demo.databinding.ActivityWebviewOptimizeBinding;
-import com.onyx.android.sdk.api.device.epd.EpdController;
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_webview_optimize)
+        binding.activityWebview = this
 
-
-public class WebViewOptimizeActivity extends AppCompatActivity {
-
-    WebView webView;
-
-    private boolean toggled = true;
-
-    private ActivityWebviewOptimizeBinding binding;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_webview_optimize);
-        binding.setActivityWebview(this);
-
-        webView = binding.webView;
-        webView.setWebViewClient(new WebViewClient());
-        webView.loadUrl("https://www.google.com");
+        webView = binding.webView
+        webView.webViewClient = WebViewClient()
+        webView.loadUrl("https://www.google.com")
     }
-    
-    public void toggleOptimize(View view) {
-        toggled = !toggled;
-        EpdController.setWebViewContrastOptimize(webView, toggled);
+
+    fun toggleOptimize(view: View?) {
+        toggled = !toggled
+        EpdController.setWebViewContrastOptimize(webView, toggled)
     }
 }

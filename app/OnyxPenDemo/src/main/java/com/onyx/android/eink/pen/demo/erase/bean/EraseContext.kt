@@ -1,63 +1,55 @@
-package com.onyx.android.eink.pen.demo.erase.bean;
+package com.onyx.android.eink.pen.demo.erase.bean
 
-import android.graphics.RectF;
+import android.graphics.RectF
+import com.onyx.android.eink.pen.demo.shape.Shape
+import com.onyx.android.sdk.data.note.TouchPoint
+import com.onyx.android.sdk.pen.data.TouchPointList
+import kotlin.concurrent.Volatile
 
-import com.onyx.android.eink.pen.demo.shape.Shape;
-import com.onyx.android.sdk.data.note.TouchPoint;
-import com.onyx.android.sdk.pen.data.TouchPointList;
+class EraseContext {
+    private val splitShapes: MutableList<Shape?> = ArrayList()
+    private val wholeEraseTrackPoints: TouchPointList = TouchPointList()
+    private var eraseRect: RectF? = null
 
-import java.util.ArrayList;
-import java.util.List;
+    @Volatile
+    private var finishing: Boolean = false
 
-public class EraseContext {
-    private final List<Shape> splitShapes = new ArrayList<>();
-    private final TouchPointList wholeEraseTrackPoints = new TouchPointList();
-    private RectF eraseRect;
-    private volatile boolean finishing;
+    fun isFinishing(): Boolean = finishing
 
-    public boolean isFinishing() {
-        return finishing;
+    fun setFinishing(finishing: Boolean) {
+        this.finishing = finishing
     }
 
-    public void setFinishing(boolean finishing) {
-        this.finishing = finishing;
+    fun getSplitShapes(): MutableList<Shape?> = splitShapes
+
+    fun getWholeEraseTrackPoints(): TouchPointList = wholeEraseTrackPoints
+
+    fun addErasePoint(point: TouchPoint?) {
+        wholeEraseTrackPoints.add(point)
     }
 
-    public List<Shape> getSplitShapes() {
-        return splitShapes;
-    }
-
-    public TouchPointList getWholeEraseTrackPoints() {
-        return wholeEraseTrackPoints;
-    }
-
-    public void addErasePoint(TouchPoint point) {
-        wholeEraseTrackPoints.add(point);
-    }
-
-    public void addErasePoints(TouchPointList pointList) {
+    fun addErasePoints(pointList: TouchPointList?) {
         if (pointList == null) {
-            return;
+            return
         }
-        wholeEraseTrackPoints.addAll(pointList);
+        wholeEraseTrackPoints.addAll(pointList)
     }
 
-    public void addSplitShapes(List<Shape> shapes) {
-        splitShapes.addAll(shapes);
+    fun addSplitShapes(shapes: MutableList<Shape?>) {
+        splitShapes.addAll(shapes)
     }
 
-    public void unionEraseRect(RectF rect) {
+    fun unionEraseRect(rect: RectF?) {
         if (rect == null) {
-            return;
+            return
         }
-        if (eraseRect == null) {
-            eraseRect = new RectF(rect);
+        val current = eraseRect
+        if (current == null) {
+            eraseRect = RectF(rect)
         } else {
-            eraseRect.union(rect);
+            current.union(rect)
         }
     }
 
-    public RectF getEraseRect() {
-        return eraseRect;
-    }
+    fun getEraseRect(): RectF? = eraseRect
 }

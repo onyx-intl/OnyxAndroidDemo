@@ -1,34 +1,24 @@
-package com.onyx.android.eink.pen.demo.erase.data;
+package com.onyx.android.eink.pen.demo.erase.data
 
-import com.onyx.android.eink.pen.demo.R;
+import com.onyx.android.eink.pen.demo.R
 
-public enum EraseType {
+enum class EraseType(private val nameResId: Int, private val value: Int) {
     STROKE(R.string.stroke_eraser, EraseTypes.ERASER_STROKE),
     MOVE(R.string.move_eraser, EraseTypes.ERASER_MOVE),
     AREA(R.string.area_eraser, EraseTypes.ERASER_AREA);
 
-    private final int nameResId;
-    private final int value;
+    fun getNameResId(): Int = nameResId
 
-    EraseType(int nameResId, int value) {
-        this.nameResId = nameResId;
-        this.value = value;
-    }
+    fun getValue(): Int = value
 
-    public int getNameResId() {
-        return nameResId;
-    }
-
-    public int getValue() {
-        return value;
-    }
-
-    public static EraseType fromValue(int value) {
-        for (EraseType type : values()) {
-            if (type.value == value) {
-                return type;
+    companion object {
+        fun fromValue(value: Int): EraseType {
+            for (type in entries) {
+                if (type.getValue() == value) {
+                    return type
+                }
             }
+            return STROKE
         }
-        return STROKE;
     }
 }

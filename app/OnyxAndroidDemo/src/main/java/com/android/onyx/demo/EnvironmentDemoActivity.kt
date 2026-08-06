@@ -1,24 +1,23 @@
-package com.android.onyx.demo;
+package com.android.onyx.demo
 
-import android.os.Bundle;
-import android.os.Environment;
-import androidx.appcompat.app.AppCompatActivity;
+import android.os.Bundle
+import android.os.Environment
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import com.android.onyx.demo.databinding.ActivityEnvironmentDemoBinding
+import com.onyx.android.sdk.api.device.DeviceEnvironment
 
-import androidx.databinding.DataBindingUtil;
+class EnvironmentDemoActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityEnvironmentDemoBinding
 
-import com.android.onyx.demo.databinding.ActivityEnvironmentDemoBinding;
-import com.onyx.android.sdk.api.device.DeviceEnvironment;
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_environment_demo)
 
-public class EnvironmentDemoActivity extends AppCompatActivity {
-    private ActivityEnvironmentDemoBinding binding;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_environment_demo);
-
-        binding.textViewFlashPath.setText(Environment.getExternalStorageDirectory().getAbsolutePath());
-        binding.textViewFlashState.setText(Environment.getExternalStorageState());
-        binding.textViewSdCardPath.setText(DeviceEnvironment.getRemovableSDCardDirectory().getAbsolutePath());
+        binding.textViewFlashPath.text =
+            Environment.getExternalStorageDirectory().absolutePath
+        binding.textViewFlashState.text = Environment.getExternalStorageState()
+        binding.textViewSdCardPath.text =
+            DeviceEnvironment.getRemovableSDCardDirectory().absolutePath
     }
 }

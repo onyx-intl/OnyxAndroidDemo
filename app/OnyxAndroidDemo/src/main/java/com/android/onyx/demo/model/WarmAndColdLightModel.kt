@@ -1,110 +1,94 @@
-package com.android.onyx.demo.model;
+package com.android.onyx.demo.model
 
-import android.content.Context;
-import android.database.ContentObserver;
-import android.util.Log;
-import android.view.View;
+import android.content.Context
+import android.database.ContentObserver
+import android.util.Log
+import android.view.View
+import androidx.databinding.ObservableInt
+import com.android.onyx.demo.databinding.ActivityFrontLightDemoBinding
+import com.onyx.android.sdk.api.device.brightness.BaseBrightnessProvider
+import com.onyx.android.sdk.api.device.brightness.BrightnessController
+import com.onyx.android.sdk.device.BaseDevice
+import com.onyx.android.sdk.utils.RxTimerUtil
 
-import androidx.databinding.ObservableInt;
+class WarmAndColdLightModel(mContext: Context) : BaseLightModel(mContext) {
+    private var warmProvider: BaseBrightnessProvider? = null
+    private var coldProvider: BaseBrightnessProvider? = null
 
-import com.android.onyx.demo.databinding.ActivityFrontLightDemoBinding;
-import com.onyx.android.sdk.api.device.brightness.BaseBrightnessProvider;
-import com.onyx.android.sdk.api.device.brightness.BrightnessController;
-import com.onyx.android.sdk.device.BaseDevice;
-import com.onyx.android.sdk.utils.RxTimerUtil;
-
-public class WarmAndColdLightModel extends BaseLightModel {
-    private static final String KEY_WARM_BRIGHTNESS = "screen_warm_brightness";
-    private static final String KEY_COLD_BRIGHTNESS = "screen_cold_brightness";
-    private static final String KEY_WARM_BRIGHTNESS_STATE = "warm_brightness_state_key";
-    private static final String KEY_COLD_BRIGHTNESS_STATE = "cold_brightness_state_key";
-
-    private BaseBrightnessProvider warmProvider;
-    private BaseBrightnessProvider coldProvider;
-
-    public ObservableInt warmValue = new ObservableInt(){
-        @Override
-        public int get() {
-            if (warmProvider == null) {
-                return 0;
-            }
-            return warmProvider.getIndex();
-        }
-    };
-    public ObservableInt coldValue = new ObservableInt(){
-        @Override
-        public int get() {
-            if (coldProvider == null) {
-                return 0;
-            }
-            return coldProvider.getIndex();
-        }
-    };
-
-    public WarmAndColdLightModel(Context mContext) {
-        super(mContext);
+    @JvmField
+    var warmValue: ObservableInt = object : ObservableInt() {
+        override fun get(): Int = warmProvider?.index ?: 0
+    }
+    @JvmField
+    var coldValue: ObservableInt = object : ObservableInt() {
+        override fun get(): Int = coldProvider?.index ?: 0
     }
 
-    @Override
-    public void updateLightValue() {
-        warmValue.notifyChange();
-        coldValue.notifyChange();
+    override fun updateLightValue() {
+        warmValue.notifyChange()
+        coldValue.notifyChange()
     }
 
-    @Override
-    public void initView(ActivityFrontLightDemoBinding binding) {
-        this.binding = binding;
-        binding.setWarmAndColdLightModel(this);
-        binding.warmColdContainer.setVisibility(View.VISIBLE);
-        warmProvider = BrightnessController.getBrightnessProvider(mContext, BaseDevice.LIGHT_TYPE_CTM_WARM);
-        initSeekBar(binding.warmBrightnessSeek, warmProvider);
+    override fun initView(binding: ActivityFrontLightDemoBinding) {
+        this.binding = binding
+        binding.warmAndColdLightModel = this
+        binding.warmColdContainer.visibility = View.VISIBLE
+        val warm =
+            BrightnessController.getBrightnessProvider(mContext, BaseDevice.LIGHT_TYPE_CTM_WARM)
+        warmProvider = warm
+        initSeekBar(binding.warmBrightnessSeek, warm)
 
-        coldProvider = BrightnessController.getBrightnessProvider(mContext, BaseDevice.LIGHT_TYPE_CTM_COLD);
-        initSeekBar(binding.coldBrightnessSeek, coldProvider);
+        val cold =
+            BrightnessController.getBrightnessProvider(mContext, BaseDevice.LIGHT_TYPE_CTM_COLD)
+        coldProvider = cold
+        initSeekBar(binding.coldBrightnessSeek, cold)
 
-        registerObserver(KEY_COLD_BRIGHTNESS, new ContentObserver(null) {
-            @Override
-            public void onChange(boolean selfChange) {
-                coldValue.notifyChange();
+        registerObserver(KEY_COLD_BRIGHTNESS, object : ContentObserver(null) {
+            override fun onChange(selfChange: Boolean) {
+                coldValue.notifyChange()
             }
-        });
-        registerObserver(KEY_WARM_BRIGHTNESS, new ContentObserver(null) {
-            @Override
-            public void onChange(boolean selfChange) {
-                warmValue.notifyChange();
+        })
+        registerObserver(KEY_WARM_BRIGHTNESS, object : ContentObserver(null) {
+            override fun onChange(selfChange: Boolean) {
+                warmValue.notifyChange()
             }
-        });
-        registerObserver(KEY_COLD_BRIGHTNESS_STATE, new ContentObserver(null) {
-            @Override
-            public void onChange(boolean selfChange) {
-                Log.i(TAG, "Cold brightness light on: " + coldProvider.isLightOn());
+        })
+        registerObserver(KEY_COLD_BRIGHTNESS_STATE, object : ContentObserver(null) {
+            override fun onChange(selfChange: Boolean) {
+                Log.i(TAG, "Cold brightness light on: " + (coldProvider?.isLightOn ?: false))
             }
-        });
-        registerObserver(KEY_WARM_BRIGHTNESS_STATE, new ContentObserver(null) {
-            @Override
-            public void onChange(boolean selfChange) {
-                Log.i(TAG, "Warm brightness light on: " + warmProvider.isLightOn());
+        })
+        registerObserver(KEY_WARM_BRIGHTNESS_STATE, object : ContentObserver(null) {
+            override fun onChange(selfChange: Boolean) {
+                Log.i(TAG, "Warm brightness light on: " + (warmProvider?.isLightOn ?: false))
             }
-        });
+        })
     }
 
-    public void toggleWarmLight() {
-        warmProvider.toggle();
-        delay(new RxTimerUtil.TimerObserver() {
-            @Override
-            public void onNext(Long aLong) {
-                updateLightValue();
+    fun toggleWarmLight() {
+        val provider = warmProvider ?: return
+        provider.toggle()
+        delay(object : RxTimerUtil.TimerObserver() {
+            override fun onNext(aLong: Long) {
+                updateLightValue()
             }
-        });
+        })
     }
 
-    public void toggleColdLight() {
-        coldProvider.toggle();
-        delay(new RxTimerUtil.TimerObserver() {
-            @Override
-            public void onNext(Long aLong) {
-                updateLightValue();
+    fun toggleColdLight() {
+        val provider = coldProvider ?: return
+        provider.toggle()
+        delay(object : RxTimerUtil.TimerObserver() {
+            override fun onNext(aLong: Long) {
+                updateLightValue()
             }
-        });
+        })
+    }
+
+    companion object {
+        private const val KEY_WARM_BRIGHTNESS = "screen_warm_brightness"
+        private const val KEY_COLD_BRIGHTNESS = "screen_cold_brightness"
+        private const val KEY_WARM_BRIGHTNESS_STATE = "warm_brightness_state_key"
+        private const val KEY_COLD_BRIGHTNESS_STATE = "cold_brightness_state_key"
     }
 }
