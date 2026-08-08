@@ -9,7 +9,6 @@ import com.android.onyx.demo.databinding.ActivityFrontLightDemoBinding
 import com.onyx.android.sdk.api.device.brightness.BaseBrightnessProvider
 import com.onyx.android.sdk.api.device.brightness.BrightnessController
 import com.onyx.android.sdk.device.BaseDevice
-import com.onyx.android.sdk.utils.RxTimerUtil
 
 class CTMAllLightModel(mContext: Context) : BaseLightModel(mContext) {
     private var temperatureProvider: BaseBrightnessProvider? = null
@@ -67,21 +66,13 @@ class CTMAllLightModel(mContext: Context) : BaseLightModel(mContext) {
     fun toggleCTMLight() {
         val provider = ctmBrightnessProvider ?: return
         provider.toggle()
-        delay(object : RxTimerUtil.TimerObserver() {
-            override fun onNext(aLong: Long) {
-                updateLightValue()
-            }
-        })
+        delay { updateLightValue() }
     }
 
     fun toggleCTMTemperature() {
         val provider = temperatureProvider ?: return
         provider.toggle()
-        delay(object : RxTimerUtil.TimerObserver() {
-            override fun onNext(aLong: Long) {
-                updateLightValue()
-            }
-        })
+        delay { updateLightValue() }
     }
 
     companion object {

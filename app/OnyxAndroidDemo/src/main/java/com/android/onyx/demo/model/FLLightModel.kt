@@ -9,7 +9,6 @@ import com.android.onyx.demo.databinding.ActivityFrontLightDemoBinding
 import com.onyx.android.sdk.api.device.brightness.BaseBrightnessProvider
 import com.onyx.android.sdk.api.device.brightness.BrightnessController
 import com.onyx.android.sdk.device.BaseDevice
-import com.onyx.android.sdk.utils.RxTimerUtil
 
 class FLLightModel(mContext: Context) : BaseLightModel(mContext) {
     private var flProvider: BaseBrightnessProvider? = null
@@ -47,11 +46,7 @@ class FLLightModel(mContext: Context) : BaseLightModel(mContext) {
     fun toggleFLLight() {
         val provider = flProvider ?: return
         provider.toggle()
-        delay(object : RxTimerUtil.TimerObserver() {
-            override fun onNext(aLong: Long) {
-                updateLightValue()
-            }
-        })
+        delay { updateLightValue() }
     }
 
     companion object {

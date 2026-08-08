@@ -6,14 +6,15 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import com.android.onyx.demo.databinding.ActivityEacDemoBinding
 import com.onyx.android.sdk.api.device.eac.SimpleEACManage
-import com.onyx.android.sdk.rx.RxUtils
 import com.onyx.android.sdk.utils.DeviceUtils
 import com.onyx.android.sdk.utils.RotationUtils
-import com.onyx.android.sdk.utils.RxTimerUtil
-import io.reactivex.schedulers.Schedulers
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * App optimize entrance:long press app to select the optimization option or FloatingButton optimization option.
@@ -60,8 +61,8 @@ class EacDemoActivity : AppCompatActivity() {
      * This API is targeted at 3.2 and above.
      */
     private fun setEacRefreshConfigEnable(isChecked: Boolean) {
-        RxUtils.runInIO {
-            SimpleEACManage.getInstance().setEACRefreshConfigEnable(this, isChecked)
+        lifecycleScope.launch(Dispatchers.IO) {
+            SimpleEACManage.getInstance().setEACRefreshConfigEnable(this@EacDemoActivity, isChecked)
             updateAllStatusDelay()
         }
     }
@@ -70,8 +71,8 @@ class EacDemoActivity : AppCompatActivity() {
      * This API is targeted at 3.3.1 and above.
      */
     private fun setEacFollowSystemRotation(isChecked: Boolean) {
-        RxUtils.runInIO {
-            SimpleEACManage.getInstance().setFollowSystemRotation(this, isChecked)
+        lifecycleScope.launch(Dispatchers.IO) {
+            SimpleEACManage.getInstance().setFollowSystemRotation(this@EacDemoActivity, isChecked)
             updateAllStatusDelay()
         }
     }
@@ -81,15 +82,15 @@ class EacDemoActivity : AppCompatActivity() {
      * Parameters Context use activity can realize EAC config Immediate effect.(version 3.1 and before not supported，take effect need reopen app)
      */
     fun setSupportEAC(support: Boolean) {
-        RxUtils.runInIO {
-            SimpleEACManage.getInstance().setSupportEAC(this, support)
+        lifecycleScope.launch(Dispatchers.IO) {
+            SimpleEACManage.getInstance().setSupportEAC(this@EacDemoActivity, support)
             updateAllStatusDelay()
         }
     }
 
     fun setEACEnable(enable: Boolean) {
-        RxUtils.runInIO {
-            SimpleEACManage.getInstance().setAppEACEnable(this, enable)
+        lifecycleScope.launch(Dispatchers.IO) {
+            SimpleEACManage.getInstance().setAppEACEnable(this@EacDemoActivity, enable)
             updateAllStatusDelay()
         }
     }
@@ -98,65 +99,54 @@ class EacDemoActivity : AppCompatActivity() {
      * It`s app optimize switch status, not about with eac enable/disable.
      */
     private fun updateEACSwitchStatus() {
-        RxUtils.runWith(
-            { SimpleEACManage.getInstance().isAppEACEnabled(packageName) },
-            { enable: Boolean? ->
-                val value = enable == true
-                binding.eacEnableStatus.text = getString(R.string.eac_enable_format, value.toString())
-                binding.switchEacEnable.isChecked = value
-            },
-            Schedulers.io()
-        )
+        lifecycleScope.launch {
+            val enable = withContext(Dispatchers.IO) {
+                SimpleEACManage.getInstance().isAppEACEnabled(packageName)
+            }
+            binding.eacEnableStatus.text = getString(R.string.eac_enable_format, enable.toString())
+            binding.switchEacEnable.isChecked = enable
+        }
     }
 
     private fun updateHookEpdcStatus() {
-        RxUtils.runWith(
-            { SimpleEACManage.getInstance().isHookEpdc(packageName) },
-            { enable: Boolean? ->
-                binding.hookEpdcStatus.text =
-                    getString(R.string.hook_epdc_format, (enable == true).toString())
-            },
-            Schedulers.io()
-        )
+        lifecycleScope.launch {
+            val enable = withContext(Dispatchers.IO) {
+                SimpleEACManage.getInstance().isHookEpdc(packageName)
+            }
+            binding.hookEpdcStatus.text = getString(R.string.hook_epdc_format, enable.toString())
+        }
     }
 
     private fun updateEACSupportStatus() {
-        RxUtils.runWith(
-            { SimpleEACManage.getInstance().isSupportEAC(packageName) },
-            { support: Boolean? ->
-                val value = support == true
-                binding.eacSupportStatus.text =
-                    getString(R.string.eac_support_format, value.toString())
-                binding.switchEacSupport.isChecked = value
-            },
-            Schedulers.io()
-        )
+        lifecycleScope.launch {
+            val support = withContext(Dispatchers.IO) {
+                SimpleEACManage.getInstance().isSupportEAC(packageName)
+            }
+            binding.eacSupportStatus.text = getString(R.string.eac_support_format, support.toString())
+            binding.switchEacSupport.isChecked = support
+        }
     }
 
     private fun updateRefreshConfigEnableStatus() {
-        RxUtils.runWith(
-            { SimpleEACManage.getInstance().isEACRefreshConfigEnable(packageName) },
-            { enable: Boolean? ->
-                val value = enable == true
-                binding.tvEacRefreshConfigEnable.text =
-                    getString(R.string.eac_refresh_config_enable_format, value.toString())
-                binding.switchRefreshConfigEnable.isChecked = value
-            },
-            Schedulers.io()
-        )
+        lifecycleScope.launch {
+            val enable = withContext(Dispatchers.IO) {
+                SimpleEACManage.getInstance().isEACRefreshConfigEnable(packageName)
+            }
+            binding.tvEacRefreshConfigEnable.text =
+                getString(R.string.eac_refresh_config_enable_format, enable.toString())
+            binding.switchRefreshConfigEnable.isChecked = enable
+        }
     }
 
     private fun updateFollowSystemRotationStatus() {
-        RxUtils.runWith(
-            { SimpleEACManage.getInstance().isFollowSystemRotation(packageName) },
-            { enable: Boolean? ->
-                val value = enable == true
-                binding.tvEacFollowSystemRotationEnable.text =
-                    getString(R.string.eac_follow_system_rotation_format, value.toString())
-                binding.switchFollowSystemRotationEnable.isChecked = value
-            },
-            Schedulers.io()
-        )
+        lifecycleScope.launch {
+            val enable = withContext(Dispatchers.IO) {
+                SimpleEACManage.getInstance().isFollowSystemRotation(packageName)
+            }
+            binding.tvEacFollowSystemRotationEnable.text =
+                getString(R.string.eac_follow_system_rotation_format, enable.toString())
+            binding.switchFollowSystemRotationEnable.isChecked = enable
+        }
     }
 
     private fun updateAllStatus() {
@@ -168,15 +158,10 @@ class EacDemoActivity : AppCompatActivity() {
     }
 
     private fun updateAllStatusDelay() {
-        RxTimerUtil.timer(
-            UPDATE_EAC_STATUS_DELAY.toLong(),
-            TimeUnit.MILLISECONDS,
-            object : RxTimerUtil.TimerObserver() {
-                override fun onNext(aLong: Long) {
-                    updateAllStatus()
-                }
-            }
-        )
+        lifecycleScope.launch {
+            delay(UPDATE_EAC_STATUS_DELAY.toLong())
+            updateAllStatus()
+        }
     }
 
     private fun appRotation() {

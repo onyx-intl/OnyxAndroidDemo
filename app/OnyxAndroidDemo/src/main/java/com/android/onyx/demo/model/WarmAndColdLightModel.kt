@@ -9,7 +9,6 @@ import com.android.onyx.demo.databinding.ActivityFrontLightDemoBinding
 import com.onyx.android.sdk.api.device.brightness.BaseBrightnessProvider
 import com.onyx.android.sdk.api.device.brightness.BrightnessController
 import com.onyx.android.sdk.device.BaseDevice
-import com.onyx.android.sdk.utils.RxTimerUtil
 
 class WarmAndColdLightModel(mContext: Context) : BaseLightModel(mContext) {
     private var warmProvider: BaseBrightnessProvider? = null
@@ -68,21 +67,13 @@ class WarmAndColdLightModel(mContext: Context) : BaseLightModel(mContext) {
     fun toggleWarmLight() {
         val provider = warmProvider ?: return
         provider.toggle()
-        delay(object : RxTimerUtil.TimerObserver() {
-            override fun onNext(aLong: Long) {
-                updateLightValue()
-            }
-        })
+        delay { updateLightValue() }
     }
 
     fun toggleColdLight() {
         val provider = coldProvider ?: return
         provider.toggle()
-        delay(object : RxTimerUtil.TimerObserver() {
-            override fun onNext(aLong: Long) {
-                updateLightValue()
-            }
-        })
+        delay { updateLightValue() }
     }
 
     companion object {

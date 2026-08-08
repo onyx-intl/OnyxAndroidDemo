@@ -2,18 +2,17 @@ package com.onyx.daydreamdemo.service
 
 import android.service.dreams.DreamService
 import com.onyx.android.sdk.common.request.WakeLockHolder
-import com.onyx.android.sdk.utils.RxTimerUtil
 import com.onyx.daydreamdemo.ImageDayDream
 import com.onyx.daydreamdemo.utils.ReflectUtils
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MyDreamService : DreamService() {
-    private val startDozingTimer: RxTimerUtil.TimerObserver by lazy {
-        object : RxTimerUtil.TimerObserver() {
-            override fun onNext(aLong: Long) {
-                invokeStartDozing()
-            }
-        }
-    }
+    private val scope = MainScope()
+    private var dozeJob: Job? = null
     private val wakeLockHolder: WakeLockHolder by lazy {
         WakeLockHolder()
     }
@@ -44,18 +43,30 @@ class MyDreamService : DreamService() {
     override fun onDreamingStopped() {
         super.onDreamingStopped()
 
+        dozeJob?.cancel()
+        dozeJob = null
         dream.onDreamingStopped()
         invokeStopDozing()
     }
 
+    override fun onDestroy() {
+        dozeJob?.cancel()
+        scope.cancel()
+        super.onDestroy()
+    }
+
     private fun delayInvokeStartDozing() {
-        wakeLockHolder!!.acquireWakeLock(
+        wakeLockHolder.acquireWakeLock(
             this,
             WakeLockHolder.FULL_FLAGS,
-            javaClass.getSimpleName(),
+            javaClass.simpleName,
             WAKELOCK_DURATION_MILLIS.toInt()
         )
-        RxTimerUtil.timer(DOZE_DELAY_MILLIS, startDozingTimer)
+        dozeJob?.cancel()
+        dozeJob = scope.launch {
+            delay(DOZE_DELAY_MILLIS)
+            invokeStartDozing()
+        }
     }
 
     private fun invokeStartDozing() {

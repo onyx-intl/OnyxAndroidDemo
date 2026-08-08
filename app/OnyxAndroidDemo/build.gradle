@@ -70,6 +70,9 @@ dependencies {
     implementation "androidx.multidex:multidex:2.0.0"
     api "androidx.constraintlayout:constraintlayout:1.1.3"
 
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${rootProject.ext.coroutines_version}"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:${rootProject.ext.lifecycle_runtime_ktx_version}"
+
     annotationProcessor "com.github.Raizlabs.DBFlow:dbflow-processor:4.2.4"
     implementation "com.github.Raizlabs.DBFlow:dbflow-core:4.2.4"
     implementation "com.github.Raizlabs.DBFlow:dbflow:4.2.4"

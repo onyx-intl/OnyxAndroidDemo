@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Build
 import androidx.multidex.MultiDex
 import androidx.multidex.MultiDexApplication
-import com.onyx.android.sdk.rx.RxManager
 import org.lsposed.hiddenapibypass.HiddenApiBypass
 
 /**
@@ -19,7 +18,6 @@ class SampleApplication : MultiDexApplication() {
     override fun onCreate() {
         super.onCreate()
         initConfig()
-        RxManager.Builder.initAppContext(this)
         checkHiddenApiBypass()
     }
 

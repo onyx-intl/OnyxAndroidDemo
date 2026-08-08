@@ -31,4 +31,10 @@ class FrontLightDemoActivity : AppCompatActivity() {
         super.onResume()
         lightModel?.updateLightValue()
     }
+
+    override fun onDestroy() {
+        lightModel?.release()
+        lightModel = null
+        super.onDestroy()
+    }
 }

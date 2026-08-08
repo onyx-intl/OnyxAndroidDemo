@@ -44,8 +44,7 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.5.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
-    api "io.reactivex.rxjava2:rxjava:2.1.13"
-    api "io.reactivex.rxjava2:rxandroid:2.1.0"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${rootProject.ext.coroutines_version}"
 
     implementation('com.onyx.android.sdk:onyxsdk-base:1.8.5.5')
 }

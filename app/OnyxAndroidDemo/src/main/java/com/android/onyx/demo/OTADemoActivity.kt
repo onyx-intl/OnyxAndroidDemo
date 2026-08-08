@@ -4,11 +4,14 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import com.android.onyx.demo.databinding.ActivityOtaDemoBinding
 import com.onyx.android.sdk.api.data.model.FirmwareBean
 import com.onyx.android.sdk.api.device.OTAManager
-import com.onyx.android.sdk.rx.RxUtils
 import com.onyx.android.sdk.utils.JSONUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Created by seeksky on 2018/5/17.
@@ -24,14 +27,12 @@ class OTADemoActivity : AppCompatActivity() {
     }
 
     private fun initData() {
-        RxUtils.runWithInComputation(
-            { currentFirmwareInfo },
-            { firmwareBean: FirmwareBean? ->
-                if (firmwareBean != null) {
-                    binding.tvFirmwareInfo.text = JSONUtils.toJson(firmwareBean)
-                }
+        lifecycleScope.launch {
+            val firmwareBean = withContext(Dispatchers.Default) {
+                currentFirmwareInfo
             }
-        )
+            binding.tvFirmwareInfo.text = JSONUtils.toJson(firmwareBean)
+        }
     }
 
     fun onOTAUpdate(view: View?) {

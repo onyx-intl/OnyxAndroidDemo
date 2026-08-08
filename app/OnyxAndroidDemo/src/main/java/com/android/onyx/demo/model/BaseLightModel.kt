@@ -9,11 +9,15 @@ import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import com.android.onyx.demo.databinding.ActivityFrontLightDemoBinding
 import com.onyx.android.sdk.api.device.brightness.BaseBrightnessProvider
-import com.onyx.android.sdk.utils.RxTimerUtil
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 abstract class BaseLightModel(protected var mContext: Context) {
     protected var binding: ActivityFrontLightDemoBinding? = null
+    private val scope: CoroutineScope = MainScope()
 
     abstract fun updateLightValue()
 
@@ -41,8 +45,15 @@ abstract class BaseLightModel(protected var mContext: Context) {
         mContext.sendBroadcast(Intent("action.show.brightness.dialog"))
     }
 
-    fun delay(timerObserver: RxTimerUtil.TimerObserver) {
-        RxTimerUtil.timer(100, TimeUnit.MILLISECONDS, timerObserver)
+    fun delay(block: () -> Unit) {
+        scope.launch(Dispatchers.Main) {
+            kotlinx.coroutines.delay(DELAY_MS)
+            block()
+        }
+    }
+
+    fun release() {
+        scope.cancel()
     }
 
     fun registerObserver(key: String, contentObserver: ContentObserver) {
@@ -52,5 +63,6 @@ abstract class BaseLightModel(protected var mContext: Context) {
 
     companion object {
         const val TAG: String = "LightModel"
+        private const val DELAY_MS = 100L
     }
 }
