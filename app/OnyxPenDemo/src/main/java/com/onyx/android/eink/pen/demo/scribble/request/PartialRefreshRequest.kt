@@ -9,20 +9,14 @@ import android.view.SurfaceView
 import com.onyx.android.eink.pen.demo.util.RendererUtils
 import com.onyx.android.sdk.api.device.epd.EpdController
 import com.onyx.android.sdk.api.device.epd.UpdateMode
-import com.onyx.android.sdk.rx.RxRequest
 import com.onyx.android.sdk.utils.RectUtils
 
-class PartialRefreshRequest(context: Context?, surfaceView: SurfaceView?, refreshRect: RectF?) :
-    RxRequest() {
+class PartialRefreshRequest(
+    private val context: Context?,
+    private val surfaceView: SurfaceView?,
     private val refreshRect: RectF?
-    private val surfaceView: SurfaceView?
+) : PenExecutable {
     private var bitmap: Bitmap? = null
-
-    init {
-        setContext(context)
-        this.surfaceView = surfaceView
-        this.refreshRect = refreshRect
-    }
 
     fun setBitmap(bitmap: Bitmap): PartialRefreshRequest {
         this.bitmap = bitmap

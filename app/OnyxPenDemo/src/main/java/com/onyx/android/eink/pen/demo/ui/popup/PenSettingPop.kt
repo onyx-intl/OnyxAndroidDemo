@@ -13,10 +13,8 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.onyx.android.eink.pen.demo.PenBundle
+import com.onyx.android.eink.pen.demo.PenCommands
 import com.onyx.android.eink.pen.demo.R
-import com.onyx.android.eink.pen.demo.action.StrokeColorChangeAction
-import com.onyx.android.eink.pen.demo.action.StrokeStyleChangeAction
-import com.onyx.android.eink.pen.demo.action.StrokeWidthChangeAction
 import com.onyx.android.eink.pen.demo.data.ShapeTexture
 import com.onyx.android.eink.pen.demo.data.ShapeType
 import com.onyx.android.eink.pen.demo.data.StrokeColor
@@ -26,7 +24,6 @@ import com.onyx.android.eink.pen.demo.util.PenInfoUtils
 import com.onyx.android.sdk.utils.CollectionUtils
 import com.onyx.android.sdk.utils.ResManager
 import com.onyx.android.sdk.utils.ViewUtils
-import io.reactivex.functions.Consumer
 import java.util.Arrays
 import java.util.Locale
 import kotlin.math.floor
@@ -168,7 +165,7 @@ class PenSettingPop(context: Context?) : BasePopup(context) {
     }
 
     private fun updateStrokeWidthImpl(lineWidth: Float) {
-        StrokeWidthChangeAction(this.currentShapeType, lineWidth).execute()
+        PenCommands.changeStrokeWidth(this.currentShapeType, lineWidth)
     }
 
     private fun getClickStrokeWidth(plusClick: Boolean, currentStrokeWidth: Float): Float {
@@ -222,13 +219,13 @@ class PenSettingPop(context: Context?) : BasePopup(context) {
         private fun onBrushSettingImpl(shapeType: ShapeType) {
             selectedShapeType = shapeType
             notifyDataSetChanged()
-            StrokeStyleChangeAction(
+            PenCommands.changeStrokeStyle(
                 selectedShapeType.getValue(), penBundle.getCurrentTexture()
-            ).build().subscribe(Consumer {
+            ) {
                 initSeekBar()
                 initTextureList()
                 updateStrokeWidth(penBundle.getPenLineWidth(shapeType.getValue()))
-            })
+            }
         }
 
         inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -260,7 +257,7 @@ class PenSettingPop(context: Context?) : BasePopup(context) {
             holder.bindTo(strokeColor, strokeColor == selectedStrokeColor)
             holder.itemView.setOnClickListener {
                 selectedStrokeColor = strokeColor
-                StrokeColorChangeAction(strokeColor.getValue()).execute()
+                PenCommands.changeStrokeColor(strokeColor.getValue())
                 notifyDataSetChanged()
             }
         }
@@ -297,9 +294,9 @@ class PenSettingPop(context: Context?) : BasePopup(context) {
             holder.bindTo(texture, texture == selectedShapeTexture)
             holder.itemView.setOnClickListener {
                 selectedShapeTexture = texture
-                StrokeStyleChangeAction(
+                PenCommands.changeStrokeStyle(
                     penBundle.getCurrentShapeType(), selectedShapeTexture.getTexture()
-                ).execute()
+                )
             }
         }
 

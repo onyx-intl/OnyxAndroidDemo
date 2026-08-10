@@ -33,7 +33,7 @@ class EraseSettingPop(context: Context?) : BasePopup(context) {
     private lateinit var binding: LayoutEraseSettingPopBinding
     private lateinit var eraseWidthPercents: MutableList<Int>
     private var penBundle: PenBundle? = null
-    private var onChanged: Runnable? = null
+    private var onChanged: (() -> Unit)? = null
     private var currentEraseType = EraseTypes.ERASER_STROKE
 
     init {
@@ -45,7 +45,7 @@ class EraseSettingPop(context: Context?) : BasePopup(context) {
         return this
     }
 
-    fun setOnChanged(onChanged: Runnable?): EraseSettingPop {
+    fun setOnChanged(onChanged: (() -> Unit)?): EraseSettingPop {
         this.onChanged = onChanged
         return this
     }
@@ -235,7 +235,7 @@ class EraseSettingPop(context: Context?) : BasePopup(context) {
     }
 
     private fun notifyChanged() {
-        onChanged?.run()
+        onChanged?.invoke()
     }
 
     private inner class EraseTypeAdapter(

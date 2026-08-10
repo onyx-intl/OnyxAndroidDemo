@@ -10,9 +10,6 @@ import com.onyx.android.eink.pen.demo.erase.data.EraseTypes
 import com.onyx.android.sdk.data.note.TouchPoint
 import com.onyx.android.sdk.pen.RawInputCallback
 import com.onyx.android.sdk.pen.data.TouchPointList
-import com.onyx.android.sdk.rx.ObservableHolder
-import io.reactivex.functions.Consumer
-import io.reactivex.functions.Function
 
 /**
  * Routes one raw-pen gesture to draw or erase.
@@ -41,7 +38,6 @@ class DrawEraseInputHandler(
         EraseController(penBundle, penManager, lifecycleCallbacks)
 
     private var currentGestureMode = GestureMode.DRAW
-    private var eraseObservable: ObservableHolder<TouchPoint>? = null
     private var eraseContext: EraseContext? = null
     private var pendingPenUpRefreshRect: RectF? = null
     private var drawingStrokeCommitted = false
@@ -131,7 +127,8 @@ class DrawEraseInputHandler(
             return
         }
         eraseContext = eraseController.begin(
-            point, temporaryErase, Runnable { onEraseParamsReady(point) })
+            point, temporaryErase
+        ) { onEraseParamsReady(point) }
     }
 
     private fun endEraseGesture() {
@@ -157,14 +154,14 @@ class DrawEraseInputHandler(
         }
         removeEraseObserver()
         val finishingContext = eraseContext
-        eraseController.finish(finishingContext, Runnable {
+        eraseController.finish(finishingContext) {
             eraseContext = null
             eraseParamsReady = false
             pendingEraseMoves.clear()
             shortcutEraseGesture = false
             currentGestureMode = GestureMode.DRAW
             eraseFinishedCallback?.onEraseFinished()
-        })
+        }
     }
 
     private fun onEraseParamsReady(downPoint: TouchPoint) {
@@ -174,7 +171,7 @@ class DrawEraseInputHandler(
         }
         eraseParamsReady = true
         if (penBundle.getCurrentEraseType() != EraseTypes.ERASER_AREA) {
-            eraseObservable = eraseController.openMoveEraseBuffer(context)
+            eraseController.openMoveEraseBuffer(context)
             val firstPoints = TouchPointList()
             firstPoints.add(TouchPoint(downPoint))
             eraseController.onErasing(firstPoints, context)
@@ -186,7 +183,10 @@ class DrawEraseInputHandler(
     }
 
     private fun dispatchEraseMove(point: TouchPoint?) {
-        eraseObservable?.onNext(point)
+        if (point == null) {
+            return
+        }
+        eraseController.offerMoveErasePoint(point)
     }
 
     private fun flushPendingPenUpRefresh() {
@@ -196,17 +196,12 @@ class DrawEraseInputHandler(
     }
 
     private fun performPenUpRefresh(refreshRect: RectF) {
-        penManager.createObservable().map<PenManager?>(Function { pm: PenManager? ->
-            val manager = pm ?: return@Function null
-            manager.refreshPartial(refreshRect)
-            manager
-        }).subscribe(
-            Consumer { _: PenManager? -> },
-            Consumer { error: Throwable? -> error?.printStackTrace() })
+        penManager.launchPen {
+            refreshPartial(refreshRect)
+        }
     }
 
     private fun removeEraseObserver() {
-        eraseObservable?.dispose()
-        eraseObservable = null
+        eraseController.closeMoveEraseBuffer()
     }
 }

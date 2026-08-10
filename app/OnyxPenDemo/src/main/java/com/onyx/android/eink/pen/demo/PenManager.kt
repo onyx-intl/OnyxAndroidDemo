@@ -24,17 +24,23 @@ import com.onyx.android.sdk.device.Device
 import com.onyx.android.sdk.pen.RawInputCallback
 import com.onyx.android.sdk.pen.TouchHelper
 import com.onyx.android.sdk.pen.style.StrokeStyle
-import com.onyx.android.sdk.rx.RxScheduler
 import com.onyx.android.sdk.utils.BitmapUtils
 import com.onyx.android.sdk.utils.Debug
 import com.onyx.android.sdk.utils.ResManager
 import com.onyx.android.sdk.utils.ViewUtils
-import io.reactivex.Observable
-import io.reactivex.Scheduler
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.greenrobot.eventbus.EventBus
 
 class PenManager(private val eventBus: EventBus) {
-    private var rxScheduler: RxScheduler? = null
+    private val penDispatcher = Dispatchers.IO.limitedParallelism(1, "PenManager")
+    private val penScope = CoroutineScope(SupervisorJob() + penDispatcher)
     private var rendererHelper: RendererHelper? = null
     private var surfaceView: SurfaceView? = null
     private var touchHelper: TouchHelper? = null
@@ -49,12 +55,65 @@ class PenManager(private val eventBus: EventBus) {
         return RendererHelper().also { rendererHelper = it }
     }
 
-    private fun getRxScheduler(): RxScheduler {
-        val existing = rxScheduler
-        if (existing != null) {
-            return existing
+    suspend fun <T> withPen(block: suspend PenManager.() -> T): T =
+        withContext(penDispatcher) { block() }
+
+    suspend fun <T> withPenCatching(
+        onFailure: (Throwable) -> Unit = { it.printStackTrace() },
+        block: suspend PenManager.() -> T,
+    ): Result<T> {
+        return try {
+            Result.success(withPen(block))
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Throwable) {
+            onFailure(e)
+            Result.failure(e)
         }
-        return RxScheduler.sharedSingleThreadManager().also { rxScheduler = it }
+    }
+
+    suspend fun <T> withPenPaused(
+        pauseRender: Boolean = true,
+        pauseInput: Boolean = true,
+        renderToScreen: Boolean = true,
+        block: suspend PenManager.() -> T,
+    ): T = withPen {
+        applyPauseFlags(pauseRender, pauseInput)
+        val result = block()
+        if (renderToScreen) {
+            renderToScreen()
+        }
+        result
+    }
+
+    /**
+     * Fire-and-forget on the pen thread (same role as former createObservable().subscribe).
+     * [onSuccess] runs on Main after the pen block completes successfully.
+     */
+    fun launchPen(
+        onFailure: (Throwable) -> Unit = { it.printStackTrace() },
+        onSuccess: (() -> Unit)? = null,
+        block: suspend PenManager.() -> Unit,
+    ): Job = penScope.launch {
+        withPenCatching(onFailure, block).onSuccess {
+            if (onSuccess != null) {
+                withContext(Dispatchers.Main.immediate) { onSuccess() }
+            }
+        }
+    }
+
+    @WorkerThread
+    private fun applyPauseFlags(pauseRender: Boolean, pauseInput: Boolean) {
+        if (pauseRender && pauseInput) {
+            setRawDrawingEnabled(false)
+            return
+        }
+        if (pauseRender) {
+            setRawDrawingRenderEnabled(false)
+        }
+        if (pauseInput) {
+            setRawInputReaderEnable(false)
+        }
     }
 
     fun getSurfaceView(): SurfaceView? = surfaceView
@@ -87,6 +146,7 @@ class PenManager(private val eventBus: EventBus) {
         hostSurfaceAttached = false
         rawSessionNeedsRestart = false
         currentMode = InteractiveMode.SCRIBBLE
+        penScope.coroutineContext[Job]?.cancelChildren()
     }
 
     @WorkerThread
@@ -115,7 +175,7 @@ class PenManager(private val eventBus: EventBus) {
         view: SurfaceView,
         floatMenuLayout: View,
         hostViewFocused: Boolean,
-        callback: RawInputCallback?
+        callback: RawInputCallback?,
     ) {
         check(!(view.width == 0 || view.height == 0)) { "can not start when view width or height is 0" }
         val preserveBitmap = surfaceView != null && surfaceView === view && BitmapUtils.isValid(
@@ -204,12 +264,6 @@ class PenManager(private val eventBus: EventBus) {
         renderToBitmap(ArrayList(getDrawShape()))
     }
 
-    fun createObservable(): Observable<PenManager> {
-        return Observable.just(this).observeOn(getObserveOn())
-    }
-
-    fun getObserveOn(): Scheduler = getRxScheduler().observeOn
-
     @WorkerThread
     fun getLimitNoteRect(): Rect = getViewRect()
 
@@ -234,8 +288,7 @@ class PenManager(private val eventBus: EventBus) {
     }
 
     private fun mmToPx(mm: Float): Float {
-        return mm * ResManager.getAppContext().resources
-            .displayMetrics.densityDpi / MM_OF_ONE_INCH
+        return mm * ResManager.getAppContext().resources.displayMetrics.densityDpi / MM_OF_ONE_INCH
     }
 
     @WorkerThread

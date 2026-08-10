@@ -75,4 +75,7 @@ dependencies {
 
     implementation('com.onyx.android.sdk:onyxsdk-pen:1.5.4.4')
     implementation 'org.lsposed.hiddenapibypass:hiddenapibypass:4.3'
+
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${rootProject.ext.coroutines_version}"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:${rootProject.ext.lifecycle_runtime_ktx_version}"
 }

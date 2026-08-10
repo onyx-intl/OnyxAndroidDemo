@@ -22,6 +22,7 @@ import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import com.onyx.android.eink.pen.demo.R
 import com.onyx.android.eink.pen.demo.databinding.ActivityPenUpRefreshDemoBinding
 import com.onyx.android.eink.pen.demo.scribble.request.PartialRefreshRequest
@@ -32,8 +33,8 @@ import com.onyx.android.sdk.pen.NeoBrushPenWrapper
 import com.onyx.android.sdk.pen.RawInputCallback
 import com.onyx.android.sdk.pen.TouchHelper
 import com.onyx.android.sdk.pen.data.TouchPointList
-import com.onyx.android.sdk.rx.RxCallback
-import com.onyx.android.sdk.rx.RxManager
+import com.onyx.android.eink.pen.demo.scribble.ScribbleScheduler
+import kotlinx.coroutines.launch
 
 class ScribblePenUpRefreshDemoActivity : AppCompatActivity() {
     private val STROKE_WIDTH = 3.0f
@@ -85,20 +86,15 @@ class ScribblePenUpRefreshDemoActivity : AppCompatActivity() {
 
             override fun onPenUpRefresh(refreshRect: RectF?) {
                 val bmp = bitmap ?: return
-                rxManager.enqueue<PartialRefreshRequest?>(
+                lifecycleScope.launch(ScribbleScheduler.dispatcher) {
                     PartialRefreshRequest(
                         this@ScribblePenUpRefreshDemoActivity,
                         binding.surfaceview1,
                         refreshRect
-                    ).setBitmap(bmp), object : RxCallback<PartialRefreshRequest?>() {
-                        override fun onNext(partialRefreshRequest: PartialRefreshRequest) {
-                        }
-                    })
+                    ).setBitmap(bmp).execute()
+                }
             }
         }
-    }
-    private val rxManager: RxManager by lazy {
-        RxManager.Builder.sharedSingleThreadManager()
     }
     private var bitmap: Bitmap? = null
     private var canvas: Canvas? = null

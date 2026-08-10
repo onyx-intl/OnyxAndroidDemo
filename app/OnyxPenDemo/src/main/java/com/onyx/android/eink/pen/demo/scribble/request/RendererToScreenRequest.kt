@@ -7,10 +7,9 @@ import android.view.SurfaceView
 import com.onyx.android.eink.pen.demo.util.RendererUtils
 import com.onyx.android.sdk.api.device.epd.EpdController
 import com.onyx.android.sdk.api.device.epd.UpdateMode
-import com.onyx.android.sdk.rx.RxRequest
 
 class RendererToScreenRequest(private val surfaceView: SurfaceView?, private val bitmap: Bitmap?) :
-    RxRequest() {
+    PenExecutable {
     @Throws(Exception::class)
     override fun execute() {
         val bmp = bitmap ?: return
@@ -34,7 +33,6 @@ class RendererToScreenRequest(private val surfaceView: SurfaceView?, private val
             EpdController.resetViewUpdateMode(surfaceView)
         }
     }
-
 
     private fun drawRendererContent(bitmap: Bitmap, canvas: Canvas) {
         val rect = Rect(0, 0, bitmap.width, bitmap.height)

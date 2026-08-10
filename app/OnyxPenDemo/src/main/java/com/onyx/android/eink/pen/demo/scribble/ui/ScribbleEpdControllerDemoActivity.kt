@@ -3,37 +3,36 @@ package com.onyx.android.eink.pen.demo.scribble.ui
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
-import android.view.View.OnGenericMotionListener
-import android.view.View.OnTouchListener
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import com.onyx.android.eink.pen.demo.R
 import com.onyx.android.eink.pen.demo.databinding.ActivityScribbleEpdControllerDemoBinding
+import com.onyx.android.eink.pen.demo.scribble.ScribbleScheduler
 import com.onyx.android.sdk.api.device.epd.EpdController
 import com.onyx.android.sdk.data.note.TouchPoint
 import com.onyx.android.sdk.pen.EpdPenManager
 import com.onyx.android.sdk.pen.style.StrokeStyle
-import com.onyx.android.sdk.rx.ObservableHolder
-import com.onyx.android.sdk.rx.SingleThreadScheduler
-import io.reactivex.Observable
-import io.reactivex.ObservableEmitter
-import io.reactivex.ObservableOnSubscribe
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.functions.Consumer
-import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import java.util.concurrent.TimeUnit
 
 class ScribbleEpdControllerDemoActivity : AppCompatActivity() {
     private val simpleDateFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
     private lateinit var binding: ActivityScribbleEpdControllerDemoBinding
-    private var timeDisposable: Disposable? = null
-    private var drawDisposable: Disposable? = null
-    private var drawEmitter: ObservableEmitter<TouchPoint?>? = null
-    private var convertDelayObservable: ObservableHolder<TouchPoint?>? = null
+
+    private val drawChannel = Channel<TouchPoint>(Channel.UNLIMITED)
+    private val pauseSignal = MutableSharedFlow<Unit>(
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,36 +40,35 @@ class ScribbleEpdControllerDemoActivity : AppCompatActivity() {
             this, R.layout.activity_scribble_epd_controller_demo
         )
         initButtonView()
-        hostView.setOnTouchListener { v, event ->
+        hostView.setOnTouchListener { _, event ->
             val touchPoint = TouchPoint(
-                event.getX(), event.getY(), event.getPressure(), 0f, System.currentTimeMillis()
+                event.x, event.y, event.pressure, 0f, System.currentTimeMillis()
             )
-            when (event.getAction()) {
+            when (event.action) {
                 MotionEvent.ACTION_DOWN -> onTouchDown(touchPoint)
                 MotionEvent.ACTION_MOVE -> onTouchMove(event)
-                MotionEvent.ACTION_UP -> onTouchUp(touchPoint)
-                MotionEvent.ACTION_CANCEL -> onTouchCancel(touchPoint)
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    finishStroke(touchPoint)
+                    requestPauseAfterIdle()
+                }
             }
             true
         }
-        hostView.setOnGenericMotionListener { v, event ->
+        hostView.setOnGenericMotionListener { _, event ->
             showTouchPosition(event.x, event.y)
             true
         }
-        showDateTime()
+        startClock()
+        startDrawPipeline()
+        startPauseDebounce()
         startPenDrawing()
     }
 
     override fun onDestroy() {
-        super.onDestroy()
+        drawChannel.close()
         pausePenDrawing()
         stopPenDrawing()
-        timeDisposable?.takeIf { !it.isDisposed }?.dispose()
-        timeDisposable = null
-        drawDisposable?.takeIf { !it.isDisposed }?.dispose()
-        drawDisposable = null
-        convertDelayObservable?.dispose()
-        convertDelayObservable = null
+        super.onDestroy()
     }
 
     private fun initButtonView() {
@@ -102,50 +100,29 @@ class ScribbleEpdControllerDemoActivity : AppCompatActivity() {
     private fun onTouchDown(touchPoint: TouchPoint) {
         resumePenDrawing()
         EpdController.moveTo(hostView, touchPoint.x, touchPoint.y, penWidth)
-        if (drawDisposable == null) {
-            drawDisposable =
-                Observable.create<TouchPoint?> { e -> drawEmitter = e }.observeOn(SingleThreadScheduler.scheduler())
-                    .subscribeOn(SingleThreadScheduler.scheduler())
-                    .subscribe(Consumer<TouchPoint?> { touchPoint ->
-                        if (touchPoint != null) {
-                            addStrokePoint(touchPoint)
-                            delayPauseDrawing(touchPoint)
-                        }
-                    })
-        }
     }
 
     private fun onTouchMove(event: MotionEvent) {
-        var touchPoint: TouchPoint?
-        val size = event.historySize
-        for (i in 0..<size) {
-            touchPoint = TouchPoint(
-                event.getHistoricalX(i),
-                event.getHistoricalY(i),
-                event.getHistoricalPressure(i),
-                event.getHistoricalSize(i),
-                event.getHistoricalEventTime(i)
+        for (i in 0 until event.historySize) {
+            drawChannel.trySend(
+                TouchPoint(
+                    event.getHistoricalX(i),
+                    event.getHistoricalY(i),
+                    event.getHistoricalPressure(i),
+                    event.getHistoricalSize(i),
+                    event.getHistoricalEventTime(i)
+                )
             )
-            executeDrawPointEmitting(touchPoint)
         }
-        touchPoint = TouchPoint(event)
-        executeDrawPointEmitting(touchPoint)
+        drawChannel.trySend(TouchPoint(event))
     }
 
-    private fun onTouchUp(touchPoint: TouchPoint) {
-        finishStroke(touchPoint)
-        delayPauseDrawing(touchPoint)
-    }
-
-    private fun onTouchCancel(touchPoint: TouchPoint) {
-        finishStroke(touchPoint)
-        delayPauseDrawing(touchPoint)
-    }
-
-    private fun executeDrawPointEmitting(touchPoint: TouchPoint?) {
-        val emitter = drawEmitter ?: return
-        if (touchPoint != null) {
-            emitter.onNext(touchPoint)
+    private fun startDrawPipeline() {
+        lifecycleScope.launch(ScribbleScheduler.dispatcher) {
+            for (touchPoint in drawChannel) {
+                addStrokePoint(touchPoint)
+                requestPauseAfterIdle()
+            }
         }
     }
 
@@ -153,31 +130,25 @@ class ScribbleEpdControllerDemoActivity : AppCompatActivity() {
         binding.touchPosition.text = "postion:\nx = $x\ny = $y"
     }
 
-    private fun showDateTime() {
-        timeDisposable = Observable.create<String?> { emitter ->
-            Schedulers.io().createWorker().schedulePeriodically({
-                val date = Date(System.currentTimeMillis())
-                val format = simpleDateFormat.format(date)
-                emitter.onNext(format)
-            }, 0, 1000, TimeUnit.MILLISECONDS)
-        }.observeOn(AndroidSchedulers.mainThread())
-            .subscribe(Consumer { time: String? -> binding.time.text = time })
+    private fun startPauseDebounce() {
+        lifecycleScope.launch {
+            pauseSignal.debounce(PEN_PAUSE_DELAY_TIME.toLong()).collect {
+                pausePenDrawing()
+            }
+        }
     }
 
-    private fun delayPauseDrawing(touchPoint: TouchPoint?) {
-        convertDelayObservable?.let { holder ->
-            holder.onNext(touchPoint)
-            return
+    private fun requestPauseAfterIdle() {
+        pauseSignal.tryEmit(Unit)
+    }
+
+    private fun startClock() {
+        lifecycleScope.launch {
+            while (isActive) {
+                binding.time.text = simpleDateFormat.format(Date())
+                delay(1000)
+            }
         }
-        val holder = ObservableHolder<TouchPoint?>()
-        convertDelayObservable = holder
-        holder.setDisposable(
-            holder.getObservable()
-                .debounce(PEN_PAUSE_DELAY_TIME.toLong(), TimeUnit.MILLISECONDS)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(Consumer<TouchPoint?> { pausePenDrawing() })
-        )
-        holder.onNext(touchPoint)
     }
 
     private fun addStrokePoint(touchPoint: TouchPoint) {

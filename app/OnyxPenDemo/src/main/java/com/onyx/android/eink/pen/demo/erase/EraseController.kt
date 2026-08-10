@@ -12,27 +12,24 @@ import com.onyx.android.eink.pen.demo.erase.data.EraseTypes
 import com.onyx.android.eink.pen.demo.erase.util.EraseRedrawUtils
 import com.onyx.android.eink.pen.demo.erase.util.EraserTrackHelper
 import com.onyx.android.eink.pen.demo.erase.util.ShapeSplitter
-import com.onyx.android.eink.pen.demo.event.PenEvent
+import com.onyx.android.eink.pen.demo.PenCommands
 import com.onyx.android.eink.pen.demo.shape.Shape
 import com.onyx.android.eink.pen.demo.util.ShapeUtils
 import com.onyx.android.sdk.data.note.TouchPoint
 import com.onyx.android.sdk.pen.data.TouchPointList
-import com.onyx.android.sdk.rx.ObservableHolder
 import com.onyx.android.sdk.utils.RectUtils
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.functions.Consumer
-import io.reactivex.functions.Function
-import java.util.concurrent.TimeUnit
 
 class EraseController(
     private val penBundle: PenBundle,
     private val penManager: PenManager,
     private val lifecycleCallbacks: EraseLifecycleCallbacks
 ) {
+    private var moveEraseBuffer: MoveEraseBuffer? = null
+
     fun begin(
         point: TouchPoint,
         temporaryErase: Boolean,
-        onPenParamsReady: Runnable?
+        onPenParamsReady: (() -> Unit)?
     ): EraseContext {
         val eraseType = penBundle.getCurrentEraseType()
         if (eraseType == EraseTypes.ERASER_AREA) {
@@ -42,12 +39,9 @@ class EraseController(
     }
 
     private fun beginAreaErase(point: TouchPoint, temporaryErase: Boolean): EraseContext {
-        submit(PenTask { pm: PenManager? -> applyEraseBegin() }, null)
+        submit { applyEraseBegin() }
         if (!temporaryErase) {
-            submit(PenTask { pm: PenManager? ->
-                val manager = pm ?: return@PenTask
-                manager.applyErasePenParams()
-            }, null)
+            submit { applyErasePenParams() }
         }
         val context = EraseContext()
         context.addErasePoint(point)
@@ -56,34 +50,31 @@ class EraseController(
 
     private fun beginMoveStrokeErase(
         point: TouchPoint,
-        onPenParamsReady: Runnable?
+        onPenParamsReady: (() -> Unit)?
     ): EraseContext {
         val context = EraseContext()
         context.addErasePoint(point)
-        submit(PenTask { pm: PenManager? -> applyEraseBegin() }, onPenParamsReady)
+        submit(onPenParamsReady) { applyEraseBegin() }
         return context
     }
 
-    fun openMoveEraseBuffer(eraseContext: EraseContext): ObservableHolder<TouchPoint>? {
+    fun openMoveEraseBuffer(eraseContext: EraseContext) {
+        closeMoveEraseBuffer()
         if (penBundle.getCurrentEraseType() == EraseTypes.ERASER_AREA) {
-            return null
+            return
         }
-        val holder = ObservableHolder<TouchPoint>()
-        holder.setDisposable(
-            holder.getObservable().buffer(MOVE_BUFFER_MS, TimeUnit.MILLISECONDS)
-                .subscribe(Consumer { touchPoints: MutableList<TouchPoint>? ->
-                    if (eraseContext.isFinishing()) {
-                        return@Consumer
-                    }
-                    val points = touchPoints ?: return@Consumer
-                    val pointList = TouchPointList()
-                    for (touchPoint in points) {
-                        pointList.add(TouchPoint(touchPoint))
-                    }
-                    onErasing(pointList, eraseContext)
-                })
-        )
-        return holder
+        moveEraseBuffer = MoveEraseBuffer(penBundle.actionScope) { points ->
+            dispatchMoveEraseBatch(points, eraseContext)
+        }
+    }
+
+    fun offerMoveErasePoint(point: TouchPoint) {
+        moveEraseBuffer?.onNext(point)
+    }
+
+    fun closeMoveEraseBuffer() {
+        moveEraseBuffer?.dispose()
+        moveEraseBuffer = null
     }
 
     fun onErasing(pointList: TouchPointList, eraseContext: EraseContext?) {
@@ -94,33 +85,39 @@ class EraseController(
         val eraseType = penBundle.getCurrentEraseType()
         when (eraseType) {
             EraseTypes.ERASER_MOVE -> {
-                submit(PenTask { pm: PenManager? ->
-                    performOverlayErasing(
-                        eraseContext, eraseArgs
-                    )
-                }, null)
+                submit { performOverlayErasing(eraseContext, eraseArgs) }
                 return
             }
 
             EraseTypes.ERASER_AREA -> {
-                submit(PenTask { pm: PenManager? -> beginAreaErasePreview(eraseArgs) }, null)
+                submit { beginAreaErasePreview(eraseArgs) }
                 return
             }
 
-            else -> submit(PenTask { pm: PenManager? -> performStrokeErasing(eraseArgs) }, null)
+            else -> submit { performStrokeErasing(eraseArgs) }
         }
     }
 
-    fun finish(eraseContext: EraseContext?, onFinished: Runnable?) {
+    private fun dispatchMoveEraseBatch(touchPoints: List<TouchPoint>, eraseContext: EraseContext) {
+        if (eraseContext.isFinishing() || touchPoints.isEmpty()) {
+            return
+        }
+        val pointList = TouchPointList()
+        for (touchPoint in touchPoints) {
+            pointList.add(TouchPoint(touchPoint))
+        }
+        onErasing(pointList, eraseContext)
+    }
+
+    fun finish(eraseContext: EraseContext?, onFinished: (() -> Unit)?) {
         val eraseType = penBundle.getCurrentEraseType()
         eraseContext?.setFinishing(true)
-        penManager.createObservable().map<PenManager?>(Function { pm: PenManager? ->
-            performFinish(eraseType, eraseContext)
-            pm
-        }).observeOn(AndroidSchedulers.mainThread()).subscribe(Consumer { _: PenManager? ->
+        penManager.launchPen(onSuccess = {
             lifecycleCallbacks.resumePenAfterErase()
-            onFinished?.run()
-        }, Consumer { error: Throwable? -> error?.printStackTrace() })
+            onFinished?.invoke()
+        }) {
+            performFinish(eraseType, eraseContext)
+        }
     }
 
     @Throws(Exception::class)
@@ -146,7 +143,7 @@ class EraseController(
             penManager.applyStrokeMoveErasePreviewParams()
         }
         if (shouldResumeRawDrawing(eraseType)) {
-            penManager.getEventBus().post(PenEvent.resumeRawDrawingImmediately())
+            PenCommands.resumeRawDrawing(true, true, 0)
         }
     }
 
@@ -397,21 +394,10 @@ class EraseController(
             .setShowEraseCircle(showCircle).setShowEraseLine(false)
     }
 
-    private fun submit(task: PenTask, onComplete: Runnable?) {
-        penManager.createObservable().map<PenManager?>(Function { pm: PenManager? ->
-            task.run(pm)
-            pm
-        }).observeOn(AndroidSchedulers.mainThread()).subscribe(Consumer { _: PenManager? ->
-            onComplete?.run()
-        }, Consumer { error: Throwable? -> error?.printStackTrace() })
-    }
-
-    private fun interface PenTask {
-        @Throws(Exception::class)
-        fun run(penManager: PenManager?)
-    }
-
-    companion object {
-        private const val MOVE_BUFFER_MS: Long = 50
+    private fun submit(
+        onComplete: (() -> Unit)? = null,
+        block: suspend PenManager.() -> Unit
+    ) {
+        penManager.launchPen(onSuccess = onComplete, block = block)
     }
 }

@@ -16,6 +16,7 @@ import android.view.View.OnLayoutChangeListener
 import android.widget.RadioButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import com.onyx.android.eink.pen.demo.R
 import com.onyx.android.eink.pen.demo.databinding.ActivityFingerTouchHelperDemoBinding
 import com.onyx.android.eink.pen.demo.scribble.broadcast.GlobalDeviceReceiver
@@ -32,15 +33,13 @@ import com.onyx.android.sdk.pen.PenUtils
 import com.onyx.android.sdk.pen.RawInputCallback
 import com.onyx.android.sdk.pen.TouchHelper
 import com.onyx.android.sdk.pen.data.TouchPointList
-import com.onyx.android.sdk.rx.RxManager
+import com.onyx.android.eink.pen.demo.scribble.ScribbleScheduler
+import kotlinx.coroutines.launch
 
 class ScribbleFingerTouchDemoActivity : AppCompatActivity() {
     private lateinit var binding: ActivityFingerTouchHelperDemoBinding
 
     private val deviceReceiver = GlobalDeviceReceiver()
-    private val rxManager: RxManager by lazy {
-        RxManager.Builder.sharedSingleThreadManager()
-    }
 
     private lateinit var touchHelper: TouchHelper
 
@@ -85,11 +84,9 @@ class ScribbleFingerTouchDemoActivity : AppCompatActivity() {
     }
 
     fun renderToScreen(surfaceView: SurfaceView?, bitmap: Bitmap?) {
-        rxManager.enqueue<RendererToScreenRequest?>(
-            RendererToScreenRequest(
-                surfaceView, bitmap
-            ), null
-        )
+        lifecycleScope.launch(ScribbleScheduler.dispatcher) {
+            RendererToScreenRequest(surfaceView, bitmap).execute()
+        }
     }
 
     private fun initPaint() {

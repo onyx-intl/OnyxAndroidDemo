@@ -1,24 +1,21 @@
 package com.onyx.android.eink.pen.demo.ui
 
-import android.app.Activity
 import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
-import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
-import android.view.View.OnTouchListener
 import android.widget.LinearLayout
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import com.onyx.android.eink.pen.demo.PenBundle
+import com.onyx.android.eink.pen.demo.PenCommands
 import com.onyx.android.eink.pen.demo.PenManager
 import com.onyx.android.eink.pen.demo.R
-import com.onyx.android.eink.pen.demo.action.ClearNoteAction
-import com.onyx.android.eink.pen.demo.action.CommonPenAction
-import com.onyx.android.eink.pen.demo.action.RefreshScreenAction
 import com.onyx.android.eink.pen.demo.databinding.ActivityPenDemoBinding
 import com.onyx.android.eink.pen.demo.erase.EraseLifecycleCallbacks
 import com.onyx.android.eink.pen.demo.erase.input.DrawEraseInputHandler
@@ -35,12 +32,6 @@ import com.onyx.android.eink.pen.demo.event.PenEvent
 import com.onyx.android.eink.pen.demo.event.PopupWindowChangeEvent
 import com.onyx.android.eink.pen.demo.event.StatusBarChangeEvent
 import com.onyx.android.eink.pen.demo.receiver.GlobalDeviceReceiver
-import com.onyx.android.eink.pen.demo.request.AddShapeRequest
-import com.onyx.android.eink.pen.demo.request.AttachNoteViewRequest
-import com.onyx.android.eink.pen.demo.request.BaseRequest
-import com.onyx.android.eink.pen.demo.request.PauseRawDrawingRenderRequest
-import com.onyx.android.eink.pen.demo.request.PauseRawInputRenderRequest
-import com.onyx.android.eink.pen.demo.request.ResumeRawDrawingRequest
 import com.onyx.android.eink.pen.demo.ui.popup.PenSettingPop
 import com.onyx.android.eink.pen.demo.ui.view.FloatingMenuDragHandler
 import com.onyx.android.eink.pen.demo.util.ShapeUtils
@@ -48,30 +39,28 @@ import com.onyx.android.sdk.api.device.epd.EpdController
 import com.onyx.android.sdk.api.device.epd.UpdateMode
 import com.onyx.android.sdk.pen.RawInputCallback
 import com.onyx.android.sdk.pen.data.TouchPointList
-import com.onyx.android.sdk.rx.RxCallback
-import com.onyx.android.sdk.rx.RxFilter
-import com.onyx.android.sdk.rx.RxManager
 import com.onyx.android.sdk.utils.BroadcastHelper
 import com.onyx.android.sdk.utils.EventBusUtils
 import com.onyx.android.sdk.utils.SystemPropertiesUtil
 import com.onyx.android.sdk.utils.ViewUtils
-import io.reactivex.functions.Function
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
-import java.util.function.Consumer
 
-class PenDemoActivity : Activity(), EraseLifecycleCallbacks {
+class PenDemoActivity : AppCompatActivity(), EraseLifecycleCallbacks {
     private lateinit var binding: ActivityPenDemoBinding
 
     private val deviceReceiver = GlobalDeviceReceiver()
-    private var rxManager: RxManager? = null
-    private val surfaceChangedFilter = RxFilter<Boolean?>()
+    private var surfaceAttachJob: Job? = null
 
     private var rawInputCallback: RawInputCallback? = null
     private var dragHandler: FloatingMenuDragHandler? = null
 
     private var statusBarShowing = false
     private var NotificationPanelShowing = false
+    private var popupShowing = false
     private var floatButtonActivated = false
     private var demoFloatMenuActivated = false
     private var hasFocus = true
@@ -85,8 +74,7 @@ class PenDemoActivity : Activity(), EraseLifecycleCallbacks {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding =
-            DataBindingUtil.setContentView(this, R.layout.activity_pen_demo)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_pen_demo)
 
         EpdController.enablePost(binding.root, 1)
         deviceReceiver.enable(this, true)
@@ -113,7 +101,7 @@ class PenDemoActivity : Activity(), EraseLifecycleCallbacks {
     }
 
     override fun onPause() {
-        runOnPenThread(Consumer { obj -> obj.releaseRawSession() })
+        runOnPenThread { it.releaseRawSession() }
         super.onPause()
     }
 
@@ -129,9 +117,9 @@ class PenDemoActivity : Activity(), EraseLifecycleCallbacks {
     }
 
     private fun destroyImpl() {
+        surfaceAttachJob?.cancel()
         this.penManager.destroy()
         this.penBundle.resetToolToBrushOnSessionEnd()
-        surfaceChangedFilter.dispose()
         deviceReceiver.enable(this, false)
         setNeedReceiveFloatButtonTouchStatus(false)
         EventBusUtils.ensureUnregister(this.penManager.getEventBus(), this)
@@ -143,22 +131,22 @@ class PenDemoActivity : Activity(), EraseLifecycleCallbacks {
     }
 
     private fun initSurfaceView() {
-        subscribeSurfaceChanged()
         val surfaceCallback: SurfaceHolder.Callback = object : SurfaceHolder.Callback {
             override fun surfaceCreated(holder: SurfaceHolder) {
+                scheduleRenderToSurfaceView()
             }
 
             override fun surfaceChanged(
                 holder: SurfaceHolder,
                 format: Int,
                 width: Int,
-                height: Int
+                height: Int,
             ) {
-                surfaceChangedFilter.onNext(true)
+                scheduleRenderToSurfaceView()
             }
 
             override fun surfaceDestroyed(holder: SurfaceHolder) {
-                runOnPenThread(Consumer { obj -> obj.releaseRawSession() })
+                runOnPenThread { it.releaseRawSession() }
             }
         }
         val surfaceHolder = this.surfaceView.holder
@@ -166,28 +154,25 @@ class PenDemoActivity : Activity(), EraseLifecycleCallbacks {
         surfaceHolder.addCallback(surfaceCallback)
     }
 
-    private fun runOnPenThread(action: Consumer<PenManager>) {
-        this.penManager.createObservable().map{ pm ->
-            action.accept(pm)
-            pm
-        }.subscribe(
-            { },
-            { t -> t.printStackTrace() })
+    private fun runOnPenThread(action: (PenManager) -> Unit) {
+        this.penManager.launchPen {
+            action(this)
+        }
     }
 
     private fun requestAttachNoteView() {
         val surfaceView = this.surfaceView
         if (surfaceView.width > 0 && surfaceView.height > 0) {
-            surfaceChangedFilter.onNext(true)
+            scheduleRenderToSurfaceView()
         }
     }
 
     private fun applyCurrentPenStateToScreen() {
         hasFocus = hasWindowFocus()
-        runOnPenThread(Consumer { pm ->
+        runOnPenThread { pm ->
             pm.applyCurrentPenState()
             pm.renderToScreen()
-        })
+        }
     }
 
     private fun initListener() {
@@ -283,12 +268,12 @@ class PenDemoActivity : Activity(), EraseLifecycleCallbacks {
         binding.eraseCheck.isChecked = true
         binding.floatMenuContainer.floatEraseCheck.isChecked = true
         val eraseSettingPop = EraseSettingPop(view.context).setPenBundle(this.penBundle)
-            .setOnChanged(Runnable { this.onEraseSettingChanged() })
+            .setOnChanged { this.onEraseSettingChanged() }
         showEraseSettingPop(view, eraseSettingPop)
     }
 
     private fun onClearButtonClickImpl(view: View?) {
-        ClearNoteAction().execute()
+        PenCommands.clearNote()
     }
 
     private fun onEraseSettingChanged() {
@@ -300,12 +285,9 @@ class PenDemoActivity : Activity(), EraseLifecycleCallbacks {
     }
 
     private fun applyToolSwitch() {
-        this.penManager.createObservable().map{ pm ->
-            pm.applyToolSwitchWithRefresh()
-            pm
-        }.subscribe(
-            { resumeAfterToolSwitch() },
-            { t -> t.printStackTrace() })
+        penManager.launchPen(onSuccess = { resumeAfterToolSwitch() }) {
+            applyToolSwitchWithRefresh()
+        }
     }
 
     private fun resumeAfterToolSwitch() {
@@ -339,64 +321,56 @@ class PenDemoActivity : Activity(), EraseLifecycleCallbacks {
         }
     }
 
-    private fun subscribeSurfaceChanged() {
-        surfaceChangedFilter.dispose()
-        surfaceChangedFilter.subscribeThrottleLast(
-            300, { renderToSurfaceView() })
+    private fun scheduleRenderToSurfaceView() {
+        surfaceAttachJob?.cancel()
+        surfaceAttachJob = lifecycleScope.launch {
+            delay(SURFACE_CHANGED_THROTTLE_MS)
+            renderToSurfaceView()
+        }
     }
 
     private fun renderToSurfaceView() {
         Log.e(TAG, "renderToSurfaceView")
-        getRxManager().enqueue(
-            AttachNoteViewRequest(this.penManager).setHostView(this.surfaceView)
-                .setFloatMenuLayout(this.floatMenuLayout).setCallback(getRawInputCallback()),
-            object : RxCallback<AttachNoteViewRequest?>() {
-                override fun onNext(request: AttachNoteViewRequest) {
-                    applyCurrentPenStateToScreen()
-
-                    dragHandler =
-                        FloatingMenuDragHandler(this@PenDemoActivity.floatMenuLayout)
-                            .setLimitRect(this@PenDemoActivity.penManager.getLimitNoteRect())
-                    this@PenDemoActivity.floatMenuLayout.setOnTouchListener(dragHandler)
-                }
-            })
+        lifecycleScope.launch {
+            hasFocus = hasWindowFocus()
+            PenCommands.attachNoteView(
+                surfaceView, floatMenuLayout, getRawInputCallback()
+            ).onSuccess { limitRect ->
+                dragHandler = FloatingMenuDragHandler(floatMenuLayout).setLimitRect(limitRect)
+                floatMenuLayout.setOnTouchListener(dragHandler)
+            }
+        }
     }
 
     private fun addShape(touchPointList: TouchPointList?) {
         val currentShapeType = this.penBundle.getCurrentShapeType()
         val shape = ShapeUtils.createShape(this.penBundle, currentShapeType, touchPointList)
-        val request = AddShapeRequest(this.penManager).setShape(shape).setPauseRawDraw(false)
-            .setRenderToScreen(false)
-        CommonPenAction(request).execute()
-    }
-
-    private fun pauseRawDrawing() {
-        pauseRawDrawingRender()
-        pauseRawInputReader()
+        PenCommands.addShape(shape)
     }
 
     private fun pauseRawDrawingRender() {
-        val request = PauseRawDrawingRenderRequest(this.penManager)
-        CommonPenAction(request).execute()
+        PenCommands.pauseRawDrawingRender()
     }
 
-    private fun pauseRawInputReader() {
-        val request = PauseRawInputRenderRequest(this.penManager)
-        CommonPenAction(request).execute()
+    private fun pauseRawDrawing() {
+        PenCommands.pauseRawDrawing()
+    }
+
+    private fun canResumePenOverlay(): Boolean {
+        return hasFocus && !statusBarShowing && !NotificationPanelShowing && !popupShowing && !floatButtonActivated && !demoFloatMenuActivated
     }
 
     private fun resumeRawDrawing(
         resumeRender: Boolean,
         resumeInput: Boolean,
-        delayResumePenTime: Int
+        delayResumePenTime: Int,
     ) { // SF erase track needs raw render while erase tool stays selected.
         val allowEraseRender = this.penBundle.isEraseTool() && EraserTrackHelper.useSfTrack(
             this.penBundle, this.penBundle.getCurrentEraseType()
         )
         val render =
-            resumeRender && (!this.penBundle.isErasing() || allowEraseRender) && hasFocus && !statusBarShowing && !NotificationPanelShowing && !floatButtonActivated && !demoFloatMenuActivated
-        val input =
-            resumeInput && hasFocus && !statusBarShowing && !NotificationPanelShowing && !floatButtonActivated && !demoFloatMenuActivated
+            resumeRender && (!this.penBundle.isErasing() || allowEraseRender) && canResumePenOverlay()
+        val input = resumeInput && canResumePenOverlay()
         if (!render && !input) {
             return
         }
@@ -406,12 +380,11 @@ class PenDemoActivity : Activity(), EraseLifecycleCallbacks {
     private fun resumeRawDrawingImpl(
         resumeRender: Boolean,
         resumeInput: Boolean,
-        delayResumePenTime: Int
+        delayResumePenTime: Int,
     ) {
-        val request =
-            ResumeRawDrawingRequest(this.penManager).setResumeRawDrawingRender(resumeRender)
-                .setResumeRawInputReader(resumeInput).setDelayResumePenTimeMs(delayResumePenTime)
-        CommonPenAction(request).execute()
+        PenCommands.resumeRawDrawing(
+            resumeRender, resumeInput, delayResumePenTime
+        )
     }
 
     override fun resumePenAfterErase() {
@@ -421,12 +394,10 @@ class PenDemoActivity : Activity(), EraseLifecycleCallbacks {
     private fun resumeRawDrawingAllowEraseRender(
         resumeRender: Boolean,
         resumeInput: Boolean,
-        delayResumePenTime: Int
+        delayResumePenTime: Int,
     ) {
-        val render =
-            resumeRender && hasFocus && !statusBarShowing && !NotificationPanelShowing && !floatButtonActivated && !demoFloatMenuActivated
-        val input =
-            resumeInput && hasFocus && !statusBarShowing && !NotificationPanelShowing && !floatButtonActivated && !demoFloatMenuActivated
+        val render = resumeRender && canResumePenOverlay()
+        val input = resumeInput && canResumePenOverlay()
         if (!render && !input) {
             return
         }
@@ -434,7 +405,7 @@ class PenDemoActivity : Activity(), EraseLifecycleCallbacks {
     }
 
     override fun refreshScreen() {
-        RefreshScreenAction().execute()
+        PenCommands.refreshScreen()
     }
 
     private fun applyApplicationFastMode(enable: Boolean) {
@@ -492,7 +463,7 @@ class PenDemoActivity : Activity(), EraseLifecycleCallbacks {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onPenEvent(event: PenEvent) {
-        if (!event.isResumeDrawingRender() && !event.isResumeRawInputReader()) { // Soft Eraser shortcut end: drop overlay before brush attrs are restored.
+        if (!event.isResumeDrawingRender() && !event.isResumeRawInputReader()) {
             pauseRawDrawingRender()
             return
         }
@@ -505,6 +476,7 @@ class PenDemoActivity : Activity(), EraseLifecycleCallbacks {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onPopupWindowChangeEvent(event: PopupWindowChangeEvent) {
+        popupShowing = event.show
         if (event.show) {
             pauseRawDrawing()
         } else {
@@ -521,24 +493,13 @@ class PenDemoActivity : Activity(), EraseLifecycleCallbacks {
     val penManager: PenManager
         get() = this.penBundle.getPenManager()
 
-    private fun getRxManager(): RxManager {
-        val existing = rxManager
-        if (existing != null) {
-            return existing
-        }
-        return RxManager.Builder.sharedSingleThreadManager().also { rxManager = it }
-    }
-
     private fun getRawInputCallback(): RawInputCallback {
         val existing = rawInputCallback
         if (existing != null) {
             return existing
         }
         return DrawEraseInputHandler(
-            this.penBundle,
-            this.penManager,
-            this,
-            object : ShapeCommitCallback {
+            this.penBundle, this.penManager, this, object : ShapeCommitCallback {
                 override fun onCommitShape(touchPointList: TouchPointList?) {
                     if (floatButtonActivated || demoFloatMenuActivated) {
                         Log.d(TAG, "FloatButton or demoFloatMenu activated, return")
@@ -547,8 +508,7 @@ class PenDemoActivity : Activity(), EraseLifecycleCallbacks {
                     Log.d(TAG, "onRawDrawingTouchPointListReceived")
                     addShape(touchPointList)
                 }
-            },
-            null
+            }, null
         ).also { rawInputCallback = it }
     }
 
@@ -557,5 +517,6 @@ class PenDemoActivity : Activity(), EraseLifecycleCallbacks {
         private const val ONYX_ACTION_REQUIRE_FLOAT_BUTTON_STATUS =
             "onyx.action.REQUIRE_FLOAT_BUTTON_STATUS"
         private const val ARGS_STATUS = "args_status"
+        private const val SURFACE_CHANGED_THROTTLE_MS = 300L
     }
 }

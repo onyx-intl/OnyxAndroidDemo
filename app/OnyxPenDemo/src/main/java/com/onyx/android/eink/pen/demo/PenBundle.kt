@@ -9,6 +9,9 @@ import com.onyx.android.eink.pen.demo.erase.util.EraseUnits
 import com.onyx.android.eink.pen.demo.erase.util.EraserTrackHelper
 import com.onyx.android.eink.pen.demo.util.PenInfoUtils
 import com.onyx.android.sdk.data.note.PenTexture
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import org.greenrobot.eventbus.EventBus
 
 class PenBundle private constructor() {
@@ -16,6 +19,8 @@ class PenBundle private constructor() {
 
     private var penManager: PenManager? = null
     private var eventBus: EventBus? = null
+    /** Main-thread scope for non-pen helpers (e.g. move-erase time window). Pen work uses [PenManager.launchPen]. */
+    val actionScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     private var currentShapeType: Int = ShapeFactory.SHAPE_BRUSH_SCRIBBLE
     private var currentStrokeColor: Int = Color.BLACK
