@@ -5,6 +5,8 @@
     <queries>
         <provider android:authorities="com.onyx.dict.DictionaryProvider" />
         <package android:name="com.onyx.dict" />
+        <provider android:authorities="com.onyx.content.database.ContentProvider" />
+        <package android:name="com.onyx.kreader" />
     </queries>
 
     <application
