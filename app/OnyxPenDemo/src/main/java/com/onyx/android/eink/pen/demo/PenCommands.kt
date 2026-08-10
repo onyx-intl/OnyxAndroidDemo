@@ -49,14 +49,17 @@ object PenCommands {
         texture: Int,
         onDone: (() -> Unit)? = null,
     ) {
+        val width = bundle.getPenLineWidth(shapeType)
         penManager.launchPen(onSuccess = onDone) {
             withPenPaused {
                 val strokeStyle = ShapeFactory.getStrokeStyle(shapeType, texture)
                 setStrokeStyle(strokeStyle)
                 applyStrokeParameters(shapeType, strokeStyle)
+                setStrokeWidth(width)
             }
             bundle.setCurrentShapeType(shapeType)
             bundle.setCurrentTexture(texture)
+            bundle.setCurrentStrokeWidth(width)
         }
     }
 

@@ -18,6 +18,7 @@ import com.onyx.android.eink.pen.demo.util.ShapeUtils
 import com.onyx.android.sdk.data.note.TouchPoint
 import com.onyx.android.sdk.pen.data.TouchPointList
 import com.onyx.android.sdk.utils.RectUtils
+import kotlin.math.max
 
 class EraseController(
     private val penBundle: PenBundle,
@@ -25,6 +26,8 @@ class EraseController(
     private val lifecycleCallbacks: EraseLifecycleCallbacks
 ) {
     private var moveEraseBuffer: MoveEraseBuffer? = null
+    /** Bridges 50ms erase batches so hit-test doesn't skip shapes between windows. */
+    private var lastEraseBatchPoint: TouchPoint? = null
 
     fun begin(
         point: TouchPoint,
@@ -63,6 +66,7 @@ class EraseController(
         if (penBundle.getCurrentEraseType() == EraseTypes.ERASER_AREA) {
             return
         }
+        lastEraseBatchPoint = null
         moveEraseBuffer = MoveEraseBuffer(penBundle.actionScope) { points ->
             dispatchMoveEraseBatch(points, eraseContext)
         }
@@ -75,6 +79,7 @@ class EraseController(
     fun closeMoveEraseBuffer() {
         moveEraseBuffer?.dispose()
         moveEraseBuffer = null
+        lastEraseBatchPoint = null
     }
 
     fun onErasing(pointList: TouchPointList, eraseContext: EraseContext?) {
@@ -103,9 +108,11 @@ class EraseController(
             return
         }
         val pointList = TouchPointList()
+        lastEraseBatchPoint?.let { pointList.add(TouchPoint(it)) }
         for (touchPoint in touchPoints) {
             pointList.add(TouchPoint(touchPoint))
         }
+        lastEraseBatchPoint = touchPoints.last()
         onErasing(pointList, eraseContext)
     }
 
@@ -181,6 +188,7 @@ class EraseController(
         if (trackPoints == null || trackPoints.isEmpty()) {
             return
         }
+        val densifiedTrack = densifyTouchPoints(trackPoints.points, eraseArgs.drawRadius)
         val eraseRect = ShapeUtils.getBoundingRect(trackPoints)
         if (eraseRect == null) {
             return
@@ -200,7 +208,7 @@ class EraseController(
                 continue
             }
             val hitPoints: MutableList<TouchPoint> = ArrayList()
-            for (erasePoint in trackPoints.getPoints()) {
+            for (erasePoint in densifiedTrack) {
                 if (removed.contains(shape)) {
                     break
                 }
@@ -387,11 +395,48 @@ class EraseController(
         val eraseWidth = penBundle.getEraseWidth(eraseType)
         val drawRadius = eraseWidth / 2f
         val showCircle = EraserTrackHelper.useAppTrack(penBundle, eraseType)
-        val wholeTrack = if (eraseContext != null) eraseContext.getWholeEraseTrackPoints()
-        else pointList
+        val wholeTrack = eraseContext?.getWholeEraseTrackPoints() ?: pointList
         return EraseArgs().setEraserWidth(eraseWidth).setEraseTrackPoints(pointList)
             .setWholeEraseTrackPoints(wholeTrack).setDrawRadius(drawRadius)
             .setShowEraseCircle(showCircle).setShowEraseLine(false)
+    }
+
+    private fun densifyTouchPoints(
+        points: List<TouchPoint>?,
+        step: Float
+    ): List<TouchPoint> {
+        if (points.isNullOrEmpty()) {
+            return emptyList()
+        }
+        val sampleStep = max(step, 1f)
+        val densified = ArrayList<TouchPoint>()
+        var prev = points[0]
+        densified.add(prev)
+        for (i in 1 until points.size) {
+            val cur = points[i]
+            val dx = cur.x - prev.x
+            val dy = cur.y - prev.y
+            val dist = kotlin.math.sqrt((dx * dx + dy * dy).toDouble()).toFloat()
+            val samples = max(1, kotlin.math.ceil((dist / sampleStep).toDouble()).toInt())
+            for (s in 1..samples) {
+                val t = s.toFloat() / samples
+                if (s == samples) {
+                    densified.add(cur)
+                } else {
+                    densified.add(
+                        TouchPoint(
+                            prev.x + dx * t,
+                            prev.y + dy * t,
+                            cur.pressure,
+                            cur.size,
+                            cur.timestamp
+                        )
+                    )
+                }
+            }
+            prev = cur
+        }
+        return densified
     }
 
     private fun submit(

@@ -9,6 +9,7 @@ import com.onyx.android.eink.pen.demo.helper.RendererHelper
 import com.onyx.android.sdk.pen.PenUtils
 import com.onyx.android.sdk.pen.data.TouchPointList
 import com.onyx.android.sdk.utils.ResManager
+import kotlin.math.max
 import kotlin.math.sqrt
 
 open class Shape {
@@ -136,10 +137,28 @@ open class Shape {
     }
 
     fun hitTestPoints(pointList: TouchPointList, radius: Float): Boolean {
-        for (touchPoint in pointList.points) {
-            if (hitTest(touchPoint.x, touchPoint.y, radius)) {
-                return true
+        val points = pointList.points
+        if (points.isNullOrEmpty()) {
+            return false
+        }
+        var prev = points[0] ?: return false
+        if (hitTest(prev.x, prev.y, radius)) {
+            return true
+        }
+        val step = max(radius, 1f)
+        for (i in 1 until points.size) {
+            val cur = points[i] ?: continue
+            val dx = cur.x - prev.x
+            val dy = cur.y - prev.y
+            val dist = sqrt((dx * dx + dy * dy).toDouble()).toFloat()
+            val samples = max(1, kotlin.math.ceil((dist / step).toDouble()).toInt())
+            for (s in 1..samples) {
+                val t = s.toFloat() / samples
+                if (hitTest(prev.x + dx * t, prev.y + dy * t, radius)) {
+                    return true
+                }
             }
+            prev = cur
         }
         return false
     }

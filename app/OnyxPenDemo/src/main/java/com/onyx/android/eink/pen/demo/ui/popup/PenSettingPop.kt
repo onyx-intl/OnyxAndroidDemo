@@ -224,7 +224,7 @@ class PenSettingPop(context: Context?) : BasePopup(context) {
             ) {
                 initSeekBar()
                 initTextureList()
-                updateStrokeWidth(penBundle.getPenLineWidth(shapeType.getValue()))
+                updateStrokeWidth(penBundle.getPenLineWidth(shapeType.getValue()), true)
             }
         }
 
