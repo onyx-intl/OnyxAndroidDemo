@@ -23,7 +23,7 @@ android {
         }
 
         ndk {
-            abiFilters "armeabi-v7a"
+            abiFilters "arm64-v8a", "armeabi-v7a"
         }
     }
     buildTypes {
@@ -54,8 +54,8 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
 
-    implementation('com.onyx.android.sdk:onyxsdk-device:1.3.5')
-    implementation('com.onyx.android.sdk:onyxsdk-pen:1.5.4')
+    implementation('com.onyx.android.sdk:onyxsdk-device:1.3.5.3')
+    implementation('com.onyx.android.sdk:onyxsdk-pen:1.5.4.4')
 
     implementation 'org.lsposed.hiddenapibypass:hiddenapibypass:4.3'
 

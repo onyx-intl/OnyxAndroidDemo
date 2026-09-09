@@ -65,7 +65,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation "androidx.recyclerview:recyclerview:1.0.0"
 
-    implementation('com.onyx.android.sdk:onyxsdk-pen:1.5.4')
+    implementation('com.onyx.android.sdk:onyxsdk-pen:1.5.4.4')
     implementation 'org.lsposed.hiddenapibypass:hiddenapibypass:4.3'
 
 }
