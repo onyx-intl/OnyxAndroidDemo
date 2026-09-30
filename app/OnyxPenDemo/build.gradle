@@ -1,17 +1,18 @@
 apply plugin: 'com.android.application'
+apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
-    compileSdkVersion 30
-    buildToolsVersion "29.0.3"
+    namespace = 'com.onyx.android.eink.pen.demo'
+    compileSdk = rootProject.ext.compileSdk
 
     defaultConfig {
-        applicationId "com.android.onyx.eink.pen.demo"
-        minSdkVersion 26
-        targetSdkVersion 30
-        versionCode 1
-        versionName "1.0"
-        multiDexEnabled true
-        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+        applicationId = "com.android.onyx.eink.pen.demo"
+        minSdk = 26
+        targetSdk = rootProject.ext.targetSdk
+        versionCode = 1
+        versionName = "1.0"
+        multiDexEnabled = true
+        testInstrumentationRunner = 'androidx.test.runner.AndroidJUnitRunner'
 
         ndk {
             abiFilters "armeabi-v7a", "arm64-v8a"
@@ -19,46 +20,53 @@ android {
 
         sourceSets.main {
             aidl.srcDirs = ['src/main/java']
-            jniLibs.srcDir 'src/main/libs' //set libs as .so's location instead of jniLibs
-            jni.srcDirs = [] //disable automatic ndk-build call with auto-generated Android.mk
+            jniLibs.srcDir 'src/main/libs'
+            jni.srcDirs = []
         }
-
     }
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled = false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 
     compileOptions {
-
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility = rootProject.ext.javaVersion
+        targetCompatibility = rootProject.ext.javaVersion
     }
 
-    dataBinding {
-        enabled = true
+    buildFeatures {
+        dataBinding = true
+        aidl = true
     }
 
-    packagingOptions {
-        exclude 'META-INF/DEPENDENCIES'
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/license.txt'
-        exclude 'META-INF/NOTICE'
-        exclude 'META-INF/NOTICE.txt'
-        exclude 'META-INF/notice.txt'
-        exclude 'META-INF/ASL2.0'
-        pickFirst 'lib/*/libc++_shared.so'
-        exclude 'lib/*/libc++.so'
+    packaging {
+        resources {
+            excludes += [
+                    'META-INF/DEPENDENCIES',
+                    'META-INF/LICENSE',
+                    'META-INF/LICENSE.txt',
+                    'META-INF/license.txt',
+                    'META-INF/NOTICE',
+                    'META-INF/NOTICE.txt',
+                    'META-INF/notice.txt',
+                    'META-INF/ASL2.0'
+            ]
+        }
+        jniLibs {
+            pickFirsts += ['lib/*/libc++_shared.so']
+            excludes += ['lib/*/libc++.so']
+        }
     }
 
-    lintOptions {
-        abortOnError false
+    lint {
+        abortOnError = false
     }
-
+    kotlinOptions {
+        jvmTarget = '17'
+    }
 }
 
 dependencies {
@@ -68,4 +76,6 @@ dependencies {
     implementation('com.onyx.android.sdk:onyxsdk-pen:1.5.4.4')
     implementation 'org.lsposed.hiddenapibypass:hiddenapibypass:4.3'
 
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${rootProject.ext.coroutines_version}"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:${rootProject.ext.lifecycle_runtime_ktx_version}"
 }
